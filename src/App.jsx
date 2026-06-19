@@ -564,6 +564,14 @@ function CareerTab() {
   )
 }
 
+// Build variant: the public site omits "Retirement Guardian"; the private build
+// (set VITE_INCLUDE_RG=1 at build time) includes it.
+const INCLUDE_RETIREMENT_GUARDIAN =
+  import.meta.env.VITE_INCLUDE_RG === '1' || import.meta.env.VITE_INCLUDE_RG === 'true'
+const visibleApps = INCLUDE_RETIREMENT_GUARDIAN
+  ? apps
+  : apps.filter((app) => app.name !== 'Retirement Guardian')
+
 function ApplicationTab() {
   return (
     <>
@@ -580,7 +588,7 @@ function ApplicationTab() {
       </div>
       <div className="section">
         <div className="cardgrid">
-          {apps.map((app) => {
+          {visibleApps.map((app) => {
             const live = app.status !== 'dev'
             return (
             <div className="itemcard reveal" key={app.name}>
@@ -1444,10 +1452,14 @@ function App() {
   }, [currentTrack, shouldPlay])
 
   // ── Pause when the browser tab is hidden; resume when visible again ──
+  // Only on mobile — on laptop/desktop the music keeps playing across browser
+  // tabs (large screens don't aggressively background-throttle audio).
   useEffect(() => {
     const onVisibility = () => {
       const el = audioRef.current
       if (!el) return
+      const isMobile = window.matchMedia('(max-width: 720px)').matches
+      if (!isMobile) return
       if (document.hidden) {
         // Pause if currently playing, and remember we were playing.
         if (!el.paused) {
