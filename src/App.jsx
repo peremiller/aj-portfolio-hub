@@ -46,8 +46,8 @@ const profile = {
 const stats = [
   { value: `${experienceYears}+`, label: 'Years in QA & delivery' },
   { value: '20+', label: 'Engineers led' },
-  { value: '95%', label: 'Accessibility compliance' },
-  { value: '5', label: 'Industries served' },
+  { value: '95%', label: ['Accessibility', 'compliance'] },
+  { value: '5', label: ['Industries', 'served'] },
 ]
 
 const aboutParagraphs = [
@@ -184,7 +184,7 @@ const certifications = [
     issuer: 'The Council for Six Sigma Certification',
     date: 'Issued Jan 2026',
     credential: 'Credential ID 111739364',
-    skills: 'Six Sigma · Lean Six Sigma (+2 more)',
+    skills: 'Six Sigma · Lean Six Sigma',
   },
   { title: 'Salesforce Certified Associate' },
   { title: 'CPACC — Certified Professional in Accessibility Core Competencies' },
@@ -405,10 +405,19 @@ function CareerTab() {
             </a>
           </div>
           <div className="hero__stats">
-            {stats.map((stat) => (
-              <div className="stat" key={stat.label}>
+            {stats.map((stat, i) => (
+              <div className="stat" key={i}>
                 <div className="stat__value">{stat.value}</div>
-                <div className="stat__label">{stat.label}</div>
+                <div className="stat__label">
+                  {Array.isArray(stat.label) ? (
+                    <>
+                      {stat.label[0]} <br className="stat-br" />
+                      {stat.label[1]}
+                    </>
+                  ) : (
+                    stat.label
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -475,10 +484,10 @@ function CareerTab() {
         </div>
       </Section>
 
-      <Section id="recognition" kicker="05 — Recognition" title="Credentials & honors">
+      <Section id="recognition" kicker="05 — Recognition" title="Credentials & Honors">
         <div className="creds">
           <div className="creds__col">
-            <h3 className="creds__heading">Licenses &amp; certifications</h3>
+            <h3 className="creds__heading">Licenses &amp; Certifications</h3>
             <ul className="credlist">
               {certifications.map((c) => (
                 <li className="credlist__item" key={c.title}>
@@ -509,7 +518,7 @@ function CareerTab() {
         </div>
 
         <div className="honors">
-          <h3 className="creds__heading">Honors &amp; awards</h3>
+          <h3 className="creds__heading">Honors &amp; Awards</h3>
           <div className="honorsgrid">
             {honors.map((h) => (
               <div className="honor" key={h.title}>
@@ -1025,7 +1034,8 @@ function App() {
   // and do NOT show the bar (it appears only after the first user click).
   useEffect(() => {
     if (!queue.length && songs.length) {
-      setQueue([songs[0]])
+      const def = songs.find((s) => s.title === 'Breathe With the Light') || songs[0]
+      setQueue([def])
       setQueueIndex(0)
     }
   }, [songs, queue.length])
