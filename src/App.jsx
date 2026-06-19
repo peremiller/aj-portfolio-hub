@@ -576,7 +576,7 @@ function PlaylistCover({ image, name }) {
   )
 }
 
-function MusicTab({ songs, playlists, loading, currentSong, onPlay }) {
+function MusicTab({ songs, playlists, loading, currentTrack, activePlaylistId, onPlaySong, onPlayPlaylist }) {
   return (
     <>
       <div className="tabhero">
@@ -607,21 +607,45 @@ function MusicTab({ songs, playlists, loading, currentSong, onPlay }) {
         <h2 className="musicsub__title">Playlists</h2>
         <p className="musicsub__count">{playlists.length} playlists</p>
         <div className="plgrid">
-          {playlists.map((pl) => (
-            <a
-              className="plcard reveal"
-              key={pl.id}
-              href={pl.url}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <PlaylistCover image={pl.image} name={pl.name} />
-              <div className="plcard__body">
-                <p className="plcard__name">{pl.name}</p>
-                <p className="plcard__meta">{pl.count} tracks</p>
+          {playlists.map((pl) => {
+            const active = activePlaylistId && activePlaylistId === pl.id
+            return (
+              <div
+                className={`plcard reveal${active ? ' plcard--active' : ''}`}
+                key={pl.id}
+              >
+                <button
+                  type="button"
+                  className="plcard__play"
+                  onClick={() => onPlayPlaylist(pl)}
+                  aria-label={`Play ${pl.name}`}
+                >
+                  <PlaylistCover image={pl.image} name={pl.name} />
+                  <span className="plcard__playicon" aria-hidden="true">▶</span>
+                </button>
+                <div className="plcard__body">
+                  <button
+                    type="button"
+                    className="plcard__namebtn"
+                    onClick={() => onPlayPlaylist(pl)}
+                  >
+                    <span className="plcard__name">{pl.name}</span>
+                  </button>
+                  <div className="plcard__foot">
+                    <p className="plcard__meta">{pl.count} tracks</p>
+                    <a
+                      className="plcard__suno"
+                      href={pl.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Suno ↗
+                    </a>
+                  </div>
+                </div>
               </div>
-            </a>
-          ))}
+            )
+          })}
         </div>
       </div>
 
@@ -630,7 +654,7 @@ function MusicTab({ songs, playlists, loading, currentSong, onPlay }) {
         <p className="musicsub__count">{songs.length} songs</p>
         <div className="songgrid">
           {songs.map((song) => {
-            const active = currentSong && currentSong.id === song.id
+            const active = currentTrack && currentTrack.id === song.id
             return (
               <div
                 className={`songcard reveal${active ? ' songcard--active' : ''}`}
@@ -639,7 +663,7 @@ function MusicTab({ songs, playlists, loading, currentSong, onPlay }) {
                 <button
                   type="button"
                   className="songcard__play"
-                  onClick={() => onPlay(song)}
+                  onClick={() => onPlaySong(song)}
                   aria-label={`Play ${song.title}`}
                 >
                   <img
@@ -654,7 +678,7 @@ function MusicTab({ songs, playlists, loading, currentSong, onPlay }) {
                   <button
                     type="button"
                     className="songcard__titlebtn"
-                    onClick={() => onPlay(song)}
+                    onClick={() => onPlaySong(song)}
                   >
                     <span className="songcard__title">{song.title}</span>
                   </button>
@@ -682,7 +706,7 @@ function MusicTab({ songs, playlists, loading, currentSong, onPlay }) {
   )
 }
 
-function NowPlayingBar({ song, audioRef, onClose }) {
+function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPrev, hasNext, multi, position }) {
   return (
     <div className="player">
       <button
@@ -702,8 +726,25 @@ function NowPlayingBar({ song, audioRef, onClose }) {
             loading="lazy"
           />
           <div className="player__meta">
-            <p className="player__nowplaying">Now Playing</p>
-            <p className="player__title">{song.title}</p>
+            <div className="player__metahead">
+              <div>
+                <p className="player__nowplaying">
+                  Now Playing{multi && position ? ` · ${position}` : ''}
+                </p>
+                <p className="player__title">{song.title}</p>
+              </div>
+              {song.url && (
+                <a
+                  className="player__suno"
+                  href={song.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="Open in Suno"
+                >
+                  Open in Suno ↗
+                </a>
+              )}
+            </div>
             {styleLine(song.tags) && (
               <p className="player__style">{styleLine(song.tags)}</p>
             )}
@@ -715,9 +756,32 @@ function NowPlayingBar({ song, audioRef, onClose }) {
                 src={song.audio}
                 controls
                 preload="none"
+                onEnded={onEnded}
               />
             ) : (
               <p className="player__noaudio">No audio available for this track.</p>
+            )}
+            {multi && (
+              <div className="player__controls">
+                <button
+                  type="button"
+                  className="player__skip"
+                  onClick={onPrev}
+                  disabled={!hasPrev}
+                  aria-label="Previous track"
+                >
+                  ⏮ Prev
+                </button>
+                <button
+                  type="button"
+                  className="player__skip"
+                  onClick={onNext}
+                  disabled={!hasNext}
+                  aria-label="Next track"
+                >
+                  Next ⏭
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -740,11 +804,16 @@ function App() {
   const [musicData, setMusicData] = useState(sunoFallback)
   const [musicLoading, setMusicLoading] = useState(true)
   const audioRef = useRef(null)
-  const [currentSong, setCurrentSong] = useState(null)
+  const [queue, setQueue] = useState([])
+  const [queueIndex, setQueueIndex] = useState(0)
+  const [activePlaylistId, setActivePlaylistId] = useState(null)
   const [shouldPlay, setShouldPlay] = useState(false)
   const [playerVisible, setPlayerVisible] = useState(false)
+  // Remember whether audio was playing when the browser tab was hidden.
+  const wasPlayingOnHide = useRef(false)
 
   const { songs = [], playlists = [] } = musicData
+  const currentTrack = queue[queueIndex] || null
 
   // Fetch the Suno catalog once at app start; fall back to bundled JSON.
   useEffect(() => {
@@ -775,30 +844,112 @@ function App() {
   // Default the player to the first song once data loads, but do NOT autoplay
   // and do NOT show the bar (it appears only after the first user click).
   useEffect(() => {
-    if (!currentSong && songs.length) {
-      setCurrentSong(songs[0])
+    if (!queue.length && songs.length) {
+      setQueue([songs[0]])
+      setQueueIndex(0)
     }
-  }, [songs, currentSong])
+  }, [songs, queue.length])
 
-  // Play only when a song was selected via a user click (shouldPlay flag).
+  // Play only when a track was selected via a user click (shouldPlay flag).
+  // Re-runs whenever the active track changes (queueIndex) so auto-advance
+  // and prev/next start playback of the newly selected track.
   useEffect(() => {
     if (!shouldPlay) return
     const el = audioRef.current
-    if (el && currentSong && currentSong.audio) {
+    if (el && currentTrack && currentTrack.audio) {
       const p = el.play()
       if (p && typeof p.catch === 'function') p.catch(() => {})
     }
-  }, [currentSong, shouldPlay])
+  }, [currentTrack, shouldPlay])
 
-  const onPlay = (song) => {
+  // ── Pause when the browser tab is hidden; resume when visible again ──
+  useEffect(() => {
+    const onVisibility = () => {
+      const el = audioRef.current
+      if (!el) return
+      if (document.hidden) {
+        // Pause if currently playing, and remember we were playing.
+        if (!el.paused) {
+          wasPlayingOnHide.current = true
+          try {
+            el.pause()
+          } catch {
+            // ignore
+          }
+        } else {
+          wasPlayingOnHide.current = false
+        }
+      } else if (wasPlayingOnHide.current) {
+        // Resume only if it was playing at the moment it was hidden.
+        wasPlayingOnHide.current = false
+        const p = el.play()
+        if (p && typeof p.catch === 'function') p.catch(() => {})
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [])
+
+  // Play a single song → one-track queue.
+  const onPlaySong = (song) => {
     setShouldPlay(true)
-    setCurrentSong(song)
+    setActivePlaylistId(null)
+    setQueue([song])
+    setQueueIndex(0)
     setPlayerVisible(true)
+  }
+
+  // Play a playlist → resolve its tracks, queue them, play the first.
+  const onPlayPlaylist = async (playlist) => {
+    let tracks = Array.isArray(playlist.tracks) ? playlist.tracks : []
+    if (!tracks.length) {
+      try {
+        const res = await fetch('/api/playlist?id=' + encodeURIComponent(playlist.id))
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const json = await res.json()
+        tracks = Array.isArray(json && json.tracks) ? json.tracks : []
+      } catch {
+        // Fall back to opening the playlist on Suno.
+        if (playlist.url) window.open(playlist.url, '_blank', 'noreferrer')
+        return
+      }
+    }
+    if (!tracks.length) {
+      if (playlist.url) window.open(playlist.url, '_blank', 'noreferrer')
+      return
+    }
+    setShouldPlay(true)
+    setActivePlaylistId(playlist.id)
+    setQueue(tracks)
+    setQueueIndex(0)
+    setPlayerVisible(true)
+  }
+
+  const playPrev = () => {
+    setQueueIndex((i) => (i > 0 ? i - 1 : i))
+    setShouldPlay(true)
+  }
+
+  const playNext = () => {
+    setQueueIndex((i) => (i < queue.length - 1 ? i + 1 : i))
+    setShouldPlay(true)
+  }
+
+  // Auto-advance when the current track ends; stop at the end of the queue.
+  const onTrackEnded = () => {
+    setQueueIndex((i) => {
+      if (i < queue.length - 1) {
+        setShouldPlay(true)
+        return i + 1
+      }
+      return i
+    })
   }
 
   const closePlayer = () => {
     setPlayerVisible(false)
     setShouldPlay(false)
+    wasPlayingOnHide.current = false
     const el = audioRef.current
     if (el) {
       try {
@@ -885,11 +1036,18 @@ function App() {
         </button>
       </nav>
 
-      {playerVisible && currentSong && (
+      {playerVisible && currentTrack && (
         <NowPlayingBar
-          song={currentSong}
+          song={currentTrack}
           audioRef={audioRef}
           onClose={closePlayer}
+          onEnded={onTrackEnded}
+          onPrev={playPrev}
+          onNext={playNext}
+          hasPrev={queueIndex > 0}
+          hasNext={queueIndex < queue.length - 1}
+          multi={queue.length > 1}
+          position={`${queueIndex + 1} / ${queue.length}`}
         />
       )}
 
@@ -902,8 +1060,10 @@ function App() {
             songs={songs}
             playlists={playlists}
             loading={musicLoading}
-            currentSong={currentSong}
-            onPlay={onPlay}
+            currentTrack={currentTrack}
+            activePlaylistId={activePlaylistId}
+            onPlaySong={onPlaySong}
+            onPlayPlaylist={onPlayPlaylist}
           />
         )}
       </main>
