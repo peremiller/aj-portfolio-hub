@@ -28,6 +28,8 @@ function mapSong(clip) {
     id: clip.id,
     url: `https://suno.com/song/${clip.id}`,
     image: clip.image_large_url || clip.image_url || '',
+    audio: clip.audio_url || '',
+    lyrics: meta.prompt || '',
     tags: meta.tags || '',
     plays: clip.play_count ?? 0,
     likes: clip.upvote_count ?? 0,

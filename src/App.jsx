@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import sunoFallback from './suno.json'
 
 function AppFavicon({ url, name }) {
@@ -269,6 +269,11 @@ const apps = [
     url: 'https://job-portal-beta-rose.vercel.app',
     status: 'dev',
   },
+  {
+    name: 'Blockchain Problems',
+    desc: 'Interactive data-visualization of the top problems facing the blockchain industry.',
+    url: 'https://blockchain-problems.vercel.app/',
+  },
 ]
 
 const TABS = ['Career', 'Application', 'Telegram Bot', 'Music']
@@ -342,7 +347,7 @@ function CareerTab() {
             <a className="btn btn--ghost" href="#experience">
               View experience
             </a>
-            <a className="btn btn--ghost" href={profile.resumeUrl} target="_blank" rel="noreferrer">
+            <a className="btn btn--ghost hide-mobile" href={profile.resumeUrl} target="_blank" rel="noreferrer">
               Résumé
             </a>
           </div>
@@ -527,10 +532,10 @@ function TelegramBotTab() {
             const live = bot.status === 'live'
             return (
               <div className="itemcard reveal" key={bot.handle}>
-                <div className="itemcard__top">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="itemcard__top itemcard__top--bot">
+                  <div className="itemcard__lead">
                     <span className="itemcard__mark"><PlaneIcon /></span>
-                    <div>
+                    <div className="itemcard__namewrap">
                       <h3>{bot.name}</h3>
                       <p className="itemcard__handle">{bot.handle}</p>
                     </div>
@@ -601,6 +606,33 @@ function MusicTab() {
   }, [])
 
   const { songs = [], playlists = [] } = data
+
+  const audioRef = useRef(null)
+  const [currentSong, setCurrentSong] = useState(null)
+  const [shouldPlay, setShouldPlay] = useState(false)
+
+  // Default the player to the first song once data loads, but do NOT autoplay.
+  useEffect(() => {
+    if (!currentSong && songs.length) {
+      setCurrentSong(songs[0])
+    }
+  }, [songs, currentSong])
+
+  // Play only when a song was selected via a user click (shouldPlay flag).
+  useEffect(() => {
+    if (!shouldPlay) return
+    const el = audioRef.current
+    if (el && currentSong && currentSong.audio) {
+      const p = el.play()
+      if (p && typeof p.catch === 'function') p.catch(() => {})
+    }
+  }, [currentSong, shouldPlay])
+
+  const playSong = (song) => {
+    setShouldPlay(true)
+    setCurrentSong(song)
+  }
+
   return (
     <>
       <div className="tabhero">
@@ -619,6 +651,45 @@ function MusicTab() {
           </div>
         </div>
       </div>
+
+      {currentSong && (
+        <div className="player">
+          <div className="player__inner">
+            <div className="player__left">
+              <img
+                className="player__cover"
+                src={currentSong.image}
+                alt={currentSong.title}
+                loading="lazy"
+              />
+              <div className="player__meta">
+                <p className="player__nowplaying">Now Playing</p>
+                <p className="player__title">{currentSong.title}</p>
+                {styleLine(currentSong.tags) && (
+                  <p className="player__style">{styleLine(currentSong.tags)}</p>
+                )}
+                {currentSong.audio ? (
+                  <audio
+                    ref={audioRef}
+                    className="player__audio"
+                    key={currentSong.id}
+                    src={currentSong.audio}
+                    controls
+                    preload="none"
+                  />
+                ) : (
+                  <p className="player__noaudio">No audio available for this track.</p>
+                )}
+              </div>
+            </div>
+            <div className="player__lyrics">
+              {currentSong.lyrics
+                ? currentSong.lyrics
+                : 'No lyrics for this track.'}
+            </div>
+          </div>
+        </div>
+      )}
 
       {loading && (
         <div className="musicloading" role="status">
@@ -653,29 +724,53 @@ function MusicTab() {
         <h2 className="musicsub__title">Songs</h2>
         <p className="musicsub__count">{songs.length} songs</p>
         <div className="songgrid">
-          {songs.map((song) => (
-            <a
-              className="songcard reveal"
-              key={song.id}
-              href={song.url}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <img
-                className="songcard__cover"
-                src={song.image}
-                alt={song.title}
-                loading="lazy"
-              />
-              <div className="songcard__body">
-                <p className="songcard__title">{song.title}</p>
-                {styleLine(song.tags) && (
-                  <p className="songcard__style">{styleLine(song.tags)}</p>
-                )}
-                <p className="songcard__meta">{song.plays} plays</p>
+          {songs.map((song) => {
+            const active = currentSong && currentSong.id === song.id
+            return (
+              <div
+                className={`songcard reveal${active ? ' songcard--active' : ''}`}
+                key={song.id}
+              >
+                <button
+                  type="button"
+                  className="songcard__play"
+                  onClick={() => playSong(song)}
+                  aria-label={`Play ${song.title}`}
+                >
+                  <img
+                    className="songcard__cover"
+                    src={song.image}
+                    alt={song.title}
+                    loading="lazy"
+                  />
+                  <span className="songcard__playicon" aria-hidden="true">▶</span>
+                </button>
+                <div className="songcard__body">
+                  <button
+                    type="button"
+                    className="songcard__titlebtn"
+                    onClick={() => playSong(song)}
+                  >
+                    <span className="songcard__title">{song.title}</span>
+                  </button>
+                  {styleLine(song.tags) && (
+                    <p className="songcard__style">{styleLine(song.tags)}</p>
+                  )}
+                  <div className="songcard__foot">
+                    <p className="songcard__meta">{song.plays} plays</p>
+                    <a
+                      className="songcard__suno"
+                      href={song.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Suno ↗
+                    </a>
+                  </div>
+                </div>
               </div>
-            </a>
-          ))}
+            )
+          })}
         </div>
       </div>
     </>
@@ -742,28 +837,26 @@ function App() {
           <span className="hubbar__mark">MP</span>
           <span className="hubbar__name">{profile.name}</span>
         </button>
-        <div className="hubbar__right">
-          <div className="hubtabs">
-            {TABS.map((t) => (
-              <button
-                key={t}
-                className={`hubtab${tab === t ? ' hubtab--active' : ''}`}
-                onClick={() => setTab(t)}
-                aria-current={tab === t ? 'page' : undefined}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-          <button
-            className="themetoggle"
-            onClick={toggleTheme}
-            aria-label="Toggle dark mode"
-            title="Toggle dark mode"
-          >
-            {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-          </button>
+        <div className="hubtabs">
+          {TABS.map((t) => (
+            <button
+              key={t}
+              className={`hubtab${tab === t ? ' hubtab--active' : ''}`}
+              onClick={() => setTab(t)}
+              aria-current={tab === t ? 'page' : undefined}
+            >
+              {t}
+            </button>
+          ))}
         </div>
+        <button
+          className="themetoggle"
+          onClick={toggleTheme}
+          aria-label="Toggle dark mode"
+          title="Toggle dark mode"
+        >
+          {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+        </button>
       </nav>
 
       <main className="hubmain">
