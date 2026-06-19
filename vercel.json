@@ -28,7 +28,9 @@
       "source": "/api/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Robots-Tag", "value": "noindex" }
+        { "key": "X-Robots-Tag", "value": "noindex" },
+        { "key": "CDN-Cache-Control", "value": "max-age=3600, stale-while-revalidate=86400" },
+        { "key": "Vercel-CDN-Cache-Control", "value": "max-age=3600, stale-while-revalidate=86400" }
       ]
     }
   ]
