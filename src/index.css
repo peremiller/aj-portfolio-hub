@@ -233,8 +233,29 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
   /* Non-hero type trimmed a notch (hero sizing handled in the ≤720 block). */
   .tabhero__title{font-size:clamp(26px,8vw,34px)}
   .tabhero__lead{font-size:14px}
+  .tabhero__kicker,.section__kicker{font-size:12px}
   .section__title{font-size:clamp(24px,7vw,32px)}
-  .about{font-size:15px}
+
+  /* Trim content type a notch across ALL tabs on small phones. */
+  .about{font-size:14px}
+  .about p{margin:0 0 14px}
+  .job__role,.project__top h3{font-size:17px}
+  .job__period,.job__bullets,.job__bullets li,.project p,.listcard li{font-size:13px}
+  .job__loc,.edu__degree,.edu__period{font-size:12px}
+  .skillcard h3,.listcard h3,.musicsub__title{font-size:15px}
+  .skillcard li,.project__tags span,.tag,.badge,.musicloading{font-size:11px}
+  .contact__lead{font-size:15px}
+  .itemcard h3{font-size:16px}
+  .itemcard__desc{font-size:13px}
+  .itemcard__handle{font-size:12px}
+  .songcard__title,.plcard__name{font-size:14px}
+  .songcard__style,.songcard__meta,.plcard__meta,.player__style,.musicsub__count{font-size:11px}
+  .player__title{font-size:15px}
+  .player__nowplaying{font-size:10px}
+  .player__lyrics,.lyrics__line{font-size:12px}
+  .credlist__title,.honor__title{font-size:13px}
+  .credlist__meta,.credlist__skills,.credlist__note,.honor__meta,.honor__note{font-size:11px}
+  .footer{font-size:12px}
 }
 
 @media (max-width: 360px){
