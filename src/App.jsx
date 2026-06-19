@@ -1020,6 +1020,18 @@ function App() {
     document.body.dataset.tab = tab
   }, [tab])
 
+  // Lock the Music page to one screen (no vertical scroll) while the player is
+  // open — the playlists/songs listings below then scroll horizontally instead.
+  useEffect(() => {
+    const locked = playerVisible && tab === 'Music'
+    document.documentElement.classList.toggle('music-locked', locked)
+    document.body.classList.toggle('music-locked', locked)
+    return () => {
+      document.documentElement.classList.remove('music-locked')
+      document.body.classList.remove('music-locked')
+    }
+  }, [playerVisible, tab])
+
   const { songs = [], playlists = [] } = musicData
   const currentTrack = queue[queueIndex] || null
 

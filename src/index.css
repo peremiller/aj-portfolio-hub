@@ -286,3 +286,29 @@ html[data-theme="dark"] .spot{background:linear-gradient(180deg,rgba(255,222,205
 .scrolltop:hover{background:#b83f3a;transform:translateY(-2px)}
 @media (max-width:420px){.scrolltop{width:42px;height:42px;right:14px;bottom:14px}}
 @media (prefers-reduced-motion:reduce){.spot{animation:none;opacity:.55}.hero__name{animation:none}.scrolltop{transition:none}}
+
+/* ── Player on tabs OTHER than Music: compact bar, no lyrics panel. ─────── */
+body:not([data-tab="Music"]) .player__lyrics{display:none}
+body:not([data-tab="Music"]) .player__inner{grid-template-columns:1fr}
+
+/* ── Music tab (mobile): once the player is open, lock to one screen (no
+   vertical scroll); the playlists/songs listings below swipe left-to-right. ── */
+@media (max-width:720px){
+  html.music-locked{overflow:hidden;height:100%}
+  body.music-locked{overflow:hidden;height:100svh}
+  body.music-locked .hub-footer,body.music-locked .scrolltop{display:none}
+  body.music-locked .tabhero{display:none}
+  /* Compact the player so both swipe rows fit beneath it without scrolling. */
+  body.music-locked .player__cover{width:54px;height:54px}
+  body.music-locked .player__title{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+  body.music-locked .player__style{display:none}
+  body.music-locked .player__lyrics{max-height:20vh}
+  body.music-locked .musicsub{padding:4px clamp(12px,4vw,18px) 0}
+  body.music-locked .musicsub__title{margin:6px 0 4px;font-size:12px}
+  body.music-locked .musicsub__count{display:none}
+  body.music-locked .plgrid,body.music-locked .songgrid{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;gap:10px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;padding-bottom:2px}
+  body.music-locked .plgrid>*,body.music-locked .songgrid>*{flex:0 0 auto;width:92px;scroll-snap-align:start}
+  body.music-locked .songcard__foot,body.music-locked .plcard__foot{display:none}
+  body.music-locked .songcard__title,body.music-locked .plcard__name{-webkit-line-clamp:1;font-size:12px}
+  body.music-locked .songcard__body,body.music-locked .plcard__body{padding:7px 9px;gap:2px}
+}
