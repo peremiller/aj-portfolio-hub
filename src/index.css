@@ -88,9 +88,14 @@ html[data-theme="dark"] .badge--dev .badge__dot{background:#fbbf24}
 .songcard__suno{font-size:12px;font-weight:600;color:var(--accent-2);flex-shrink:0}
 .songcard__suno:hover{color:var(--accent)}
 
-/* music — now playing player */
-.player{position:sticky;top:72px;z-index:40;background:var(--bar-bg);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.player__inner{max-width:var(--maxw);margin:0 auto;padding:16px clamp(18px,5vw,48px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
+/* music — now playing player (persistent, App-level; sits under the fixed nav) */
+.player{position:sticky;top:72px;z-index:40;margin-top:72px;background:var(--bar-bg);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+/* When the player is mounted it carries the nav-clearing offset, so the
+   content below no longer needs its own padding-top. */
+.player + .hubmain{padding-top:0}
+.player__inner{max-width:var(--maxw);margin:0 auto;padding:16px clamp(18px,5vw,48px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start;position:relative}
+.player__close{position:absolute;top:10px;right:14px;z-index:1;appearance:none;width:30px;height:30px;display:grid;place-items:center;border-radius:8px;background:var(--panel);border:1px solid var(--line);color:var(--muted);font-size:20px;line-height:1;cursor:pointer;transition:border-color .2s,color .2s,transform .2s}
+.player__close:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
 .player__left{display:flex;gap:16px;align-items:flex-start;min-width:0}
 .player__cover{width:84px;height:84px;border-radius:14px;object-fit:cover;flex-shrink:0;background:var(--grad)}
 .player__meta{min-width:0;flex:1}
@@ -126,7 +131,14 @@ html[data-theme="dark"] .badge--dev .badge__dot{background:#fbbf24}
   .hubtabs{order:3;flex:0 0 100%;width:100%;margin-left:0;justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:4px;padding-bottom:2px}
   .hubtab{font-size:13px;padding:8px 13px;flex:0 0 auto}
   .hubmain{padding-top:124px}
-  .player{top:124px}
+  .player{top:124px;margin-top:124px}
   .player__inner{grid-template-columns:1fr;gap:14px}
   .player__lyrics{max-height:180px}
+
+  /* Change B — trim the excess void between the fixed header and the first
+     content on mobile. The .hubmain padding already clears the nav, so the
+     tab/career heroes only need a little breathing room, not their big
+     desktop top padding. */
+  .tabhero{padding-top:24px}
+  .hero{min-height:auto;padding-top:32px}
 }

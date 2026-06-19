@@ -576,63 +576,7 @@ function PlaylistCover({ image, name }) {
   )
 }
 
-function MusicTab() {
-  const [data, setData] = useState(sunoFallback)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    let active = true
-    setLoading(true)
-    fetch('/api/suno')
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        return res.json()
-      })
-      .then((json) => {
-        if (!active) return
-        if (json && Array.isArray(json.songs) && json.songs.length) {
-          setData(json)
-        }
-      })
-      .catch(() => {
-        // Fall back to bundled suno.json (dev / offline / upstream error).
-      })
-      .finally(() => {
-        if (active) setLoading(false)
-      })
-    return () => {
-      active = false
-    }
-  }, [])
-
-  const { songs = [], playlists = [] } = data
-
-  const audioRef = useRef(null)
-  const [currentSong, setCurrentSong] = useState(null)
-  const [shouldPlay, setShouldPlay] = useState(false)
-
-  // Default the player to the first song once data loads, but do NOT autoplay.
-  useEffect(() => {
-    if (!currentSong && songs.length) {
-      setCurrentSong(songs[0])
-    }
-  }, [songs, currentSong])
-
-  // Play only when a song was selected via a user click (shouldPlay flag).
-  useEffect(() => {
-    if (!shouldPlay) return
-    const el = audioRef.current
-    if (el && currentSong && currentSong.audio) {
-      const p = el.play()
-      if (p && typeof p.catch === 'function') p.catch(() => {})
-    }
-  }, [currentSong, shouldPlay])
-
-  const playSong = (song) => {
-    setShouldPlay(true)
-    setCurrentSong(song)
-  }
-
+function MusicTab({ songs, playlists, loading, currentSong, onPlay }) {
   return (
     <>
       <div className="tabhero">
@@ -651,45 +595,6 @@ function MusicTab() {
           </div>
         </div>
       </div>
-
-      {currentSong && (
-        <div className="player">
-          <div className="player__inner">
-            <div className="player__left">
-              <img
-                className="player__cover"
-                src={currentSong.image}
-                alt={currentSong.title}
-                loading="lazy"
-              />
-              <div className="player__meta">
-                <p className="player__nowplaying">Now Playing</p>
-                <p className="player__title">{currentSong.title}</p>
-                {styleLine(currentSong.tags) && (
-                  <p className="player__style">{styleLine(currentSong.tags)}</p>
-                )}
-                {currentSong.audio ? (
-                  <audio
-                    ref={audioRef}
-                    className="player__audio"
-                    key={currentSong.id}
-                    src={currentSong.audio}
-                    controls
-                    preload="none"
-                  />
-                ) : (
-                  <p className="player__noaudio">No audio available for this track.</p>
-                )}
-              </div>
-            </div>
-            <div className="player__lyrics">
-              {currentSong.lyrics
-                ? currentSong.lyrics
-                : 'No lyrics for this track.'}
-            </div>
-          </div>
-        </div>
-      )}
 
       {loading && (
         <div className="musicloading" role="status">
@@ -734,7 +639,7 @@ function MusicTab() {
                 <button
                   type="button"
                   className="songcard__play"
-                  onClick={() => playSong(song)}
+                  onClick={() => onPlay(song)}
                   aria-label={`Play ${song.title}`}
                 >
                   <img
@@ -749,7 +654,7 @@ function MusicTab() {
                   <button
                     type="button"
                     className="songcard__titlebtn"
-                    onClick={() => playSong(song)}
+                    onClick={() => onPlay(song)}
                   >
                     <span className="songcard__title">{song.title}</span>
                   </button>
@@ -777,11 +682,132 @@ function MusicTab() {
   )
 }
 
+function NowPlayingBar({ song, audioRef, onClose }) {
+  return (
+    <div className="player">
+      <button
+        type="button"
+        className="player__close"
+        onClick={onClose}
+        aria-label="Close player"
+      >
+        ×
+      </button>
+      <div className="player__inner">
+        <div className="player__left">
+          <img
+            className="player__cover"
+            src={song.image}
+            alt={song.title}
+            loading="lazy"
+          />
+          <div className="player__meta">
+            <p className="player__nowplaying">Now Playing</p>
+            <p className="player__title">{song.title}</p>
+            {styleLine(song.tags) && (
+              <p className="player__style">{styleLine(song.tags)}</p>
+            )}
+            {song.audio ? (
+              <audio
+                ref={audioRef}
+                className="player__audio"
+                key={song.id}
+                src={song.audio}
+                controls
+                preload="none"
+              />
+            ) : (
+              <p className="player__noaudio">No audio available for this track.</p>
+            )}
+          </div>
+        </div>
+        <div className="player__lyrics">
+          {song.lyrics ? song.lyrics : 'No lyrics for this track.'}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function App() {
   const [tab, setTab] = useState('Career')
   const [theme, setTheme] = useState(
     () => (typeof document !== 'undefined' && document.documentElement.dataset.theme) || 'light'
   )
+
+  // ── Lifted music playback state (lives at the App root so the <audio>
+  // element stays mounted and keeps playing across tab switches) ──────
+  const [musicData, setMusicData] = useState(sunoFallback)
+  const [musicLoading, setMusicLoading] = useState(true)
+  const audioRef = useRef(null)
+  const [currentSong, setCurrentSong] = useState(null)
+  const [shouldPlay, setShouldPlay] = useState(false)
+  const [playerVisible, setPlayerVisible] = useState(false)
+
+  const { songs = [], playlists = [] } = musicData
+
+  // Fetch the Suno catalog once at app start; fall back to bundled JSON.
+  useEffect(() => {
+    let active = true
+    setMusicLoading(true)
+    fetch('/api/suno')
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        return res.json()
+      })
+      .then((json) => {
+        if (!active) return
+        if (json && Array.isArray(json.songs) && json.songs.length) {
+          setMusicData(json)
+        }
+      })
+      .catch(() => {
+        // Fall back to bundled suno.json (dev / offline / upstream error).
+      })
+      .finally(() => {
+        if (active) setMusicLoading(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [])
+
+  // Default the player to the first song once data loads, but do NOT autoplay
+  // and do NOT show the bar (it appears only after the first user click).
+  useEffect(() => {
+    if (!currentSong && songs.length) {
+      setCurrentSong(songs[0])
+    }
+  }, [songs, currentSong])
+
+  // Play only when a song was selected via a user click (shouldPlay flag).
+  useEffect(() => {
+    if (!shouldPlay) return
+    const el = audioRef.current
+    if (el && currentSong && currentSong.audio) {
+      const p = el.play()
+      if (p && typeof p.catch === 'function') p.catch(() => {})
+    }
+  }, [currentSong, shouldPlay])
+
+  const onPlay = (song) => {
+    setShouldPlay(true)
+    setCurrentSong(song)
+    setPlayerVisible(true)
+  }
+
+  const closePlayer = () => {
+    setPlayerVisible(false)
+    setShouldPlay(false)
+    const el = audioRef.current
+    if (el) {
+      try {
+        el.pause()
+      } catch {
+        // ignore
+      }
+    }
+  }
 
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark'
@@ -859,11 +885,27 @@ function App() {
         </button>
       </nav>
 
+      {playerVisible && currentSong && (
+        <NowPlayingBar
+          song={currentSong}
+          audioRef={audioRef}
+          onClose={closePlayer}
+        />
+      )}
+
       <main className="hubmain">
         {tab === 'Career' && <CareerTab />}
         {tab === 'Application' && <ApplicationTab />}
         {tab === 'Telegram Bot' && <TelegramBotTab />}
-        {tab === 'Music' && <MusicTab />}
+        {tab === 'Music' && (
+          <MusicTab
+            songs={songs}
+            playlists={playlists}
+            loading={musicLoading}
+            currentSong={currentSong}
+            onPlay={onPlay}
+          />
+        )}
       </main>
 
       <footer className="footer hub-footer">
