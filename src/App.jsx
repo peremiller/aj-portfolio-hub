@@ -319,6 +319,17 @@ function CareerTab() {
     <>
       <header className="hero" id="top">
         <div className="hero__glow" />
+        <div className="hero__water" aria-hidden="true">
+          <svg className="wave wave--1" viewBox="0 0 2400 120" preserveAspectRatio="none">
+            <path d="M0,62 C110,28 210,96 400,62 C590,28 700,96 900,62 C1010,34 1110,82 1200,62 C1310,28 1410,96 1600,62 C1790,28 1900,96 2100,62 C2210,34 2310,82 2400,62 L2400,120 L0,120 Z" />
+          </svg>
+          <svg className="wave wave--2" viewBox="0 0 2400 120" preserveAspectRatio="none">
+            <path d="M0,64 C160,90 300,30 600,64 C900,98 1040,38 1200,64 C1360,90 1500,30 1800,64 C2100,98 2240,38 2400,64 L2400,120 L0,120 Z" />
+          </svg>
+          <svg className="wave wave--3" viewBox="0 0 2400 120" preserveAspectRatio="none">
+            <path d="M0,62 C110,28 210,96 400,62 C590,28 700,96 900,62 C1010,34 1110,82 1200,62 C1310,28 1410,96 1600,62 C1790,28 1900,96 2100,62 C2210,34 2310,82 2400,62 L2400,120 L0,120 Z" />
+          </svg>
+        </div>
         <div className="hero__inner">
           <p className="hero__eyebrow">{profile.location}</p>
           <h1 className="hero__name">{profile.name}</h1>
