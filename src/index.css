@@ -14,6 +14,9 @@
 .hubtab{appearance:none;background:transparent;border:1px solid transparent;color:var(--muted);font-family:inherit;font-size:14px;font-weight:600;padding:9px 16px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:color .2s,background .2s,border-color .2s}
 .hubtab:hover{color:var(--text)}
 .hubtab--active{color:var(--accent);background:var(--accent-soft);border-color:var(--accent)}
+/* Favorites tab: heart icon + text on desktop; icon only on small phones. */
+.hubtab--fav{display:inline-flex;align-items:center;gap:6px}
+.tabicon{font-size:15px;line-height:1}
 .hubmain{padding-top:72px}
 .tabhero{position:relative;padding:90px clamp(18px,5vw,48px) 10px;text-align:center;overflow:hidden}
 .tabhero__glow{position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:700px;height:700px;background:radial-gradient(circle at 30% 30%,var(--accent-glow-1),transparent 60%),radial-gradient(circle at 70% 60%,var(--accent-glow-2),transparent 60%);filter:blur(20px);pointer-events:none}
@@ -60,6 +63,8 @@ html[data-theme="dark"] .badge--dev .badge__dot{background:#fbbf24}
 .musicsub{max-width:var(--maxw);margin:0 auto;padding:0 clamp(18px,5vw,48px)}
 .musicsub__title{font-size:clamp(20px,3vw,26px);font-weight:800;margin:48px 0 6px}
 .musicsub__count{color:var(--muted-2);font-size:14px;margin:0 0 22px}
+/* Recommended (most-played) section is desktop/laptop only. */
+@media (max-width:720px){.musicsub--recommended{display:none}}
 .plgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:18px}
 .plcard{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;transition:border-color .25s,transform .25s}
 .plcard:hover{border-color:var(--accent-2);transform:translateY(-3px)}
@@ -99,6 +104,13 @@ html[data-theme="dark"] .badge--dev .badge__dot{background:#fbbf24}
 /* Hide the per-card Suno link on the track/playlist that is currently in the player. */
 .songcard--active .songcard__suno,.plcard--active .plcard__suno{display:none}
 
+/* Cover wrap anchors the favorite heart at the top-right of each cover. */
+.plcard__cover-wrap,.songcard__cover-wrap{position:relative;display:block;width:100%}
+.favbtn{position:absolute;top:8px;right:8px;z-index:2;appearance:none;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;border:0;background:rgba(0,0,0,.5);color:#fff;font-size:17px;line-height:1;cursor:pointer;transition:background .2s,color .2s,transform .2s}
+.favbtn:hover{background:rgba(0,0,0,.7);transform:translateY(-1px)}
+.favbtn--active{color:var(--accent)}
+.favbtn--active:hover{color:var(--accent)}
+
 /* music — now playing player (persistent, App-level; sits under the fixed nav) */
 .player{position:sticky;top:72px;z-index:40;margin-top:72px;background:var(--bar-bg);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 /* When the player is mounted it carries the nav-clearing offset, so the
@@ -113,6 +125,7 @@ html[data-theme="dark"] .badge--dev .badge__dot{background:#fbbf24}
 .player__metahead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .player__nowplaying{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent-2);font-weight:700;margin:0}
 .player__title{font-size:17px;font-weight:800;margin:4px 0 0;line-height:1.25;overflow-wrap:anywhere}
+.player__artist{font-size:13px;font-weight:600;color:var(--muted);margin:2px 0 0}
 .player__suno{flex-shrink:0;display:inline-flex;align-items:center;font-size:12px;font-weight:600;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap;transition:border-color .2s,color .2s,transform .2s}
 .player__suno:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
 .player__controls{display:flex;gap:10px;margin-top:10px}
@@ -149,11 +162,6 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
 .musicsearch__input::-webkit-search-cancel-button{display:none}
 .musicsearch__clear{appearance:none;flex-shrink:0;width:34px;height:100%;border:0;background:none;color:var(--muted);font-size:20px;line-height:1;cursor:pointer;transition:color .2s}
 .musicsearch__clear:hover{color:var(--accent)}
-.musicsearch__langs{display:flex;flex-wrap:wrap;gap:6px}
-.langpill{appearance:none;font:inherit;font-size:13px;font-weight:600;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer;transition:border-color .2s,color .2s,background .2s,transform .2s}
-.langpill:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
-.langpill--active{background:var(--accent);border-color:var(--accent);color:#fff}
-.langpill--active:hover{color:#fff}
 .musicsearch__count{flex:0 0 100%;margin:0;color:var(--muted-2);font-size:13px}
 .musicempty{max-width:var(--maxw);margin:0 auto;padding:16px clamp(18px,5vw,48px);color:var(--muted);font-size:14px}
 
@@ -202,6 +210,10 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
   .themetoggle{order:2}
   .hubtabs{order:3;flex:0 0 100%;width:100%;margin-left:0;justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:4px;padding-bottom:2px}
   .hubtab{font-size:13px;padding:8px 13px;flex:0 0 auto}
+  /* Favorites tab collapses to its heart icon only on phones, freeing row space. */
+  .hubtab--fav .tablabel{display:none}
+  .hubtab--fav{padding-left:11px;padding-right:11px}
+  .hubtab--fav .tabicon{font-size:16px}
   .hubmain{padding-top:102px}
   .player{top:102px;margin-top:102px}
   .player__inner{grid-template-columns:1fr;gap:14px}
@@ -245,8 +257,10 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
    trim oversized type a notch. ───────────────────────────────────────── */
 @media (max-width: 420px){
   /* The tab strip stops scrolling and instead shrinks to fit the viewport. */
-  .hubtabs{flex-wrap:nowrap;overflow-x:visible;gap:4px;width:100%;justify-content:space-between}
-  .hubtab{font-size:12px;padding:7px 9px;flex:0 1 auto;letter-spacing:0}
+  .hubtabs{flex-wrap:nowrap;overflow-x:visible;gap:3px;width:100%;justify-content:space-between}
+  .hubtab{font-size:12px;padding:7px 7px;flex:0 1 auto;letter-spacing:0}
+  /* Favorites is icon-only here, so it can be tighter than the text tabs. */
+  .hubtab--fav{padding:7px 9px}
   .hubbar{gap:8px;padding:10px 12px}
   .hubbar__mark{width:32px;height:32px;font-size:14px;border-radius:9px}
   .hubbar__name{font-size:13px}
@@ -287,8 +301,9 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
 }
 
 @media (max-width: 360px){
-  .hubtabs{gap:3px}
-  .hubtab{font-size:11px;padding:6px 7px}
+  .hubtabs{gap:2px}
+  .hubtab{font-size:11px;padding:6px 5px}
+  .hubtab--fav{padding:6px 7px}
   .hubbar{gap:6px;padding:10px 10px}
   .hubbar__mark{width:28px;height:28px;font-size:12px}
   /* Hide the long brand name; the mark alone keeps the row narrow enough. */
@@ -317,34 +332,43 @@ html[data-theme="dark"] .spot{background:linear-gradient(180deg,rgba(255,222,205
 
 /* ── Player on tabs OTHER than Music: compact bar, no lyrics panel. ─────── */
 body:not([data-tab="Music"]) .player__lyrics{display:none}
+body:not([data-tab="Music"]) .player__lyricstoggle{display:none}
 body:not([data-tab="Music"]) .player__inner{grid-template-columns:1fr}
 
 /* ── Music tab (mobile): once the player is open, lock to one screen (no
    vertical scroll); the playlists/songs listings below swipe left-to-right. ── */
 @media (max-width:720px){
   html.music-locked{overflow:hidden;height:100%}
-  body.music-locked{overflow:hidden;height:100svh}
+  body.music-locked{overflow:hidden;height:100svh;display:flex;flex-direction:column}
   body.music-locked .hub-footer,body.music-locked .scrolltop{display:none}
   body.music-locked .tabhero{display:none}
   /* Compact the player so both swipe rows fit beneath it without scrolling. */
   body.music-locked .player__cover{width:54px;height:54px}
   body.music-locked .player__title{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
   body.music-locked .player__style{display:none}
-  body.music-locked .player__lyrics{max-height:16vh}
+  body.music-locked .player__lyrics{max-height:12vh}
   /* Compact the search/language controls so the locked layout still fits one screen. */
   body.music-locked .musicsearch{padding:6px clamp(12px,4vw,18px) 0;gap:6px}
   body.music-locked .musicsearch__field{height:34px;flex-basis:160px}
   body.music-locked .musicsearch__input{font-size:13px}
-  body.music-locked .langpill{padding:5px 10px;font-size:12px}
   body.music-locked .musicsearch__count{display:none}
   /* When lyrics are collapsed, give the listings the reclaimed room. */
   body.music-locked .player--lyrics-collapsed .player__lyrics{display:none}
-  body.music-locked .musicsub{padding:4px clamp(12px,4vw,18px) 0}
-  body.music-locked .musicsub__title{margin:6px 0 4px;font-size:12px}
+  /* The Music content fills the area below the player; the two listing rows
+     expand to the bottom edge (no empty slot) and each card is sized to the
+     row height, scrolling horizontally. */
+  body.music-locked .hubmain{flex:1;min-height:0;display:flex;flex-direction:column;padding-top:0}
+  body.music-locked .musicsearch{flex:0 0 auto}
+  body.music-locked .musicsub{flex:1;min-height:0;display:flex;flex-direction:column;padding:4px clamp(12px,4vw,18px) 6px}
+  body.music-locked .musicsub--recommended{display:none}
+  body.music-locked .musicsub__title{flex:0 0 auto;margin:6px 0 4px;font-size:12px}
   body.music-locked .musicsub__count{display:none}
-  body.music-locked .plgrid,body.music-locked .songgrid{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;gap:10px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;padding-bottom:2px}
-  body.music-locked .plgrid>*,body.music-locked .songgrid>*{flex:0 0 auto;width:92px;scroll-snap-align:start}
+  body.music-locked .plgrid,body.music-locked .songgrid{flex:1;min-height:0;display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;gap:10px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;align-items:stretch;padding-bottom:2px}
+  body.music-locked .plcard,body.music-locked .songcard{flex:0 0 auto;width:34vw;min-width:108px;max-width:150px;height:100%;scroll-snap-align:start;display:flex;flex-direction:column}
+  body.music-locked .plcard__cover-wrap,body.music-locked .songcard__cover-wrap{flex:1;min-height:0;width:100%;display:flex}
+  body.music-locked .plcard__play,body.music-locked .songcard__play{flex:1;min-height:0;width:100%}
+  body.music-locked .plcard__cover,body.music-locked .songcard__cover,body.music-locked .plcard__fallback{width:100%;height:100%;aspect-ratio:auto;object-fit:cover}
   body.music-locked .songcard__foot,body.music-locked .plcard__foot{display:none}
   body.music-locked .songcard__title,body.music-locked .plcard__name{-webkit-line-clamp:1;font-size:12px}
-  body.music-locked .songcard__body,body.music-locked .plcard__body{padding:7px 9px;gap:2px}
+  body.music-locked .songcard__body,body.music-locked .plcard__body{flex:0 0 auto;padding:7px 9px;gap:2px}
 }

@@ -329,7 +329,7 @@ const apps = [
   },
 ]
 
-const TABS = ['Career', 'Application', 'Telegram Bot', 'Music']
+const TABS = ['Career', 'Application', 'Telegram Bot', 'Music', 'Favorites']
 
 const PlaneIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -675,8 +675,6 @@ function PlaylistCover({ image, name }) {
   )
 }
 
-const LANGUAGES = ['All', 'English', 'Tagalog', 'Taglish']
-
 const SearchIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <circle cx="11" cy="11" r="7" />
@@ -684,12 +682,115 @@ const SearchIcon = () => (
   </svg>
 )
 
-function MusicTab({ songs, playlists, loading, currentTrack, activePlaylistId, onPlaySong, onPlayPlaylist }) {
+// Heart toggle button shown at the top-right of song & playlist covers. Clicking
+// it must never start playback, so we stop/prevent the event before toggling.
+function FavButton({ active, onToggle }) {
+  const handle = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    onToggle()
+  }
+  return (
+    <button
+      type="button"
+      className={`favbtn${active ? ' favbtn--active' : ''}`}
+      onClick={handle}
+      aria-label={active ? 'Remove from favorites' : 'Add to favorites'}
+      aria-pressed={active}
+      title={active ? 'Remove from favorites' : 'Add to favorites'}
+    >
+      <span aria-hidden="true">{active ? '♥' : '♡'}</span>
+    </button>
+  )
+}
+
+function PlaylistCard({ pl, active, onPlayPlaylist, isFav, onToggleFav }) {
+  return (
+    <div className={`plcard reveal${active ? ' plcard--active' : ''}`}>
+      <div className="plcard__cover-wrap">
+        <button
+          type="button"
+          className="plcard__play"
+          onClick={() => onPlayPlaylist(pl)}
+          aria-label={`Play ${pl.name}`}
+        >
+          <PlaylistCover image={pl.image} name={pl.name} />
+          <span className="plcard__playicon" aria-hidden="true">▶</span>
+        </button>
+        <FavButton active={isFav} onToggle={() => onToggleFav(pl.id)} />
+      </div>
+      <div className="plcard__body">
+        <button
+          type="button"
+          className="plcard__namebtn"
+          onClick={() => onPlayPlaylist(pl)}
+        >
+          <span className="plcard__name">{pl.name}</span>
+        </button>
+        <div className="plcard__foot">
+          <p className="plcard__meta">{pl.count} tracks</p>
+          <a className="plcard__suno" href={pl.url} target="_blank" rel="noreferrer">
+            Suno ↗
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SongCard({ song, active, onPlaySong, isFav, onToggleFav }) {
+  return (
+    <div className={`songcard reveal${active ? ' songcard--active' : ''}`}>
+      <div className="songcard__cover-wrap">
+        <button
+          type="button"
+          className="songcard__play"
+          onClick={() => onPlaySong(song)}
+          aria-label={`Play ${song.title}`}
+        >
+          <img className="songcard__cover" src={song.image} alt={song.title} loading="lazy" />
+          <span className="songcard__playicon" aria-hidden="true">▶</span>
+        </button>
+        <FavButton active={isFav} onToggle={() => onToggleFav(song.id)} />
+      </div>
+      <div className="songcard__body">
+        <button
+          type="button"
+          className="songcard__titlebtn"
+          onClick={() => onPlaySong(song)}
+        >
+          <span className="songcard__title">{song.title}</span>
+        </button>
+        {styleLine(song.tags) && (
+          <p className="songcard__style">{styleLine(song.tags)}</p>
+        )}
+        <div className="songcard__foot">
+          <p className="songcard__meta">{song.plays} plays</p>
+          <a className="songcard__suno" href={song.url} target="_blank" rel="noreferrer">
+            Suno ↗
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function MusicTab({
+  songs,
+  playlists,
+  loading,
+  currentTrack,
+  activePlaylistId,
+  onPlaySong,
+  onPlayPlaylist,
+  favSongs,
+  favPlaylists,
+  onToggleFavSong,
+  onToggleFavPlaylist,
+}) {
   const [query, setQuery] = useState('')
-  const [langFilter, setLangFilter] = useState('All')
 
   const q = query.trim().toLowerCase()
-  const matchesLang = (item) => langFilter === 'All' || item.language === langFilter
   const songMatchesQuery = (s) =>
     !q ||
     (s.title && s.title.toLowerCase().includes(q)) ||
@@ -707,11 +808,17 @@ function MusicTab({ songs, playlists, loading, currentTrack, activePlaylistId, o
     return false
   }
 
-  // The language filter AND the search query combine — both must match.
-  const filteredSongs = songs.filter((s) => matchesLang(s) && songMatchesQuery(s))
-  const filteredPlaylists = playlists.filter((pl) => matchesLang(pl) && playlistMatchesQuery(pl))
-  const filtering = q !== '' || langFilter !== 'All'
+  // Results now filter by the search query only.
+  const filteredSongs = songs.filter(songMatchesQuery)
+  const filteredPlaylists = playlists.filter(playlistMatchesQuery)
+  const filtering = q !== ''
   const noResults = filtering && filteredSongs.length === 0 && filteredPlaylists.length === 0
+
+  // Recommended (desktop/laptop only): the query-matched songs sorted by play
+  // count descending, top ~10 (all most-played when there is no query).
+  const recommended = [...filteredSongs]
+    .sort((a, b) => (Number(b.plays) || 0) - (Number(a.plays) || 0))
+    .slice(0, 10)
 
   return (
     <>
@@ -737,19 +844,6 @@ function MusicTab({ songs, playlists, loading, currentTrack, activePlaylistId, o
             </button>
           )}
         </div>
-        <div className="musicsearch__langs" role="group" aria-label="Filter by language">
-          {LANGUAGES.map((lang) => (
-            <button
-              key={lang}
-              type="button"
-              className={`langpill${langFilter === lang ? ' langpill--active' : ''}`}
-              onClick={() => setLangFilter(lang)}
-              aria-pressed={langFilter === lang}
-            >
-              {lang}
-            </button>
-          ))}
-        </div>
         {filtering && (
           <p className="musicsearch__count">
             {filteredPlaylists.length} playlist{filteredPlaylists.length === 1 ? '' : 's'} ·{' '}
@@ -760,8 +854,7 @@ function MusicTab({ songs, playlists, loading, currentTrack, activePlaylistId, o
 
       {noResults && (
         <div className="musicempty" role="status">
-          No songs or playlists match{q ? ` “${query.trim()}”` : ''}
-          {langFilter !== 'All' ? ` in ${langFilter}` : ''}.
+          No songs or playlists match{q ? ` “${query.trim()}”` : ''}.
         </div>
       )}
 
@@ -769,7 +862,7 @@ function MusicTab({ songs, playlists, loading, currentTrack, activePlaylistId, o
         <div className="tabhero__glow" />
         <div className="tabhero__inner reveal">
           <p className="tabhero__kicker">Music</p>
-          <h1 className="tabhero__title">Songs & Playlists on Suno</h1>
+          <h1 className="tabhero__title">Song & Playlists</h1>
           <p className="tabhero__lead">
             A growing catalog of AI-assisted original songs — acoustic pop, ballads,
             Filipino reggae, and feel-good anthems — written and produced on Suno.
@@ -789,50 +882,40 @@ function MusicTab({ songs, playlists, loading, currentTrack, activePlaylistId, o
         </div>
       )}
 
+      {recommended.length > 0 && (
+      <div className="musicsub musicsub--recommended">
+        <h2 className="musicsub__title">Recommended</h2>
+        <p className="musicsub__count">Most-played songs</p>
+        <div className="songgrid">
+          {recommended.map((song) => (
+            <SongCard
+              key={song.id}
+              song={song}
+              active={currentTrack && currentTrack.id === song.id}
+              onPlaySong={onPlaySong}
+              isFav={favSongs.has(song.id)}
+              onToggleFav={onToggleFavSong}
+            />
+          ))}
+        </div>
+      </div>
+      )}
+
       {filteredPlaylists.length > 0 && (
       <div className="musicsub">
         <h2 className="musicsub__title">Playlists</h2>
         <p className="musicsub__count">{filteredPlaylists.length} playlists</p>
         <div className="plgrid">
-          {filteredPlaylists.map((pl) => {
-            const active = activePlaylistId && activePlaylistId === pl.id
-            return (
-              <div
-                className={`plcard reveal${active ? ' plcard--active' : ''}`}
-                key={pl.id}
-              >
-                <button
-                  type="button"
-                  className="plcard__play"
-                  onClick={() => onPlayPlaylist(pl)}
-                  aria-label={`Play ${pl.name}`}
-                >
-                  <PlaylistCover image={pl.image} name={pl.name} />
-                  <span className="plcard__playicon" aria-hidden="true">▶</span>
-                </button>
-                <div className="plcard__body">
-                  <button
-                    type="button"
-                    className="plcard__namebtn"
-                    onClick={() => onPlayPlaylist(pl)}
-                  >
-                    <span className="plcard__name">{pl.name}</span>
-                  </button>
-                  <div className="plcard__foot">
-                    <p className="plcard__meta">{pl.count} tracks</p>
-                    <a
-                      className="plcard__suno"
-                      href={pl.url}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Suno ↗
-                    </a>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
+          {filteredPlaylists.map((pl) => (
+            <PlaylistCard
+              key={pl.id}
+              pl={pl}
+              active={activePlaylistId && activePlaylistId === pl.id}
+              onPlayPlaylist={onPlayPlaylist}
+              isFav={favPlaylists.has(pl.id)}
+              onToggleFav={onToggleFavPlaylist}
+            />
+          ))}
         </div>
       </div>
       )}
@@ -842,53 +925,93 @@ function MusicTab({ songs, playlists, loading, currentTrack, activePlaylistId, o
         <h2 className="musicsub__title">Songs</h2>
         <p className="musicsub__count">{filteredSongs.length} songs</p>
         <div className="songgrid">
-          {filteredSongs.map((song) => {
-            const active = currentTrack && currentTrack.id === song.id
-            return (
-              <div
-                className={`songcard reveal${active ? ' songcard--active' : ''}`}
-                key={song.id}
-              >
-                <button
-                  type="button"
-                  className="songcard__play"
-                  onClick={() => onPlaySong(song)}
-                  aria-label={`Play ${song.title}`}
-                >
-                  <img
-                    className="songcard__cover"
-                    src={song.image}
-                    alt={song.title}
-                    loading="lazy"
-                  />
-                  <span className="songcard__playicon" aria-hidden="true">▶</span>
-                </button>
-                <div className="songcard__body">
-                  <button
-                    type="button"
-                    className="songcard__titlebtn"
-                    onClick={() => onPlaySong(song)}
-                  >
-                    <span className="songcard__title">{song.title}</span>
-                  </button>
-                  {styleLine(song.tags) && (
-                    <p className="songcard__style">{styleLine(song.tags)}</p>
-                  )}
-                  <div className="songcard__foot">
-                    <p className="songcard__meta">{song.plays} plays</p>
-                    <a
-                      className="songcard__suno"
-                      href={song.url}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Suno ↗
-                    </a>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
+          {filteredSongs.map((song) => (
+            <SongCard
+              key={song.id}
+              song={song}
+              active={currentTrack && currentTrack.id === song.id}
+              onPlaySong={onPlaySong}
+              isFav={favSongs.has(song.id)}
+              onToggleFav={onToggleFavSong}
+            />
+          ))}
+        </div>
+      </div>
+      )}
+    </>
+  )
+}
+
+function FavoritesTab({
+  songs,
+  playlists,
+  currentTrack,
+  activePlaylistId,
+  onPlaySong,
+  onPlayPlaylist,
+  favSongs,
+  favPlaylists,
+  onToggleFavSong,
+  onToggleFavPlaylist,
+}) {
+  const favPls = playlists.filter((pl) => favPlaylists.has(pl.id))
+  const favSongList = songs.filter((s) => favSongs.has(s.id))
+  const empty = favPls.length === 0 && favSongList.length === 0
+
+  return (
+    <>
+      <div className="tabhero">
+        <div className="tabhero__glow" />
+        <div className="tabhero__inner reveal">
+          <p className="tabhero__kicker">Favorites</p>
+          <h1 className="tabhero__title">Your Favorites</h1>
+          <p className="tabhero__lead">
+            Songs and playlists you've hearted. Saved on this device — tap the ♥ on any
+            card to add or remove.
+          </p>
+        </div>
+      </div>
+
+      {empty && (
+        <div className="musicempty" role="status">
+          No favorites yet — tap the ♥ on any song or playlist.
+        </div>
+      )}
+
+      {favPls.length > 0 && (
+      <div className="musicsub">
+        <h2 className="musicsub__title">Playlists</h2>
+        <p className="musicsub__count">{favPls.length} playlists</p>
+        <div className="plgrid">
+          {favPls.map((pl) => (
+            <PlaylistCard
+              key={pl.id}
+              pl={pl}
+              active={activePlaylistId && activePlaylistId === pl.id}
+              onPlayPlaylist={onPlayPlaylist}
+              isFav={favPlaylists.has(pl.id)}
+              onToggleFav={onToggleFavPlaylist}
+            />
+          ))}
+        </div>
+      </div>
+      )}
+
+      {favSongList.length > 0 && (
+      <div className="musicsub">
+        <h2 className="musicsub__title">Songs</h2>
+        <p className="musicsub__count">{favSongList.length} songs</p>
+        <div className="songgrid">
+          {favSongList.map((song) => (
+            <SongCard
+              key={song.id}
+              song={song}
+              active={currentTrack && currentTrack.id === song.id}
+              onPlaySong={onPlaySong}
+              isFav={favSongs.has(song.id)}
+              onToggleFav={onToggleFavSong}
+            />
+          ))}
         </div>
       </div>
       )}
@@ -1044,6 +1167,38 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
     // Re-bind when the track (and thus the <audio> element key) changes.
   }, [audioRef, song.id])
 
+  // Keep the screen awake while audio is playing so the phone doesn't dim/sleep
+  // (Screen Wake Lock API; re-acquired when returning to the tab).
+  useEffect(() => {
+    if (!playing || typeof navigator === 'undefined' || !('wakeLock' in navigator)) return
+    let lock = null
+    let cancelled = false
+    const request = async () => {
+      try {
+        lock = await navigator.wakeLock.request('screen')
+      } catch {
+        /* ignore — unsupported or denied */
+      }
+    }
+    const onVisible = () => {
+      if (document.visibilityState === 'visible' && !cancelled) request()
+    }
+    request()
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      cancelled = true
+      document.removeEventListener('visibilitychange', onVisible)
+      if (lock) {
+        try {
+          lock.release()
+        } catch {
+          /* ignore */
+        }
+        lock = null
+      }
+    }
+  }, [playing])
+
   return (
     <div className={`player${lyricsOpen ? '' : ' player--lyrics-collapsed'}`}>
       <button
@@ -1069,6 +1224,7 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
                   Now Playing{multi && position ? ` · ${position}` : ''}
                 </p>
                 <p className="player__title">{song.title}</p>
+                <p className="player__artist">AJ Miller</p>
               </div>
               <div className="player__headactions">
                 {song.url && !playing && (
@@ -1149,6 +1305,52 @@ function App() {
   const [theme, setTheme] = useState(
     () => (typeof document !== 'undefined' && document.documentElement.dataset.theme) || 'light'
   )
+
+  // ── Favorites (song + playlist ids), persisted to localStorage. Suno doesn't
+  // expose the user's liked songs, so favorites are stored locally per device. ──
+  const loadFavSet = (key) => {
+    try {
+      const raw = localStorage.getItem(key)
+      const arr = raw ? JSON.parse(raw) : []
+      return new Set(Array.isArray(arr) ? arr : [])
+    } catch {
+      return new Set()
+    }
+  }
+  const [favSongs, setFavSongs] = useState(() => loadFavSet('hubFavSongs'))
+  const [favPlaylists, setFavPlaylists] = useState(() => loadFavSet('hubFavPlaylists'))
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('hubFavSongs', JSON.stringify([...favSongs]))
+    } catch {
+      // ignore storage failures
+    }
+  }, [favSongs])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('hubFavPlaylists', JSON.stringify([...favPlaylists]))
+    } catch {
+      // ignore storage failures
+    }
+  }, [favPlaylists])
+
+  const onToggleFavSong = (id) =>
+    setFavSongs((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+
+  const onToggleFavPlaylist = (id) =>
+    setFavPlaylists((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
 
   // ── Lifted music playback state (lives at the App root so the <audio>
   // element stays mounted and keeps playing across tab switches) ──────
@@ -1397,11 +1599,19 @@ function App() {
           {TABS.map((t) => (
             <button
               key={t}
-              className={`hubtab${tab === t ? ' hubtab--active' : ''}`}
+              className={`hubtab${tab === t ? ' hubtab--active' : ''}${t === 'Favorites' ? ' hubtab--fav' : ''}`}
               onClick={() => setTab(t)}
               aria-current={tab === t ? 'page' : undefined}
+              aria-label={t === 'Favorites' ? 'Favorites' : undefined}
             >
-              {t}
+              {t === 'Favorites' ? (
+                <>
+                  <span className="tabicon" aria-hidden="true">♥</span>
+                  <span className="tablabel">Favorites</span>
+                </>
+              ) : (
+                t
+              )}
             </button>
           ))}
         </div>
@@ -1443,13 +1653,31 @@ function App() {
             activePlaylistId={activePlaylistId}
             onPlaySong={onPlaySong}
             onPlayPlaylist={onPlayPlaylist}
+            favSongs={favSongs}
+            favPlaylists={favPlaylists}
+            onToggleFavSong={onToggleFavSong}
+            onToggleFavPlaylist={onToggleFavPlaylist}
+          />
+        )}
+        {tab === 'Favorites' && (
+          <FavoritesTab
+            songs={songs}
+            playlists={playlists}
+            currentTrack={currentTrack}
+            activePlaylistId={activePlaylistId}
+            onPlaySong={onPlaySong}
+            onPlayPlaylist={onPlayPlaylist}
+            favSongs={favSongs}
+            favPlaylists={favPlaylists}
+            onToggleFavSong={onToggleFavSong}
+            onToggleFavPlaylist={onToggleFavPlaylist}
           />
         )}
       </main>
 
       <footer className="footer hub-footer">
         <span>© {new Date().getFullYear()} AJ Miller T. Perez</span>
-        <span className="footer__made">Career · Application · Telegram Bot · Music — built with React + Vite</span>
+        <span className="footer__made">Career · Application · Telegram Bot · Music · Favorites — built with React + Vite</span>
       </footer>
 
       <button
