@@ -377,6 +377,10 @@ function CareerTab() {
     <>
       <header className="hero" id="top">
         <div className="hero__glow" />
+        <div className="hero__spotlight" aria-hidden="true">
+          <span className="spot spot--l" />
+          <span className="spot spot--r" />
+        </div>
         <div className="hero__water" aria-hidden="true">
           <svg className="wave wave--1" viewBox="0 0 2400 120" preserveAspectRatio="none">
             <path d="M0,62 C110,28 210,96 400,62 C590,28 700,96 900,62 C1010,34 1110,82 1200,62 C1310,28 1410,96 1600,62 C1790,28 1900,96 2100,62 C2210,34 2310,82 2400,62 L2400,120 L0,120 Z" />
@@ -1001,6 +1005,15 @@ function App() {
   // Remember whether audio was playing when the browser tab was hidden.
   const wasPlayingOnHide = useRef(false)
 
+  // Scroll-to-top button: show once the user has scrolled past the hero / first screen.
+  const [showTop, setShowTop] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > window.innerHeight * 0.8)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   const { songs = [], playlists = [] } = musicData
   const currentTrack = queue[queueIndex] || null
 
@@ -1262,6 +1275,18 @@ function App() {
         <span>© {new Date().getFullYear()} AJ Miller T. Perez</span>
         <span className="footer__made">Career · Application · Telegram Bot · Music — built with React + Vite</span>
       </footer>
+
+      <button
+        className={`scrolltop${showTop ? ' scrolltop--show' : ''}`}
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        aria-label="Scroll to top"
+        title="Back to top"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 19V5" />
+          <path d="m5 12 7-7 7 7" />
+        </svg>
+      </button>
     </>
   )
 }
