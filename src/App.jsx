@@ -169,34 +169,87 @@ const projects = [
   },
 ]
 
-const recognition = [
+// Licenses & certifications — the two Lean Six Sigma certs carry full detail
+// (issuer, issued date, credential ID, skills); the rest are simple names.
+const certifications = [
   {
-    title: 'Certifications',
-    items: [
-      'Salesforce Certified Associate',
-      'CPACC — Certified Professional in Accessibility Core Competencies',
-      'WAI0.1x: Introduction to Web Accessibility',
-      'Discover the Art of Prompting',
-      'Maximize Productivity With AI Tools',
-    ],
+    title: 'Lean Six Sigma White Belt Certification',
+    issuer: 'The Council for Six Sigma Certification',
+    date: 'Issued Jan 2026',
+    credential: 'Credential ID 111743143',
+    skills: 'Six Sigma · Lean Six Sigma',
   },
   {
-    title: 'Honors & Awards',
-    items: [
-      'Most Outstanding Employee of the Year, 2013',
-      'Champion — DLSU Marketing Approach to National Development, Phase 3',
-      'Champion — 16th National Marketing Week Case Analysis',
-      'Champion — CBEA Week Team Debate Cup',
-      'Finalist — Top 180 Nationwide, Marketing Professional Students',
-    ],
+    title: 'Lean Six Sigma Yellow Belt',
+    issuer: 'The Council for Six Sigma Certification',
+    date: 'Issued Jan 2026',
+    credential: 'Credential ID 111739364',
+    skills: 'Six Sigma · Lean Six Sigma (+2 more)',
+  },
+  { title: 'Salesforce Certified Associate' },
+  { title: 'CPACC — Certified Professional in Accessibility Core Competencies' },
+  { title: 'WAI0.1x: Introduction to Web Accessibility' },
+  { title: 'Discover the Art of Prompting' },
+  { title: 'Maximize Productivity With AI Tools' },
+]
+
+// Honors & awards — complete résumé list, verbatim and in order.
+const honors = [
+  {
+    title: 'Champion, IoT in Action: From Concept to Connection',
+    meta: 'Polytechnic University of the Philippines · Jan 2026',
   },
   {
-    title: 'Memberships',
-    items: [
-      'Project Management Institute (PMI) — Member',
-      'Philippine Society for Quality, Inc. (PSQ) — Member',
-    ],
+    title: 'TechStar 2025',
+    meta: 'Aug 2025 · Associated with Accenture',
   },
+  {
+    title: '3rd Place, Accessibility Internet Rally (AIR) Award 2023',
+    meta: 'Knowbility · Jan 2024',
+  },
+  {
+    title: 'ATCP Gantimpala Awards 2022',
+    meta: 'Accenture Technology Center Philippines · Nov 2022',
+    note: 'Associated with Accenture · Buklod Category (Collaborate Across the Ecosystem)',
+  },
+  {
+    title: '3rd Place, Startup Weekend Manila 2019',
+    meta: 'Techstars · Feb 2019',
+  },
+  {
+    title: 'Participant — Testing Cup 2018 (Polish Championship in Software Testing) in Lodz, Poland',
+    meta: 'Testing Cup Poland · May 2018',
+  },
+  {
+    title: 'Most Outstanding Employee of Year 2013',
+    meta: 'Icomteq Solutions Inc. · Dec 2013',
+    note: 'Associated with ICOMTEQ SOLUTIONS INC.',
+  },
+  {
+    title: 'Champion, De La Salle University Marketing Approach to National Development Phase 3',
+    meta: 'De La Salle University Manila · Feb 2011',
+  },
+  {
+    title: 'Best Debater, CBEA Week Team Debate Cup',
+    meta: 'New Era University · Jan 2010',
+  },
+  {
+    title: 'Champion, 16th National Marketing Week Case Analysis',
+    meta: 'New Era University · Jan 2010',
+  },
+  {
+    title: 'Champion, CBEA Week Team Debate Cup',
+    meta: 'New Era University · Jan 2010',
+  },
+  {
+    title: 'Finalist, Top 180 Nationwide, Marketing Professional students',
+    meta: 'Jan 2010',
+  },
+]
+
+const memberships = [
+  'Project Management Institute (PMI) — Member',
+  'Philippine Society for Quality, Inc. (PSQ) — Member',
 ]
 
 const bots = [
@@ -423,18 +476,51 @@ function CareerTab() {
       </Section>
 
       <Section id="recognition" kicker="05 — Recognition" title="Credentials & honors">
-        <div className="recognition">
-          {recognition.map((card) => (
-            <div className="listcard reveal" key={card.title}>
-              <h3>{card.title}</h3>
-              <ul>
-                {card.items.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
+        <div className="creds">
+          <div className="creds__col">
+            <h3 className="creds__heading">Licenses &amp; certifications</h3>
+            <ul className="credlist">
+              {certifications.map((c) => (
+                <li className="credlist__item" key={c.title}>
+                  <span className="credlist__title">{c.title}</span>
+                  {c.issuer && (
+                    <span className="credlist__meta">
+                      {c.issuer}
+                      {c.date ? ` · ${c.date}` : ''}
+                    </span>
+                  )}
+                  {c.credential && <span className="credlist__note">{c.credential}</span>}
+                  {c.skills && <span className="credlist__skills">Skills: {c.skills}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="creds__col">
+            <h3 className="creds__heading">Memberships</h3>
+            <ul className="credlist credlist--simple">
+              {memberships.map((m) => (
+                <li className="credlist__item" key={m}>
+                  <span className="credlist__title credlist__title--regular">{m}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
+
+        <div className="honors">
+          <h3 className="creds__heading">Honors &amp; awards</h3>
+          <div className="honorsgrid">
+            {honors.map((h) => (
+              <div className="honor" key={h.title}>
+                <div className="honor__title">{h.title}</div>
+                {h.meta && <div className="honor__meta">{h.meta}</div>}
+                {h.note && <div className="honor__note">{h.note}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="edu">
           <h4 className="edu__title">Education</h4>
           <div className="edu__row">
@@ -706,6 +792,102 @@ function MusicTab({ songs, playlists, loading, currentTrack, activePlaylistId, o
   )
 }
 
+// Classify a lyric line: structural (blank, [Section] header, or fully
+// parenthetical note) vs singable. Only singable lines are highlighted/timed.
+function isStructuralLine(line) {
+  const t = line.trim()
+  if (t === '') return true
+  if (/^\[.*\]$/.test(t)) return true
+  if (/^\(.*\)$/.test(t)) return true
+  return false
+}
+
+function LyricsPanel({ lyrics, audioRef, trackId }) {
+  const containerRef = useRef(null)
+  const lineRefs = useRef([])
+  const [activeLine, setActiveLine] = useState(-1)
+
+  // Parse lyrics into lines + the singable-line index map (memo-free; cheap).
+  const lines = (lyrics || '').split('\n')
+  const singableIndexes = []
+  lines.forEach((line, i) => {
+    if (!isStructuralLine(line)) singableIndexes.push(i)
+  })
+  const singableCount = singableIndexes.length
+
+  const reduceMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  // Reset to the top whenever the track changes.
+  useEffect(() => {
+    setActiveLine(-1)
+    const c = containerRef.current
+    if (c) c.scrollTop = 0
+  }, [trackId])
+
+  // Track playback position and compute the active singable line proportionally.
+  useEffect(() => {
+    const el = audioRef && audioRef.current
+    if (!el) return
+    const onTime = () => {
+      const dur = el.duration
+      if (!dur || !isFinite(dur) || dur <= 0 || singableCount === 0) return
+      const progress = el.currentTime / dur
+      let idx = Math.floor(progress * singableCount)
+      if (idx < 0) idx = 0
+      if (idx > singableCount - 1) idx = singableCount - 1
+      const realIndex = singableIndexes[idx]
+      setActiveLine((prev) => (prev === realIndex ? prev : realIndex))
+    }
+    el.addEventListener('timeupdate', onTime)
+    return () => el.removeEventListener('timeupdate', onTime)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [audioRef, singableCount, trackId])
+
+  // Auto-scroll the active line to center — scoped to the lyrics container ONLY
+  // (computing scrollTop directly, so the page itself never scrolls; a plain
+  // scrollIntoView would also scroll document ancestors).
+  useEffect(() => {
+    if (activeLine < 0) return
+    const container = containerRef.current
+    const node = lineRefs.current[activeLine]
+    if (!container || !node) return
+    const target =
+      node.offsetTop - container.clientHeight / 2 + node.offsetHeight / 2
+    const top = Math.max(0, target)
+    if (typeof container.scrollTo === 'function') {
+      container.scrollTo({ top, behavior: reduceMotion ? 'auto' : 'smooth' })
+    } else {
+      container.scrollTop = top
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeLine])
+
+  if (!lyrics) {
+    return <div className="player__lyrics">No lyrics for this track.</div>
+  }
+
+  return (
+    <div className="player__lyrics" ref={containerRef}>
+      {lines.map((line, i) => (
+        <p
+          key={i}
+          ref={(node) => {
+            lineRefs.current[i] = node
+          }}
+          className={`lyrics__line${i === activeLine ? ' lyrics__line--active' : ''}${
+            isStructuralLine(line) ? ' lyrics__line--structural' : ''
+          }`}
+        >
+          {line === '' ? ' ' : line}
+        </p>
+      ))}
+    </div>
+  )
+}
+
 function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPrev, hasNext, multi, position }) {
   return (
     <div className="player">
@@ -785,9 +967,7 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
             )}
           </div>
         </div>
-        <div className="player__lyrics">
-          {song.lyrics ? song.lyrics : 'No lyrics for this track.'}
-        </div>
+        <LyricsPanel lyrics={song.lyrics} audioRef={audioRef} trackId={song.id} />
       </div>
     </div>
   )
