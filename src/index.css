@@ -96,6 +96,8 @@ html[data-theme="dark"] .badge--dev .badge__dot{background:#fbbf24}
 .songcard__meta{font-size:12px;color:var(--muted-2);margin:0}
 .songcard__suno{font-size:12px;font-weight:600;color:var(--accent-2);flex-shrink:0}
 .songcard__suno:hover{color:var(--accent)}
+/* Hide the per-card Suno link on the track/playlist that is currently in the player. */
+.songcard--active .songcard__suno,.plcard--active .plcard__suno{display:none}
 
 /* music — now playing player (persistent, App-level; sits under the fixed nav) */
 .player{position:sticky;top:72px;z-index:40;margin-top:72px;background:var(--bar-bg);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
@@ -184,13 +186,15 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
   /* Career hero: one screen tall under the fixed nav, with compact type so the
      whole hero (name, headline, tagline, CTAs, all four stats) fits WITHOUT
      scrolling on phones of any size. Clamp fonts scale down further by width. */
-  .hero{min-height:calc(100svh - 102px);padding-top:8px;padding-bottom:8px;align-content:center}
+  .hero{min-height:calc(100svh - 102px);padding-top:14px;padding-bottom:14px;display:flex;flex-direction:column;align-items:center}
+  /* Spread the hero text evenly across the full banner height (no big top gap). */
+  .hero__inner{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;width:100%}
   .hero__eyebrow{display:none}
-  .hero__name{font-size:clamp(25px,7.6vw,40px);letter-spacing:-1px;line-height:1.04}
-  .hero__headline{font-size:clamp(15px,4.3vw,21px);margin-top:8px}
-  .hero__tagline{font-size:13px;line-height:1.5;margin-top:10px}
-  .hero__cta{margin-top:16px}
-  .hero__stats{display:grid;grid-template-columns:repeat(2,minmax(0,auto));justify-content:center;margin-top:18px;gap:14px 34px}
+  .hero__name{font-size:clamp(25px,7.6vw,40px);letter-spacing:-1px;line-height:1.04;margin:0}
+  .hero__headline{font-size:clamp(15px,4.3vw,21px);margin:0}
+  .hero__tagline{font-size:13px;line-height:1.5;margin:0 auto}
+  .hero__cta{margin-top:0}
+  .hero__stats{display:grid;grid-template-columns:repeat(2,minmax(0,auto));justify-content:center;margin-top:0;gap:14px 34px}
   .stat__value{font-size:clamp(21px,6vw,30px)}
   .stat__label{font-size:11px}
 
