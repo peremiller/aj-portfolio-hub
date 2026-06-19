@@ -14,11 +14,17 @@ const HEADERS = {
 
 async function fetchPage(page) {
   const url = `${BASE}?playlists_sort_by=created_at&clips_sort_by=created_at&page=${page}`
-  const res = await fetch(url, { headers: HEADERS })
-  if (!res.ok) {
-    throw new Error(`Suno upstream returned ${res.status}`)
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 8000)
+  try {
+    const res = await fetch(url, { headers: HEADERS, signal: controller.signal, redirect: 'error' })
+    if (!res.ok) {
+      throw new Error(`Suno upstream returned ${res.status}`)
+    }
+    return res.json()
+  } finally {
+    clearTimeout(timer)
   }
-  return res.json()
 }
 
 function mapSong(clip) {
@@ -49,11 +55,18 @@ function mapPlaylist(pl) {
 }
 
 export default async function handler(req, res) {
+  if (req.method && req.method !== 'GET') {
+    res.setHeader('Allow', 'GET')
+    res.status(405).json({ error: 'Method not allowed' })
+    return
+  }
   try {
     const first = await fetchPage(1)
 
     const total = first.num_total_clips ?? (Array.isArray(first.clips) ? first.clips.length : 0)
-    const pages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+    // Bound the page fan-out so a malformed/huge upstream count can't trigger
+    // an unbounded number of outbound requests.
+    const pages = Math.min(25, Math.max(1, Math.ceil(total / PAGE_SIZE)))
 
     const clips = Array.isArray(first.clips) ? [...first.clips] : []
 
@@ -88,7 +101,7 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400')
     res.setHeader('Content-Type', 'application/json')
     res.status(200).json(out)
-  } catch (err) {
-    res.status(502).json({ error: String((err && err.message) || err) })
+  } catch {
+    res.status(502).json({ error: 'Upstream request failed' })
   }
 }

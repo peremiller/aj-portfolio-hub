@@ -27,15 +27,27 @@ function mapSong(clip) {
 }
 
 export default async function handler(req, res) {
+  if (req.method && req.method !== 'GET') {
+    res.setHeader('Allow', 'GET')
+    res.status(405).json({ error: 'Method not allowed' })
+    return
+  }
   try {
     const id = (req.query && req.query.id) || ''
-    if (!id || !/^[a-zA-Z0-9-]+$/.test(id)) {
+    if (!id || id.length > 64 || !/^[a-zA-Z0-9-]+$/.test(id)) {
       res.status(400).json({ error: 'missing or invalid id' })
       return
     }
-    const r = await fetch(`${BASE}/${id}?page=1`, { headers: HEADERS })
-    if (!r.ok) throw new Error(`Suno upstream returned ${r.status}`)
-    const data = await r.json()
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 8000)
+    let data
+    try {
+      const r = await fetch(`${BASE}/${id}?page=1`, { headers: HEADERS, signal: controller.signal, redirect: 'error' })
+      if (!r.ok) throw new Error(`Suno upstream returned ${r.status}`)
+      data = await r.json()
+    } finally {
+      clearTimeout(timer)
+    }
     const raw = Array.isArray(data.playlist_clips) ? data.playlist_clips : []
     const seen = new Set()
     const tracks = []
@@ -54,7 +66,7 @@ export default async function handler(req, res) {
       count: data.song_count ?? tracks.length,
       tracks,
     })
-  } catch (err) {
-    res.status(502).json({ error: String((err && err.message) || err) })
+  } catch {
+    res.status(502).json({ error: 'Upstream request failed' })
   }
 }
