@@ -675,9 +675,96 @@ function PlaylistCover({ image, name }) {
   )
 }
 
+const LANGUAGES = ['All', 'English', 'Tagalog', 'Taglish']
+
+const SearchIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-3.5-3.5" />
+  </svg>
+)
+
 function MusicTab({ songs, playlists, loading, currentTrack, activePlaylistId, onPlaySong, onPlayPlaylist }) {
+  const [query, setQuery] = useState('')
+  const [langFilter, setLangFilter] = useState('All')
+
+  const q = query.trim().toLowerCase()
+  const matchesLang = (item) => langFilter === 'All' || item.language === langFilter
+  const songMatchesQuery = (s) =>
+    !q ||
+    (s.title && s.title.toLowerCase().includes(q)) ||
+    (s.lyrics && s.lyrics.toLowerCase().includes(q))
+  const playlistMatchesQuery = (pl) => {
+    if (!q) return true
+    if (pl.name && pl.name.toLowerCase().includes(q)) return true
+    if (Array.isArray(pl.tracks)) {
+      return pl.tracks.some(
+        (t) =>
+          (t.title && t.title.toLowerCase().includes(q)) ||
+          (t.lyrics && t.lyrics.toLowerCase().includes(q))
+      )
+    }
+    return false
+  }
+
+  // The language filter AND the search query combine — both must match.
+  const filteredSongs = songs.filter((s) => matchesLang(s) && songMatchesQuery(s))
+  const filteredPlaylists = playlists.filter((pl) => matchesLang(pl) && playlistMatchesQuery(pl))
+  const filtering = q !== '' || langFilter !== 'All'
+  const noResults = filtering && filteredSongs.length === 0 && filteredPlaylists.length === 0
+
   return (
     <>
+      <div className="musicsearch">
+        <div className="musicsearch__field">
+          <span className="musicsearch__icon" aria-hidden="true"><SearchIcon /></span>
+          <input
+            type="search"
+            className="musicsearch__input"
+            placeholder="Search songs, lyrics, or playlists…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label="Search songs and playlists"
+          />
+          {query && (
+            <button
+              type="button"
+              className="musicsearch__clear"
+              onClick={() => setQuery('')}
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
+        </div>
+        <div className="musicsearch__langs" role="group" aria-label="Filter by language">
+          {LANGUAGES.map((lang) => (
+            <button
+              key={lang}
+              type="button"
+              className={`langpill${langFilter === lang ? ' langpill--active' : ''}`}
+              onClick={() => setLangFilter(lang)}
+              aria-pressed={langFilter === lang}
+            >
+              {lang}
+            </button>
+          ))}
+        </div>
+        {filtering && (
+          <p className="musicsearch__count">
+            {filteredPlaylists.length} playlist{filteredPlaylists.length === 1 ? '' : 's'} ·{' '}
+            {filteredSongs.length} song{filteredSongs.length === 1 ? '' : 's'}
+          </p>
+        )}
+      </div>
+
+      {noResults && (
+        <div className="musicempty" role="status">
+          No songs or playlists match{q ? ` “${query.trim()}”` : ''}
+          {langFilter !== 'All' ? ` in ${langFilter}` : ''}.
+        </div>
+      )}
+
       <div className="tabhero">
         <div className="tabhero__glow" />
         <div className="tabhero__inner reveal">
@@ -702,11 +789,12 @@ function MusicTab({ songs, playlists, loading, currentTrack, activePlaylistId, o
         </div>
       )}
 
+      {filteredPlaylists.length > 0 && (
       <div className="musicsub">
         <h2 className="musicsub__title">Playlists</h2>
-        <p className="musicsub__count">{playlists.length} playlists</p>
+        <p className="musicsub__count">{filteredPlaylists.length} playlists</p>
         <div className="plgrid">
-          {playlists.map((pl) => {
+          {filteredPlaylists.map((pl) => {
             const active = activePlaylistId && activePlaylistId === pl.id
             return (
               <div
@@ -747,12 +835,14 @@ function MusicTab({ songs, playlists, loading, currentTrack, activePlaylistId, o
           })}
         </div>
       </div>
+      )}
 
+      {filteredSongs.length > 0 && (
       <div className="musicsub">
         <h2 className="musicsub__title">Songs</h2>
-        <p className="musicsub__count">{songs.length} songs</p>
+        <p className="musicsub__count">{filteredSongs.length} songs</p>
         <div className="songgrid">
-          {songs.map((song) => {
+          {filteredSongs.map((song) => {
             const active = currentTrack && currentTrack.id === song.id
             return (
               <div
@@ -801,6 +891,7 @@ function MusicTab({ songs, playlists, loading, currentTrack, activePlaylistId, o
           })}
         </div>
       </div>
+      )}
     </>
   )
 }
@@ -821,12 +912,31 @@ function LyricsPanel({ lyrics, audioRef, trackId }) {
   const [activeLine, setActiveLine] = useState(-1)
 
   // Parse lyrics into lines + the singable-line index map (memo-free; cheap).
+  // Each singable line carries a LENGTH WEIGHT (word count, min 1) so longer
+  // lines are estimated to take proportionally more time than short ones — a
+  // noticeably better proxy than equal time per line. We also build a
+  // cumulative-weight array so the active line is the weight bracket that
+  // contains the effective playback progress.
   const lines = (lyrics || '').split('\n')
   const singableIndexes = []
+  const lineWeights = []
   lines.forEach((line, i) => {
-    if (!isStructuralLine(line)) singableIndexes.push(i)
+    if (!isStructuralLine(line)) {
+      singableIndexes.push(i)
+      const words = line.trim().split(/\s+/).filter(Boolean).length
+      // Word count is the primary weight; fall back to char-derived weight so
+      // a single very long word still counts more than a tiny one.
+      const w = Math.max(1, words, Math.round(line.trim().length / 6))
+      lineWeights.push(w)
+    }
   })
   const singableCount = singableIndexes.length
+  // Cumulative weights: cumWeights[k] = sum of weights of lines 0..k-1.
+  const cumWeights = [0]
+  for (let k = 0; k < lineWeights.length; k++) {
+    cumWeights.push(cumWeights[k] + lineWeights[k])
+  }
+  const totalWeight = cumWeights[cumWeights.length - 1] || 0
 
   const reduceMotion =
     typeof window !== 'undefined' &&
@@ -840,24 +950,34 @@ function LyricsPanel({ lyrics, audioRef, trackId }) {
     if (c) c.scrollTop = 0
   }, [trackId])
 
-  // Track playback position and compute the active singable line proportionally.
+  // Track playback position and compute the active singable line using a
+  // length-weighted estimate. Real per-line Suno timestamps require auth and
+  // are unavailable, so we (a) assume singing starts a little after 0:00 and
+  // ends a little before the track end, and (b) weight lines by length.
   useEffect(() => {
     const el = audioRef && audioRef.current
     if (!el) return
     const onTime = () => {
       const dur = el.duration
-      if (!dur || !isFinite(dur) || dur <= 0 || singableCount === 0) return
-      const progress = el.currentTime / dur
-      let idx = Math.floor(progress * singableCount)
-      if (idx < 0) idx = 0
-      if (idx > singableCount - 1) idx = singableCount - 1
+      if (!dur || !isFinite(dur) || dur <= 0 || singableCount === 0 || totalWeight === 0) return
+      // Lead-in / outro padding so the highlight is not perpetually early.
+      const intro = Math.min(8, dur * 0.06)
+      const outro = Math.min(6, dur * 0.05)
+      const span = dur - intro - outro
+      let p = span > 0 ? (el.currentTime - intro) / span : el.currentTime / dur
+      if (p < 0) p = 0
+      if (p > 1) p = 1
+      const target = p * totalWeight
+      // Active singable line = the cumulative-weight bracket containing target.
+      let idx = 0
+      while (idx < singableCount - 1 && cumWeights[idx + 1] <= target) idx++
       const realIndex = singableIndexes[idx]
       setActiveLine((prev) => (prev === realIndex ? prev : realIndex))
     }
     el.addEventListener('timeupdate', onTime)
     return () => el.removeEventListener('timeupdate', onTime)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [audioRef, singableCount, trackId])
+  }, [audioRef, singableCount, totalWeight, trackId])
 
   // Auto-scroll the active line to center — scoped to the lyrics container ONLY
   // (computing scrollTop directly, so the page itself never scrolls; a plain
@@ -902,8 +1022,30 @@ function LyricsPanel({ lyrics, audioRef, trackId }) {
 }
 
 function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPrev, hasNext, multi, position }) {
+  // Track whether audio is actively playing so we can hide the "Open in Suno"
+  // link while playing (it reappears on pause/stop).
+  const [playing, setPlaying] = useState(() => !audioRef.current?.paused)
+  // Mobile: let the user collapse the lyrics panel to free room for the
+  // playlists/songs listings in the locked one-screen layout. Default open.
+  const [lyricsOpen, setLyricsOpen] = useState(true)
+
+  useEffect(() => {
+    const el = audioRef.current
+    if (!el) return
+    const onPlay = () => setPlaying(true)
+    const onPause = () => setPlaying(false)
+    setPlaying(!el.paused)
+    el.addEventListener('play', onPlay)
+    el.addEventListener('pause', onPause)
+    return () => {
+      el.removeEventListener('play', onPlay)
+      el.removeEventListener('pause', onPause)
+    }
+    // Re-bind when the track (and thus the <audio> element key) changes.
+  }, [audioRef, song.id])
+
   return (
-    <div className="player">
+    <div className={`player${lyricsOpen ? '' : ' player--lyrics-collapsed'}`}>
       <button
         type="button"
         className="player__close"
@@ -928,17 +1070,31 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
                 </p>
                 <p className="player__title">{song.title}</p>
               </div>
-              {song.url && (
-                <a
-                  className="player__suno"
-                  href={song.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  title="Open in Suno"
-                >
-                  Open in Suno ↗
-                </a>
-              )}
+              <div className="player__headactions">
+                {song.url && !playing && (
+                  <a
+                    className="player__suno"
+                    href={song.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    title="Open in Suno"
+                  >
+                    Open in Suno ↗
+                  </a>
+                )}
+                {song.lyrics && (
+                  <button
+                    type="button"
+                    className="player__lyricstoggle"
+                    onClick={() => setLyricsOpen((o) => !o)}
+                    aria-label={lyricsOpen ? 'Collapse lyrics' : 'Show lyrics'}
+                    aria-expanded={lyricsOpen}
+                    title={lyricsOpen ? 'Collapse lyrics' : 'Show lyrics'}
+                  >
+                    <span className={`player__chevron${lyricsOpen ? '' : ' player__chevron--up'}`} aria-hidden="true">⌄</span>
+                  </button>
+                )}
+              </div>
             </div>
             {styleLine(song.tags) && (
               <p className="player__style">{styleLine(song.tags)}</p>
@@ -980,7 +1136,9 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
             )}
           </div>
         </div>
-        <LyricsPanel lyrics={song.lyrics} audioRef={audioRef} trackId={song.id} />
+        {lyricsOpen && (
+          <LyricsPanel lyrics={song.lyrics} audioRef={audioRef} trackId={song.id} />
+        )}
       </div>
     </div>
   )

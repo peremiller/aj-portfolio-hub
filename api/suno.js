@@ -12,6 +12,42 @@ const HEADERS = {
   Accept: 'application/json',
 }
 
+// Lightweight language classifier (English / Tagalog / Taglish) from title + lyrics.
+const TAG_WORDS = new Set(
+  ("ang ng mga sa na ay ako ikaw ka mo ko kita siya niya kami tayo kayo sila ito iyan iyon dito doon " +
+    "hindi oo wala walang may meron kung kapag dahil kasi pero para naman lang din rin po ho mahal puso " +
+    "iyong aking akin yakap ngiti luha gabi araw buhay tahanan sana gusto ayaw alam tao bawat muli tabi " +
+    "kamay langit ulan init lamig pangarap damdamin pag-ibig pagmamahal kaibigan nating iyo akoy kayong " +
+    "nang habang upang ngunit subalit kaya nga raw daw yata pala isang dalawa hangin tubig apoy bituin " +
+    "buwan magpakailanman pusong sariling piling yakapin halik hanggang dulo simula wakas tuwing basta " +
+    "talaga sobra ganda maganda pangako tibok damdam kahit anong bakit paano saan sino ano kailan ngayon " +
+    "kahapon bukas mundo mundong ligaya lungkot saya takot galit mahalin minahal iniibig kasama sandali " +
+    "alaala umiyak ngumiti tumawa lumuha nawala bumalik babalik lamang nanay tatay").split(' ')
+)
+const ENG_WORDS = new Set(
+  ("the and you to a of in is it my me we your with that for on this be will are love heart light way " +
+    "day night time stay go come back home life world dream feel hold close eyes hand sky rain fire star " +
+    "moon never always forever every soul together when while but so because if know keep find all out up " +
+    "down here there now then she he they was were have has had do does make made take give let just like " +
+    "said say see want need smile cry tears hope fear").split(' ')
+)
+function classifyLanguage(title, lyrics) {
+  let text = `${title || ''}\n${title || ''}\n${title || ''}\n${lyrics || ''}`
+  text = text.replace(/\[[^\]]*\]/g, ' ').replace(/\([^)]*\)/g, ' ').toLowerCase()
+  const words = text.match(/[a-z'\-]+/g) || []
+  let t = 0
+  let e = 0
+  for (const w of words) {
+    if (TAG_WORDS.has(w)) t++
+    else if (ENG_WORDS.has(w)) e++
+  }
+  if (t + e === 0) return 'English'
+  const r = t / (t + e)
+  if (r <= 0.1) return 'English'
+  if (r >= 0.3) return 'Tagalog'
+  return 'Taglish'
+}
+
 async function fetchPage(page) {
   const url = `${BASE}?playlists_sort_by=created_at&clips_sort_by=created_at&page=${page}`
   const controller = new AbortController()
@@ -36,6 +72,7 @@ function mapSong(clip) {
     image: clip.image_large_url || clip.image_url || '',
     audio: clip.audio_url || '',
     lyrics: meta.prompt || '',
+    language: classifyLanguage(clip.title, meta.prompt),
     tags: meta.tags || '',
     plays: clip.play_count ?? 0,
     likes: clip.upvote_count ?? 0,
@@ -50,6 +87,7 @@ function mapPlaylist(pl) {
     id: pl.id,
     url: `https://suno.com/playlist/${pl.id}`,
     image: pl.image_url || '',
+    language: classifyLanguage(pl.name, ''),
     count: pl.num_total_results ?? (Array.isArray(pl.playlist_clips) ? pl.playlist_clips.length : 0),
   }
 }
