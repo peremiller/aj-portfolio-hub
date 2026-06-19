@@ -669,7 +669,7 @@ function MusicTab({ songs, playlists, loading, currentTrack, activePlaylistId, o
         <div className="tabhero__glow" />
         <div className="tabhero__inner reveal">
           <p className="tabhero__kicker">Music</p>
-          <h1 className="tabhero__title">Songs & playlists on Suno</h1>
+          <h1 className="tabhero__title">Songs & Playlists on Suno</h1>
           <p className="tabhero__lead">
             A growing catalog of AI-assisted original songs — acoustic pop, ballads,
             Filipino reggae, and feel-good anthems — written and produced on Suno.
