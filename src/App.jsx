@@ -1,5 +1,27 @@
 import { useEffect, useState } from 'react'
-import suno from './suno.json'
+import sunoFallback from './suno.json'
+
+function AppFavicon({ url, name }) {
+  const [failed, setFailed] = useState(false)
+  let host = ''
+  try {
+    host = new URL(url).hostname
+  } catch {
+    host = ''
+  }
+  if (failed || !host) {
+    return <div className="itemcard__faviconfallback" aria-hidden="true" />
+  }
+  return (
+    <img
+      className="itemcard__favicon"
+      src={`https://www.google.com/s2/favicons?domain=${host}&sz=128`}
+      alt={name}
+      loading="lazy"
+      onError={() => setFailed(true)}
+    />
+  )
+}
 
 // Years of professional experience since December 2011 — recomputed on every load,
 // so it advances automatically each year (e.g. 14+ now, 15+ from December 2026).
@@ -179,16 +201,16 @@ const recognition = [
 
 const bots = [
   {
+    name: 'Weather',
+    handle: '@pjo_weather_bot',
+    desc: 'Daily forecasts and on-demand weather delivered straight to Telegram.',
+    status: 'live',
+  },
+  {
     name: 'Tagalog Translate',
     handle: '@tagalog_translate_bot',
     desc: 'Two-way Tagalog ⇄ English translation with automatic direction detection.',
     status: 'dev',
-  },
-  {
-    name: 'PJO Weather',
-    handle: '@pjo_weather_bot',
-    desc: 'Daily forecasts and on-demand weather delivered straight to Telegram.',
-    status: 'live',
   },
   {
     name: 'Disaster Watch',
@@ -245,6 +267,7 @@ const apps = [
     name: 'Job Portal (TalentMatch)',
     desc: 'Matches your CV to job openings and lets you apply, with OAuth sign-in.',
     url: 'https://job-portal-beta-rose.vercel.app',
+    status: 'dev',
   },
 ]
 
@@ -254,6 +277,19 @@ const PlaneIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M22 2 11 13" />
     <path d="M22 2 15 22l-4-9-9-4 20-7Z" />
+  </svg>
+)
+
+const SunIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+  </svg>
+)
+
+const MoonIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
   </svg>
 )
 
@@ -289,10 +325,10 @@ function CareerTab() {
           <p className="hero__headline">{profile.headline}</p>
           <p className="hero__tagline">{profile.tagline}</p>
           <div className="hero__cta">
-            <a className="btn btn--primary" href="#contact" target="_blank" rel="noreferrer">
+            <a className="btn btn--primary" href="#contact">
               Get in touch
             </a>
-            <a className="btn btn--ghost" href="#experience" target="_blank" rel="noreferrer">
+            <a className="btn btn--ghost" href="#experience">
               View experience
             </a>
             <a className="btn btn--ghost" href={profile.resumeUrl} target="_blank" rel="noreferrer">
@@ -429,11 +465,19 @@ function ApplicationTab() {
       </div>
       <div className="section">
         <div className="cardgrid">
-          {apps.map((app) => (
+          {apps.map((app) => {
+            const live = app.status !== 'dev'
+            return (
             <div className="itemcard reveal" key={app.name}>
               <div className="itemcard__top">
-                <h3>{app.name}</h3>
-                <span className="badge badge--live"><span className="badge__dot" />Live</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <AppFavicon url={app.url} name={app.name} />
+                  <h3>{app.name}</h3>
+                </div>
+                <span className={`badge ${live ? 'badge--live' : 'badge--dev'}`}>
+                  <span className="badge__dot" />
+                  {live ? 'Live' : 'Dev In Progress'}
+                </span>
               </div>
               <p className="itemcard__desc">{app.desc}</p>
               <div className="itemcard__foot">
@@ -443,7 +487,8 @@ function ApplicationTab() {
                 </a>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </>
@@ -516,7 +561,35 @@ function PlaylistCover({ image, name }) {
 }
 
 function MusicTab() {
-  const { songs = [], playlists = [] } = suno
+  const [data, setData] = useState(sunoFallback)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let active = true
+    setLoading(true)
+    fetch('/api/suno')
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        return res.json()
+      })
+      .then((json) => {
+        if (!active) return
+        if (json && Array.isArray(json.songs) && json.songs.length) {
+          setData(json)
+        }
+      })
+      .catch(() => {
+        // Fall back to bundled suno.json (dev / offline / upstream error).
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const { songs = [], playlists = [] } = data
   return (
     <>
       <div className="tabhero">
@@ -535,6 +608,13 @@ function MusicTab() {
           </div>
         </div>
       </div>
+
+      {loading && (
+        <div className="musicloading" role="status">
+          <span className="musicloading__dot" />
+          Refreshing from Suno…
+        </div>
+      )}
 
       <div className="musicsub">
         <h2 className="musicsub__title">Playlists</h2>
@@ -593,6 +673,20 @@ function MusicTab() {
 
 function App() {
   const [tab, setTab] = useState('Career')
+  const [theme, setTheme] = useState(
+    () => (typeof document !== 'undefined' && document.documentElement.dataset.theme) || 'light'
+  )
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    document.documentElement.dataset.theme = next
+    try {
+      localStorage.setItem('theme', next)
+    } catch {
+      // ignore storage failures
+    }
+  }
 
   // Scroll to top whenever the active tab changes.
   useEffect(() => {
@@ -637,17 +731,27 @@ function App() {
           <span className="hubbar__mark">MP</span>
           <span className="hubbar__name">{profile.name}</span>
         </button>
-        <div className="hubtabs">
-          {TABS.map((t) => (
-            <button
-              key={t}
-              className={`hubtab${tab === t ? ' hubtab--active' : ''}`}
-              onClick={() => setTab(t)}
-              aria-current={tab === t ? 'page' : undefined}
-            >
-              {t}
-            </button>
-          ))}
+        <div className="hubbar__right">
+          <div className="hubtabs">
+            {TABS.map((t) => (
+              <button
+                key={t}
+                className={`hubtab${tab === t ? ' hubtab--active' : ''}`}
+                onClick={() => setTab(t)}
+                aria-current={tab === t ? 'page' : undefined}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+          <button
+            className="themetoggle"
+            onClick={toggleTheme}
+            aria-label="Toggle dark mode"
+            title="Toggle dark mode"
+          >
+            {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+          </button>
         </div>
       </nav>
 
