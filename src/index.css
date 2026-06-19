@@ -172,8 +172,8 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
   .themetoggle{order:2}
   .hubtabs{order:3;flex:0 0 100%;width:100%;margin-left:0;justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:4px;padding-bottom:2px}
   .hubtab{font-size:13px;padding:8px 13px;flex:0 0 auto}
-  .hubmain{padding-top:124px}
-  .player{top:124px;margin-top:124px}
+  .hubmain{padding-top:102px}
+  .player{top:102px;margin-top:102px}
   .player__inner{grid-template-columns:1fr;gap:14px}
   .player__lyrics{max-height:180px}
 
@@ -184,8 +184,8 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
   /* Career hero: one screen tall under the fixed nav, with compact type so the
      whole hero (name, headline, tagline, CTAs, all four stats) fits WITHOUT
      scrolling on phones of any size. Clamp fonts scale down further by width. */
-  .hero{min-height:calc(100svh - 124px);padding-top:8px;padding-bottom:8px;align-content:center}
-  .hero__eyebrow{font-size:10px;letter-spacing:2px;margin:0 0 8px}
+  .hero{min-height:calc(100svh - 102px);padding-top:8px;padding-bottom:8px;align-content:center}
+  .hero__eyebrow{display:none}
   .hero__name{font-size:clamp(25px,7.6vw,40px);letter-spacing:-1px;line-height:1.04}
   .hero__headline{font-size:clamp(15px,4.3vw,21px);margin-top:8px}
   .hero__tagline{font-size:13px;line-height:1.5;margin-top:10px}
@@ -202,6 +202,11 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
   .section{padding-top:52px;padding-bottom:52px}
   .section__head{margin-bottom:28px}
   .musicsub__title{margin-top:36px}
+
+  /* Music tab (mobile): player + lyrics occupy the top half of the screen,
+     the playlists/songs listings scroll in the lower half beneath the sticky bar. */
+  body[data-tab="Music"] .player__lyrics{max-height:40vh}
+  body[data-tab="Music"] .player__cover{width:68px;height:68px}
 }
 
 /* ── Small phones: fit all four tabs on one row, no horizontal scroll, and
@@ -214,6 +219,10 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
   .hubbar__mark{width:32px;height:32px;font-size:14px;border-radius:9px}
   .hubbar__name{font-size:13px}
   .hubbar__brand{gap:9px}
+
+  /* Keep the two hero CTAs ("Get in touch" / "View experience") on ONE line. */
+  .hero__cta{flex-wrap:nowrap;gap:8px}
+  .hero__cta .btn{padding:11px 10px;font-size:13px;white-space:nowrap}
 
   /* Small-mobile: the two long stat labels wrap to two lines for an even grid. */
   .stat-br{display:inline}
@@ -232,6 +241,7 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
   /* Hide the long brand name; the mark alone keeps the row narrow enough. */
   .hubbar__name{display:none}
   .tabhero__title{font-size:clamp(23px,8.5vw,30px)}
+  .hero__cta .btn{padding:10px 8px;font-size:12px}
 }
 
 /* ── Career hero: moving spotlights from the upper corners that settle aimed

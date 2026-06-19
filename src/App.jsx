@@ -1014,6 +1014,12 @@ function App() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Expose the active tab on <body> so CSS can target tab-specific mobile layout
+  // (e.g. the Music tab's taller player/lyrics that fills the top half).
+  useEffect(() => {
+    document.body.dataset.tab = tab
+  }, [tab])
+
   const { songs = [], playlists = [] } = musicData
   const currentTrack = queue[queueIndex] || null
 
