@@ -86,7 +86,7 @@ const jobs = [
   {
     period: 'Apr 2015 — Jul 2016',
     role: 'Software Quality Assurance Analyst',
-    company: 'Kforce Global Solutions, Inc.',
+    company: 'Kforce Global Solutions',
     loc: 'Ayala, Makati City, Philippines',
     bullets: [
       'Pioneered Visual Management Boards for infrastructure automation projects at Macquarie Bank.',
@@ -97,7 +97,7 @@ const jobs = [
   {
     period: 'Oct 2014 — Apr 2015',
     role: 'Richmedia Quality Assurance Analyst',
-    company: 'Cognizant Technology Solutions, Inc.',
+    company: 'Cognizant Technology Solutions',
     loc: 'Bonifacio Global City, Taguig, Philippines',
     bullets: [
       'Selected for the HTML5 multi-platform ads team among 50+ testers.',
@@ -107,7 +107,7 @@ const jobs = [
   {
     period: 'Sep 2011 — Aug 2014',
     role: 'Software Quality Assurance Analyst',
-    company: 'Icomteq Solutions, Inc.',
+    company: 'Icomteq Solutions',
     loc: 'Quezon City, Philippines',
     bullets: [
       'Awarded Most Outstanding Employee of the Year, 2013.',
@@ -222,7 +222,7 @@ const honors = [
   },
   {
     title: 'Most Outstanding Employee of Year 2013',
-    meta: 'Icomteq Solutions Inc. · Dec 2013',
+    meta: 'Icomteq Solutions · Dec 2013',
     note: 'Associated with ICOMTEQ SOLUTIONS INC.',
   },
   {
@@ -249,7 +249,7 @@ const honors = [
 
 const memberships = [
   'Project Management Institute (PMI) — Member',
-  'Philippine Society for Quality, Inc. (PSQ) — Member',
+  'Philippine Society for Quality (PSQ) — Member',
 ]
 
 const bots = [
@@ -714,7 +714,7 @@ function FavButton({ active, onToggle }) {
 
 function PlaylistCard({ pl, active, onPlayPlaylist, isFav, onToggleFav }) {
   return (
-    <div className={`plcard reveal${active ? ' plcard--active' : ''}`}>
+    <div className={`plcard${active ? ' plcard--active' : ''}`}>
       <div className="plcard__cover-wrap">
         <button
           type="button"
@@ -748,7 +748,7 @@ function PlaylistCard({ pl, active, onPlayPlaylist, isFav, onToggleFav }) {
 
 function SongCard({ song, active, onPlaySong, isFav, onToggleFav }) {
   return (
-    <div className={`songcard reveal${active ? ' songcard--active' : ''}`}>
+    <div className={`songcard${active ? ' songcard--active' : ''}`}>
       <div className="songcard__cover-wrap">
         <button
           type="button"
@@ -954,17 +954,15 @@ function FavoritesTab({
   songs,
   playlists,
   currentTrack,
-  activePlaylistId,
-  onPlaySong,
-  onPlayPlaylist,
+  playerVisible,
   favSongs,
   favPlaylists,
-  onToggleFavSong,
-  onToggleFavPlaylist,
+  onPlayFavorites,
 }) {
-  const favPls = playlists.filter((pl) => favPlaylists.has(pl.id))
-  const favSongList = songs.filter((s) => favSongs.has(s.id))
-  const empty = favPls.length === 0 && favSongList.length === 0
+  const favSongCount = songs.filter((s) => favSongs.has(s.id)).length
+  const favPlCount = playlists.filter((pl) => favPlaylists.has(pl.id)).length
+  const empty = favSongCount === 0 && favPlCount === 0
+  const nowPlaying = playerVisible && currentTrack ? currentTrack.title : null
 
   return (
     <>
@@ -974,54 +972,44 @@ function FavoritesTab({
           <p className="tabhero__kicker">Favorites</p>
           <h1 className="tabhero__title">Your Favorites</h1>
           <p className="tabhero__lead">
-            Songs and playlists you've hearted. Saved on this device — tap the ♥ on any
-            card to add or remove.
+            One mix of everything you've hearted — your favorite songs plus every track
+            from your favorite playlists. Saved on this device.
           </p>
         </div>
       </div>
 
-      {empty && (
+      {empty ? (
         <div className="musicempty" role="status">
-          No favorites yet — tap the ♥ on any song or playlist.
+          No favorites yet — go to the Music tab and tap the ♥ on any song or playlist.
         </div>
-      )}
-
-      {favPls.length > 0 && (
-      <div className="musicsub">
-        <h2 className="musicsub__title">Playlists</h2>
-        <p className="musicsub__count">{favPls.length} playlists</p>
-        <div className="plgrid">
-          {favPls.map((pl) => (
-            <PlaylistCard
-              key={pl.id}
-              pl={pl}
-              active={activePlaylistId && activePlaylistId === pl.id}
-              onPlayPlaylist={onPlayPlaylist}
-              isFav={favPlaylists.has(pl.id)}
-              onToggleFav={onToggleFavPlaylist}
-            />
-          ))}
+      ) : (
+        <div className="favplayer">
+          <p className="favplayer__summary">
+            {favSongCount} song{favSongCount === 1 ? '' : 's'} · {favPlCount} playlist
+            {favPlCount === 1 ? '' : 's'} in your favorites mix
+          </p>
+          <div className="favplayer__actions">
+            <button
+              type="button"
+              className="favplayer__btn favplayer__btn--primary"
+              onClick={() => onPlayFavorites(false)}
+            >
+              <span aria-hidden="true">▶</span> Play all favorites
+            </button>
+            <button
+              type="button"
+              className="favplayer__btn"
+              onClick={() => onPlayFavorites(true)}
+            >
+              <span aria-hidden="true">🔀</span> Shuffle
+            </button>
+          </div>
+          <p className="favplayer__hint">
+            {nowPlaying
+              ? `Now playing: ${nowPlaying}. Use the player's ⏮ / ⏭ to move through your favorites.`
+              : 'Then use the player’s ⏮ / ⏭ controls to move through them, or hit Shuffle again to reshuffle.'}
+          </p>
         </div>
-      </div>
-      )}
-
-      {favSongList.length > 0 && (
-      <div className="musicsub">
-        <h2 className="musicsub__title">Songs</h2>
-        <p className="musicsub__count">{favSongList.length} songs</p>
-        <div className="songgrid">
-          {favSongList.map((song) => (
-            <SongCard
-              key={song.id}
-              song={song}
-              active={currentTrack && currentTrack.id === song.id}
-              onPlaySong={onPlaySong}
-              isFav={favSongs.has(song.id)}
-              onToggleFav={onToggleFavSong}
-            />
-          ))}
-        </div>
-      </div>
       )}
     </>
   )
@@ -1518,6 +1506,46 @@ function App() {
     setPlayerVisible(true)
   }
 
+  // Build one queue from ALL favorites — favorited songs + every track of each
+  // favorited playlist (deduped by id). Powers the Favorites tab's universal player.
+  const buildFavoritesQueue = async () => {
+    const map = new Map()
+    for (const s of songs) if (favSongs.has(s.id)) map.set(s.id, s)
+    for (const pl of playlists) {
+      if (!favPlaylists.has(pl.id)) continue
+      let tracks = Array.isArray(pl.tracks) ? pl.tracks : []
+      if (!tracks.length) {
+        try {
+          const res = await fetch('/api/playlist?id=' + encodeURIComponent(pl.id))
+          if (res.ok) {
+            const json = await res.json()
+            tracks = Array.isArray(json && json.tracks) ? json.tracks : []
+          }
+        } catch {
+          // ignore — just skip this playlist's tracks
+        }
+      }
+      for (const t of tracks) if (t && t.id && !map.has(t.id)) map.set(t.id, t)
+    }
+    return [...map.values()]
+  }
+
+  const onPlayFavorites = async (shuffle = false) => {
+    let q = await buildFavoritesQueue()
+    if (!q.length) return
+    if (shuffle) {
+      for (let i = q.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[q[i], q[j]] = [q[j], q[i]]
+      }
+    }
+    setShouldPlay(true)
+    setActivePlaylistId(null)
+    setQueue(q)
+    setQueueIndex(0)
+    setPlayerVisible(true)
+  }
+
   const playPrev = () => {
     setQueueIndex((i) => (i > 0 ? i - 1 : i))
     setShouldPlay(true)
@@ -1676,13 +1704,10 @@ function App() {
             songs={songs}
             playlists={playlists}
             currentTrack={currentTrack}
-            activePlaylistId={activePlaylistId}
-            onPlaySong={onPlaySong}
-            onPlayPlaylist={onPlayPlaylist}
+            playerVisible={playerVisible}
             favSongs={favSongs}
             favPlaylists={favPlaylists}
-            onToggleFavSong={onToggleFavSong}
-            onToggleFavPlaylist={onToggleFavPlaylist}
+            onPlayFavorites={onPlayFavorites}
           />
         )}
       </main>
