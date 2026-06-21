@@ -101,7 +101,7 @@ const jobs = [
     loc: 'Bonifacio Global City, Taguig, Philippines',
     bullets: [
       'Selected for the HTML5 multi-platform ads team among 50+ testers.',
-      'Executed testing to ensure application performance across a range of mobile and tablet devices.',
+      'Executed testing to ensure application performance across a range of desktop, mobile, and tablet devices.',
     ],
   },
   {
