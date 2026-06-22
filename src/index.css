@@ -384,3 +384,13 @@ body:not([data-tab="Music"]) .player__inner{grid-template-columns:1fr}
   body.music-locked .songcard__title,body.music-locked .plcard__name{-webkit-line-clamp:1;font-size:12px}
   body.music-locked .songcard__body,body.music-locked .plcard__body{flex:0 0 auto;padding:7px 9px;gap:2px}
 }
+
+/* Private apps unlock card (Application tab) — themed password gate. */
+.unlockcard{border-style:dashed}
+.unlockcard__icon{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:var(--accent-soft);font-size:18px;flex-shrink:0}
+.unlockcard__form{display:flex;flex-direction:column;gap:8px;margin-top:auto}
+.unlockcard__label{font-size:12px;font-weight:600;color:var(--muted)}
+.unlockcard__input{font-family:inherit;font-size:14px;padding:11px 13px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);transition:border-color .2s}
+.unlockcard__input:focus{outline:none;border-color:var(--accent)}
+.unlockcard__error{margin:0;font-size:13px;font-weight:600;color:var(--accent)}
+.unlockcard__btn{margin-top:4px}

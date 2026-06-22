@@ -287,11 +287,6 @@ const bots = [
 
 const apps = [
   {
-    name: 'Retirement Guardian',
-    desc: 'Guardrails-based retirement spending tool that signals when to adjust withdrawals to stay on track.',
-    url: 'https://peremiller.github.io/retirement-guardian/',
-  },
-  {
     name: 'Calm Capital',
     desc: 'Behavioral-wealth dashboard — investment policy statement, synthetic paycheck, net-worth tracking, and a "bear mode" for downturns.',
     url: 'https://peremiller.github.io/calm-capital/',
@@ -564,15 +559,137 @@ function CareerTab() {
   )
 }
 
-// Build variant: the public site omits "Retirement Guardian"; the private build
-// (set VITE_INCLUDE_RG=1 at build time) includes it.
-const INCLUDE_RETIREMENT_GUARDIAN =
-  import.meta.env.VITE_INCLUDE_RG === '1' || import.meta.env.VITE_INCLUDE_RG === 'true'
-const visibleApps = INCLUDE_RETIREMENT_GUARDIAN
-  ? apps
-  : apps.filter((app) => app.name !== 'Retirement Guardian')
+// Renders one app card. Reused for both the static public apps and any private
+// apps fetched at runtime from /api/private-apps, so the markup stays identical.
+function AppCard({ app }) {
+  const live = app.status !== 'dev'
+  return (
+    <div className="itemcard reveal" key={app.name}>
+      <div className="itemcard__top">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <AppFavicon url={app.url} name={app.name} />
+          <h3>{app.name}</h3>
+        </div>
+        <span className={`badge ${live ? 'badge--live' : 'badge--dev'}`}>
+          <span className="badge__dot" />
+          {live ? 'Live' : 'Dev In Progress'}
+        </span>
+      </div>
+      <p className="itemcard__desc">{app.desc}</p>
+      <div className="itemcard__foot">
+        <span className="tag">Web</span>
+        <a className="btn btn--primary" href={app.url} target="_blank" rel="noreferrer">
+          Open ↗
+        </a>
+      </div>
+    </div>
+  )
+}
+
+// Themed unlock card shown when /api/private-apps returns 401. Submitting the
+// password POSTs to /api/private-login; on success the parent re-fetches.
+function PrivateUnlockCard({ onUnlocked }) {
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  const submit = async (e) => {
+    if (e) e.preventDefault()
+    if (submitting) return
+    setSubmitting(true)
+    setError('')
+    try {
+      const res = await fetch('/api/private-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      })
+      if (res.ok) {
+        setPassword('')
+        onUnlocked()
+      } else {
+        setError('Incorrect password')
+      }
+    } catch {
+      setError('Incorrect password')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="itemcard unlockcard reveal">
+      <div className="itemcard__top">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span className="unlockcard__icon" aria-hidden="true">🔒</span>
+          <h3>Private apps</h3>
+        </div>
+      </div>
+      <p className="itemcard__desc">
+        Enter the password to reveal additional private apps.
+      </p>
+      <form className="unlockcard__form" onSubmit={submit}>
+        <label className="unlockcard__label" htmlFor="private-password">
+          Password
+        </label>
+        <input
+          id="private-password"
+          type="password"
+          className="unlockcard__input"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
+          aria-invalid={error ? 'true' : undefined}
+          aria-describedby={error ? 'private-password-error' : undefined}
+          disabled={submitting}
+        />
+        {error && (
+          <p className="unlockcard__error" id="private-password-error" role="alert">
+            {error}
+          </p>
+        )}
+        <button
+          type="submit"
+          className="btn btn--primary unlockcard__btn"
+          disabled={submitting}
+        >
+          {submitting ? 'Unlocking…' : 'Unlock'}
+        </button>
+      </form>
+    </div>
+  )
+}
 
 function ApplicationTab() {
+  // Private apps are fetched at runtime (never bundled). States:
+  //   'none'   → endpoint 404/error → public deployment, render nothing extra
+  //   'locked' → 401 → show the unlock card
+  //   'open'   → 200 → render returned apps as extra cards
+  const [privState, setPrivState] = useState('none')
+  const [privateApps, setPrivateApps] = useState([])
+
+  const loadPrivate = async () => {
+    try {
+      const res = await fetch('/api/private-apps', { credentials: 'same-origin' })
+      if (res.status === 200) {
+        const json = await res.json()
+        setPrivateApps(Array.isArray(json && json.apps) ? json.apps : [])
+        setPrivState('open')
+      } else if (res.status === 401) {
+        setPrivState('locked')
+      } else {
+        // 404 or anything else → nothing extra (public deployment).
+        setPrivState('none')
+      }
+    } catch {
+      setPrivState('none')
+    }
+  }
+
+  useEffect(() => {
+    loadPrivate()
+  }, [])
+
   return (
     <>
       <div className="tabhero">
@@ -588,30 +705,14 @@ function ApplicationTab() {
       </div>
       <div className="section">
         <div className="cardgrid">
-          {visibleApps.map((app) => {
-            const live = app.status !== 'dev'
-            return (
-            <div className="itemcard reveal" key={app.name}>
-              <div className="itemcard__top">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <AppFavicon url={app.url} name={app.name} />
-                  <h3>{app.name}</h3>
-                </div>
-                <span className={`badge ${live ? 'badge--live' : 'badge--dev'}`}>
-                  <span className="badge__dot" />
-                  {live ? 'Live' : 'Dev In Progress'}
-                </span>
-              </div>
-              <p className="itemcard__desc">{app.desc}</p>
-              <div className="itemcard__foot">
-                <span className="tag">Web</span>
-                <a className="btn btn--primary" href={app.url} target="_blank" rel="noreferrer">
-                  Open ↗
-                </a>
-              </div>
-            </div>
-            )
-          })}
+          {apps.map((app) => (
+            <AppCard key={app.name} app={app} />
+          ))}
+          {privState === 'open' &&
+            privateApps.map((app) => <AppCard key={app.name} app={app} />)}
+          {privState === 'locked' && (
+            <PrivateUnlockCard onUnlocked={loadPrivate} />
+          )}
         </div>
       </div>
     </>
