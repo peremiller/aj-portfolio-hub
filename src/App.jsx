@@ -322,6 +322,11 @@ const apps = [
     desc: 'Interactive data-visualization of the top problems facing the blockchain industry.',
     url: 'https://blockchain-problems.vercel.app/',
   },
+  {
+    name: 'VoltDown',
+    desc: 'Lists 1,000 solutions to high electricity prices, each scored on impact, feasibility (0-100), and estimated cost, with subtasks and editable statuses — plus search, filter, a "Quick wins" sort, a click-to-open detail panel with per-subtask cost, a live progress dashboard, and JSON/CSV export.',
+    url: 'https://electricity-solutions.vercel.app',
+  },
 ]
 
 const TABS = ['Career', 'Application', 'Telegram Bot', 'Music', 'Favorites']
