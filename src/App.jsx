@@ -287,6 +287,11 @@ const bots = [
 
 const apps = [
   {
+    name: 'PicPress — Image to PDF Merger',
+    desc: 'Merge images into a single PDF in the browser — rotate, reorder, and export with a zero-dependency PDF writer. Everything runs client-side; nothing is uploaded.',
+    url: 'https://image-pdf-merger.vercel.app',
+  },
+  {
     name: 'Calm Capital',
     desc: 'Behavioral-wealth dashboard — investment policy statement, synthetic paycheck, net-worth tracking, and a "bear mode" for downturns.',
     url: 'https://peremiller.github.io/calm-capital/',
@@ -326,6 +331,11 @@ const apps = [
     name: 'VoltDown',
     desc: 'Lists 1,000 solutions to high electricity prices, each scored on impact, feasibility (0-100), and estimated cost, with subtasks and editable statuses — plus search, filter, a "Quick wins" sort, a click-to-open detail panel with per-subtask cost, a live progress dashboard, and JSON/CSV export.',
     url: 'https://electricity-solutions.vercel.app',
+  },
+  {
+    name: 'HackCal',
+    desc: 'Offline-first tech hackathon calendar with month and list views, filtering, and .ics export.',
+    url: 'https://hackathon-calendar-umber.vercel.app',
   },
 ]
 
