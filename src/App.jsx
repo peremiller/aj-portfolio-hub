@@ -384,6 +384,59 @@ function styleLine(tags) {
   return first.slice(0, 40).trimEnd() + '…'
 }
 
+function LeafShape() {
+  return (
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M12 2C16 7 18 12 16 18c-1 3-3 4-4 4s-3-1-4-4C6 12 8 7 12 2z"
+        fill="currentColor"
+      />
+      <path
+        d="M12 4.5V20"
+        stroke="rgba(255,255,255,.4)"
+        strokeWidth="1"
+        fill="none"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+// Small leaves drifting slowly across a banner, as if carried by the wind.
+const LEAF_CONF = [
+  { top: 12, size: 22, dur: 21, delay: -3, op: 0.5, v: 0 },
+  { top: 30, size: 15, dur: 28, delay: -11, op: 0.42, v: 1 },
+  { top: 55, size: 26, dur: 24, delay: -16, op: 0.52, v: 0 },
+  { top: 70, size: 17, dur: 32, delay: -6, op: 0.38, v: 1 },
+  { top: 20, size: 13, dur: 35, delay: -22, op: 0.34, v: 1 },
+  { top: 46, size: 20, dur: 26, delay: -18, op: 0.46, v: 0 },
+  { top: 82, size: 14, dur: 30, delay: -12, op: 0.4, v: 1 },
+  { top: 37, size: 24, dur: 22, delay: -27, op: 0.5, v: 0 },
+  { top: 63, size: 16, dur: 34, delay: -8, op: 0.4, v: 1 },
+]
+function Leaves() {
+  return (
+    <div className="leaves" aria-hidden="true">
+      {LEAF_CONF.map((c, i) => (
+        <span
+          key={i}
+          className={`leaf leaf--v${c.v}`}
+          style={{
+            top: `${c.top}%`,
+            width: `${c.size}px`,
+            height: `${c.size}px`,
+            animationDuration: `${c.dur}s`,
+            animationDelay: `${c.delay}s`,
+            '--lo': c.op,
+          }}
+        >
+          <LeafShape />
+        </span>
+      ))}
+    </div>
+  )
+}
+
 function Section({ id, kicker, title, children, className }) {
   return (
     <section id={id}>
@@ -403,6 +456,7 @@ function CareerTab() {
     <>
       <header className="hero" id="top">
         <div className="hero__glow" />
+        <Leaves />
         <div className="hero__spotlight" aria-hidden="true">
           <span className="spot spot--l" />
           <span className="spot spot--r" />
@@ -725,6 +779,7 @@ function ApplicationTab() {
     <>
       <div className="tabhero">
         <div className="tabhero__glow" />
+        <Leaves />
         <div className="tabhero__inner reveal">
           <p className="tabhero__kicker">Application</p>
           <h1 className="tabhero__title">Live web apps</h1>
@@ -755,6 +810,7 @@ function TelegramBotTab() {
     <>
       <div className="tabhero">
         <div className="tabhero__glow" />
+        <Leaves />
         <div className="tabhero__inner reveal">
           <p className="tabhero__kicker">Telegram Bot</p>
           <h1 className="tabhero__title">Bots on Telegram</h1>
@@ -1000,6 +1056,7 @@ function MusicTab({
 
       <div className="tabhero">
         <div className="tabhero__glow" />
+        <Leaves />
         <div className="tabhero__inner reveal">
           <p className="tabhero__kicker">Music</p>
           <h1 className="tabhero__title">Song & Playlists</h1>
@@ -1100,6 +1157,7 @@ function FavoritesTab({
     <>
       <div className="tabhero">
         <div className="tabhero__glow" />
+        <Leaves />
         <div className="tabhero__inner reveal">
           <p className="tabhero__kicker">Favorites</p>
           <h1 className="tabhero__title">Your Favorites</h1>
@@ -1281,6 +1339,7 @@ function AnalyticsTab() {
     <>
       <div className="tabhero">
         <div className="tabhero__glow" />
+        <Leaves />
         <div className="tabhero__inner reveal">
           <p className="tabhero__kicker">Analytics</p>
           <h1 className="tabhero__title">Who's visiting</h1>
