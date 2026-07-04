@@ -474,3 +474,10 @@ body:not([data-tab="Music"]) .player__inner{grid-template-columns:1fr}
 @media (prefers-reduced-motion:reduce){
   .leaf{animation:none;opacity:calc(var(--lo,.5) * .55);transform:translate(24vw,8px) rotate(18deg)}
 }
+
+/* Twinkling stars — only in dark mode */
+.stars{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;display:none}
+html[data-theme="dark"] .stars{display:block}
+.star{position:absolute;border-radius:50%;background:#fff;box-shadow:0 0 4px 1px rgba(255,255,255,.45);opacity:0;will-change:opacity,transform;animation-name:starTwinkle;animation-timing-function:ease-in-out;animation-iteration-count:infinite}
+@keyframes starTwinkle{0%,100%{opacity:calc(var(--so,.6) * .22);transform:scale(.65)}50%{opacity:var(--so,.6);transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.star{animation:none;opacity:var(--so,.6)}}

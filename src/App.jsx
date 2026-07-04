@@ -437,6 +437,45 @@ function Leaves() {
   )
 }
 
+// A subtle twinkling star field, shown only in dark mode (gated in CSS).
+// Positions are computed once from a tiny deterministic PRNG so they're stable.
+const STARS = (() => {
+  let s = 1337
+  const rnd = () => {
+    s = (s * 1664525 + 1013904223) >>> 0
+    return s / 4294967296
+  }
+  return Array.from({ length: 44 }, () => ({
+    left: +(rnd() * 100).toFixed(2),
+    top: +(rnd() * 100).toFixed(2),
+    size: +(1 + rnd() * 2.4).toFixed(2),
+    dur: +(2.4 + rnd() * 4).toFixed(2),
+    delay: +(-rnd() * 6).toFixed(2),
+    op: +(0.45 + rnd() * 0.55).toFixed(2),
+  }))
+})()
+function Stars() {
+  return (
+    <div className="stars" aria-hidden="true">
+      {STARS.map((st, i) => (
+        <span
+          key={i}
+          className="star"
+          style={{
+            left: `${st.left}%`,
+            top: `${st.top}%`,
+            width: `${st.size}px`,
+            height: `${st.size}px`,
+            animationDuration: `${st.dur}s`,
+            animationDelay: `${st.delay}s`,
+            '--so': st.op,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
 function Section({ id, kicker, title, children, className }) {
   return (
     <section id={id}>
@@ -457,6 +496,7 @@ function CareerTab() {
       <header className="hero" id="top">
         <div className="hero__glow" />
         <Leaves />
+        <Stars />
         <div className="hero__spotlight" aria-hidden="true">
           <span className="spot spot--l" />
           <span className="spot spot--r" />
@@ -780,6 +820,7 @@ function ApplicationTab() {
       <div className="tabhero">
         <div className="tabhero__glow" />
         <Leaves />
+        <Stars />
         <div className="tabhero__inner reveal">
           <p className="tabhero__kicker">Application</p>
           <h1 className="tabhero__title">Live web apps</h1>
@@ -811,6 +852,7 @@ function TelegramBotTab() {
       <div className="tabhero">
         <div className="tabhero__glow" />
         <Leaves />
+        <Stars />
         <div className="tabhero__inner reveal">
           <p className="tabhero__kicker">Telegram Bot</p>
           <h1 className="tabhero__title">Bots on Telegram</h1>
@@ -1057,6 +1099,7 @@ function MusicTab({
       <div className="tabhero">
         <div className="tabhero__glow" />
         <Leaves />
+        <Stars />
         <div className="tabhero__inner reveal">
           <p className="tabhero__kicker">Music</p>
           <h1 className="tabhero__title">Song & Playlists</h1>
@@ -1158,6 +1201,7 @@ function FavoritesTab({
       <div className="tabhero">
         <div className="tabhero__glow" />
         <Leaves />
+        <Stars />
         <div className="tabhero__inner reveal">
           <p className="tabhero__kicker">Favorites</p>
           <h1 className="tabhero__title">Your Favorites</h1>
@@ -1340,6 +1384,7 @@ function AnalyticsTab() {
       <div className="tabhero">
         <div className="tabhero__glow" />
         <Leaves />
+        <Stars />
         <div className="tabhero__inner reveal">
           <p className="tabhero__kicker">Analytics</p>
           <h1 className="tabhero__title">Who's visiting</h1>
