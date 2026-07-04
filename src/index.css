@@ -7,7 +7,8 @@
 .hubbar__brand{margin-right:auto}
 .hubtabs{margin-left:auto}
 .hubbar__brand{display:flex;align-items:center;gap:12px;font-weight:700;flex-shrink:0}
-.hubbar__mark{display:grid;place-items:center;width:36px;height:36px;color:var(--accent)}
+.hubbar__mark{display:grid;place-items:center;width:36px;height:36px}
+.hubbar__logo{width:100%;height:100%;object-fit:contain;display:block}
 .hubbar__name{font-size:15px;letter-spacing:.2px}
 .hubtabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
 .hubtabs::-webkit-scrollbar{display:none}

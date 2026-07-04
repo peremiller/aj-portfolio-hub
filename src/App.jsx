@@ -1749,29 +1749,7 @@ function App() {
           aria-label="Go to Career"
         >
           <span className="hubbar__mark" aria-hidden="true">
-            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M50 7C35 7 23 10 17 13L17 40C17 66 29 84 50 95C71 84 83 66 83 40L83 13C77 10 65 7 50 7Z"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="6.5"
-                strokeLinejoin="round"
-              />
-              <text
-                x="50"
-                y="57"
-                textAnchor="middle"
-                fontFamily="Inter, system-ui, sans-serif"
-                fontWeight="900"
-                fontSize="40"
-                letterSpacing="-3"
-                fill="currentColor"
-                textLength="72"
-                lengthAdjust="spacingAndGlyphs"
-              >
-                AJM
-              </text>
-            </svg>
+            <img className="hubbar__logo" src="/logo.png" alt="" />
           </span>
           <span className="hubbar__name">{profile.name}</span>
         </button>
