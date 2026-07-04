@@ -18,7 +18,7 @@
 .hubtab--fav{display:inline-flex;align-items:center;gap:6px}
 .tabicon{font-size:15px;line-height:1}
 .hubmain{padding-top:72px}
-.tabhero{position:relative;padding:90px clamp(18px,5vw,48px) 10px;text-align:center;overflow:hidden}
+.tabhero{position:relative;min-height:34svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px clamp(18px,5vw,48px);text-align:center;overflow:hidden}
 .tabhero__glow{position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:700px;height:700px;background:radial-gradient(circle at 30% 30%,var(--accent-glow-1),transparent 60%),radial-gradient(circle at 70% 60%,var(--accent-glow-2),transparent 60%);filter:blur(20px);pointer-events:none}
 .tabhero__inner{position:relative;max-width:var(--maxw);margin:0 auto}
 .tabhero__kicker{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--accent-2);font-weight:600}

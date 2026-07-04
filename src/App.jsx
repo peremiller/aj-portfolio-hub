@@ -269,13 +269,13 @@ const bots = [
     name: 'Disaster Watch',
     handle: '@disaster_watch_bot',
     desc: 'Real-time alerts for earthquakes, tsunamis, typhoons, floods, and volcanic activity.',
-    status: 'dev',
+    status: 'live',
   },
   {
     name: 'PH Dollar Rate',
     handle: '@ph_dollar_rate',
     desc: 'Compares USD→PHP buy & sell rates across Philippine banks.',
-    status: 'dev',
+    status: 'live',
   },
   {
     name: 'Pelikula Finder',
