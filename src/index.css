@@ -481,3 +481,15 @@ html[data-theme="dark"] .stars{display:block}
 .star{position:absolute;border-radius:50%;background:#fff;box-shadow:0 0 4px 1px rgba(255,255,255,.45);opacity:0;will-change:opacity,transform;animation-name:starTwinkle;animation-timing-function:ease-in-out;animation-iteration-count:infinite}
 @keyframes starTwinkle{0%,100%{opacity:calc(var(--so,.6) * .22);transform:scale(.65)}50%{opacity:var(--so,.6);transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.star{animation:none;opacity:var(--so,.6)}}
+
+/* Leading tab icons (desktop only) + hide desktop-only drawer links on mobile */
+.hubtab--lead{display:inline-flex;align-items:center;gap:6px}
+.tabicon--lead{font-size:14px;line-height:1}
+@media (max-width:720px){
+  .tabicon--lead{display:none}
+  .hubtab--lead{gap:0}
+  .drawer__link--deskonly{display:none}
+}
+
+/* Analytics status banner (unconfigured / error) */
+.geobanner{max-width:var(--maxw);margin:0 auto 18px;padding:12px 16px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;background:var(--accent-soft);color:var(--text);font-size:13.5px;line-height:1.5}

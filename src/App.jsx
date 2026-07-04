@@ -300,6 +300,7 @@ const apps = [
     name: 'Cash Reserve Planner',
     desc: 'Three-bucket liquidity planner with a reserve glide path and multi-currency support.',
     url: 'https://cash-reserve-planner.vercel.app',
+    status: 'dev',
   },
   {
     name: 'Dynamic Withdrawal',
@@ -1374,9 +1375,15 @@ function AnalyticsTab() {
     load()
   }, [])
 
+  // Fall back to an empty dashboard so the count + map are always visible
+  // (showing zeros / no dots) even before a Blob store is connected.
+  const dash =
+    status === 'ok' && data
+      ? data
+      : { total: 0, unique: 0, today: 0, last7: 0, points: [], byCountry: [], recent: [] }
   const maxCountry =
-    data && data.byCountry && data.byCountry.length
-      ? Math.max(...data.byCountry.map((c) => c.count))
+    dash.byCountry && dash.byCountry.length
+      ? Math.max(...dash.byCountry.map((c) => c.count))
       : 0
 
   return (
@@ -1399,50 +1406,41 @@ function AnalyticsTab() {
           <div className="musicempty" role="status">Loading analytics…</div>
         )}
 
-        {status === 'unconfigured' && (
-          <div className="itemcard reveal">
-            <div className="itemcard__top">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span className="unlockcard__icon" aria-hidden="true">📊</span>
-                <h3>Analytics not connected</h3>
-              </div>
-            </div>
-            <p className="itemcard__desc">
-              Analytics isn't connected yet. Add a Vercel Blob store to the project
-              (Storage → Create → Blob) to start recording page views.
-            </p>
-          </div>
-        )}
-
-        {status === 'error' && (
-          <div className="musicempty" role="status">
-            Couldn't load analytics right now.
-          </div>
-        )}
-
         {status === 'locked' && (
           <div className="cardgrid">
             <AnalyticsUnlockCard onUnlocked={load} />
           </div>
         )}
 
-        {status === 'ok' && data && (
+        {(status === 'ok' || status === 'unconfigured' || status === 'error') && (
           <>
+            {status === 'unconfigured' && (
+              <div className="geobanner" role="status">
+                <span aria-hidden="true">📊</span> Analytics isn't connected yet — add a
+                Vercel Blob store (Storage → Create → Blob) and it starts recording page
+                views. The dashboard below fills in as visits come in.
+              </div>
+            )}
+            {status === 'error' && (
+              <div className="geobanner" role="status">
+                Couldn't load live analytics right now — showing an empty dashboard.
+              </div>
+            )}
             <div className="statcards">
               <div className="statcard reveal">
-                <div className="statcard__value">{(data.total || 0).toLocaleString()}</div>
+                <div className="statcard__value">{(dash.total || 0).toLocaleString()}</div>
                 <div className="statcard__label">Total views</div>
               </div>
               <div className="statcard reveal">
-                <div className="statcard__value">{(data.unique || 0).toLocaleString()}</div>
+                <div className="statcard__value">{(dash.unique || 0).toLocaleString()}</div>
                 <div className="statcard__label">Unique visitors</div>
               </div>
               <div className="statcard reveal">
-                <div className="statcard__value">{(data.today || 0).toLocaleString()}</div>
+                <div className="statcard__value">{(dash.today || 0).toLocaleString()}</div>
                 <div className="statcard__label">Today</div>
               </div>
               <div className="statcard reveal">
-                <div className="statcard__value">{(data.last7 || 0).toLocaleString()}</div>
+                <div className="statcard__value">{(dash.last7 || 0).toLocaleString()}</div>
                 <div className="statcard__label">Last 7 days</div>
               </div>
             </div>
@@ -1450,8 +1448,8 @@ function AnalyticsTab() {
             <div className="geowrap reveal">
               <div className="geomap">
                 <img src="/worldmap.png" className="geomap__base" alt="" />
-                {Array.isArray(data.points) && data.points.length > 0 ? (
-                  data.points.map((p, i) => {
+                {Array.isArray(dash.points) && dash.points.length > 0 ? (
+                  dash.points.map((p, i) => {
                     const size = 8 + Math.min(18, Math.sqrt(p.count) * 4)
                     return (
                       <span
@@ -1469,16 +1467,16 @@ function AnalyticsTab() {
                   })
                 ) : null}
               </div>
-              {(!data.points || data.points.length === 0) && (
+              {(!dash.points || dash.points.length === 0) && (
                 <p className="geomap__empty">No locations recorded yet.</p>
               )}
             </div>
 
-            {Array.isArray(data.byCountry) && data.byCountry.length > 0 && (
+            {Array.isArray(dash.byCountry) && dash.byCountry.length > 0 && (
               <div className="geopanel reveal">
                 <h3 className="geopanel__title">Top countries</h3>
                 <ul className="geobars">
-                  {data.byCountry.map((c) => (
+                  {dash.byCountry.map((c) => (
                     <li className="geobar" key={c.country}>
                       <span className="geobar__label">{c.country || '—'}</span>
                       <span className="geobar__track">
@@ -1494,11 +1492,11 @@ function AnalyticsTab() {
               </div>
             )}
 
-            {Array.isArray(data.recent) && data.recent.length > 0 && (
+            {Array.isArray(dash.recent) && dash.recent.length > 0 && (
               <div className="geopanel reveal">
                 <h3 className="geopanel__title">Recent visits</h3>
                 <ul className="georecent">
-                  {data.recent.map((r, i) => (
+                  {dash.recent.map((r, i) => (
                     <li className="georecent__item" key={`${r.ts}-${i}`}>
                       <span className="georecent__place">
                         {[r.city, r.country].filter(Boolean).join(', ') || 'Unknown location'}
@@ -1901,7 +1899,10 @@ function App() {
     }
   }, [playerVisible, tab])
 
-  const { songs = [], playlists = [] } = musicData
+  // Hide the "7:27" song + playlist everywhere.
+  const HIDE_RE = /7\s*:?\s*27/
+  const songs = (musicData.songs || []).filter((s) => !HIDE_RE.test(s.title || ''))
+  const playlists = (musicData.playlists || []).filter((p) => !HIDE_RE.test(p.name || ''))
   const currentTrack = queue[queueIndex] || null
 
   // Fetch the Suno catalog once at app start; fall back to bundled JSON.
@@ -2191,23 +2192,27 @@ function App() {
         </button>
         <div className="hubtabs">
           {TABS.map((t) => {
-            const iconTab = t === 'Favorites' || t === 'Analytics'
-            const icon = t === 'Favorites' ? '♥' : t === 'Analytics' ? '📊' : ''
+            const iconOnly = t === 'Favorites' || t === 'Analytics'
+            const lead = { Career: '💼', Application: '🖥️', 'Telegram Bot': '🤖', Music: '🎵' }[t]
+            const icon = t === 'Favorites' ? '♥' : t === 'Analytics' ? '📊' : lead || ''
             return (
               <button
                 key={t}
-                className={`hubtab${tab === t ? ' hubtab--active' : ''}${iconTab ? ' hubtab--fav' : ''}`}
+                className={`hubtab${tab === t ? ' hubtab--active' : ''}${iconOnly ? ' hubtab--fav' : ''}${lead ? ' hubtab--lead' : ''}`}
                 onClick={() => setTab(t)}
                 aria-current={tab === t ? 'page' : undefined}
-                aria-label={iconTab ? t : undefined}
+                aria-label={iconOnly ? t : undefined}
               >
-                {iconTab ? (
+                {iconOnly ? (
                   <>
                     <span className="tabicon" aria-hidden="true">{icon}</span>
                     <span className="tablabel">{t}</span>
                   </>
                 ) : (
-                  t
+                  <>
+                    <span className="tabicon tabicon--lead" aria-hidden="true">{icon}</span>
+                    {t}
+                  </>
                 )}
               </button>
             )
@@ -2269,7 +2274,7 @@ function App() {
           {MUSIC_SECTIONS.map((s) => (
             <button
               key={s.id}
-              className="drawer__link drawer__link--sub"
+              className={`drawer__link drawer__link--sub${s.id === 'music-recommended' ? ' drawer__link--deskonly' : ''}`}
               onClick={() => navigateTo('Music', s.id)}
             >
               {s.label}

@@ -56,12 +56,15 @@ export default async function handler(req, res) {
       return
     }
 
-    // Private gate — reuse the exact hub_priv token check from private-apps.js.
-    const cookies = parseCookies(req.headers && req.headers.cookie)
-    const provided = cookies[COOKIE_NAME] || ''
-    if (!process.env.PRIVATE_PASSWORD || !safeTokenEqual(provided, sessionToken())) {
-      res.status(401).json({ error: 'auth' })
-      return
+    // Optional privacy gate: analytics is viewable by default. It only locks
+    // (requiring the hub_priv password cookie) if PRIVATE_PASSWORD is set.
+    if (process.env.PRIVATE_PASSWORD) {
+      const cookies = parseCookies(req.headers && req.headers.cookie)
+      const provided = cookies[COOKIE_NAME] || ''
+      if (!safeTokenEqual(provided, sessionToken())) {
+        res.status(401).json({ error: 'auth' })
+        return
+      }
     }
 
     // Load current stats (or treat as empty).
