@@ -339,7 +339,7 @@ const apps = [
   },
 ]
 
-const TABS = ['Career', 'Application', 'Telegram Bot', 'Music', 'Favorites']
+const TABS = ['Career', 'Application', 'Telegram Bot', 'Music', 'Favorites', 'Analytics']
 
 // Section anchors surfaced in the burger menu.
 const CAREER_SECTIONS = [
@@ -1147,6 +1147,276 @@ function FavoritesTab({
   )
 }
 
+// Relative "time ago" for the recent-visits list (e.g. "3m ago", "2h ago").
+function timeAgo(iso) {
+  const then = new Date(iso).getTime()
+  if (!Number.isFinite(then)) return ''
+  const s = Math.max(0, Math.floor((Date.now() - then) / 1000))
+  if (s < 60) return 'just now'
+  const m = Math.floor(s / 60)
+  if (m < 60) return `${m}m ago`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h}h ago`
+  const d = Math.floor(h / 24)
+  if (d < 30) return `${d}d ago`
+  const mo = Math.floor(d / 30)
+  if (mo < 12) return `${mo}mo ago`
+  return `${Math.floor(mo / 12)}y ago`
+}
+
+// Themed unlock card for the private analytics gate. Same password flow as the
+// Application tab's PrivateUnlockCard: POST /api/private-login then re-fetch.
+function AnalyticsUnlockCard({ onUnlocked }) {
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  const submit = async (e) => {
+    if (e) e.preventDefault()
+    if (submitting) return
+    setSubmitting(true)
+    setError('')
+    try {
+      const res = await fetch('/api/private-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      })
+      if (res.ok) {
+        setPassword('')
+        onUnlocked()
+      } else {
+        setError('Incorrect password')
+      }
+    } catch {
+      setError('Incorrect password')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="itemcard unlockcard reveal">
+      <div className="itemcard__top">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span className="unlockcard__icon" aria-hidden="true">🔒</span>
+          <h3>Private dashboard</h3>
+        </div>
+      </div>
+      <p className="itemcard__desc">
+        Visitor locations are private. Enter the password to view analytics.
+      </p>
+      <form className="unlockcard__form" onSubmit={submit}>
+        <label className="unlockcard__label" htmlFor="analytics-password">
+          Password
+        </label>
+        <input
+          id="analytics-password"
+          type="password"
+          className="unlockcard__input"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
+          aria-invalid={error ? 'true' : undefined}
+          aria-describedby={error ? 'analytics-password-error' : undefined}
+          disabled={submitting}
+        />
+        {error && (
+          <p className="unlockcard__error" id="analytics-password-error" role="alert">
+            {error}
+          </p>
+        )}
+        <button
+          type="submit"
+          className="btn btn--primary unlockcard__btn"
+          disabled={submitting}
+        >
+          {submitting ? 'Unlocking…' : 'Unlock'}
+        </button>
+      </form>
+    </div>
+  )
+}
+
+function AnalyticsTab() {
+  // status: 'loading' | 'ok' | 'locked' | 'unconfigured' | 'error'
+  const [status, setStatus] = useState('loading')
+  const [data, setData] = useState(null)
+
+  const load = async () => {
+    try {
+      const res = await fetch('/api/stats', { credentials: 'same-origin' })
+      if (res.status === 401) {
+        setStatus('locked')
+        return
+      }
+      if (res.status === 200) {
+        const json = await res.json()
+        if (json && json.configured === false) {
+          setStatus('unconfigured')
+        } else if (json && json.configured) {
+          setData(json)
+          setStatus('ok')
+        } else {
+          setStatus('error')
+        }
+        return
+      }
+      setStatus('error')
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  useEffect(() => {
+    load()
+  }, [])
+
+  const maxCountry =
+    data && data.byCountry && data.byCountry.length
+      ? Math.max(...data.byCountry.map((c) => c.count))
+      : 0
+
+  return (
+    <>
+      <div className="tabhero">
+        <div className="tabhero__glow" />
+        <div className="tabhero__inner reveal">
+          <p className="tabhero__kicker">Analytics</p>
+          <h1 className="tabhero__title">Who's visiting</h1>
+          <p className="tabhero__lead">
+            Page views and an approximate map of where visitors are coming from.
+          </p>
+        </div>
+      </div>
+
+      <div className="section">
+        {status === 'loading' && (
+          <div className="musicempty" role="status">Loading analytics…</div>
+        )}
+
+        {status === 'unconfigured' && (
+          <div className="itemcard reveal">
+            <div className="itemcard__top">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span className="unlockcard__icon" aria-hidden="true">📊</span>
+                <h3>Analytics not connected</h3>
+              </div>
+            </div>
+            <p className="itemcard__desc">
+              Analytics isn't connected yet. Add a Vercel Blob store to the project
+              (Storage → Create → Blob) to start recording page views.
+            </p>
+          </div>
+        )}
+
+        {status === 'error' && (
+          <div className="musicempty" role="status">
+            Couldn't load analytics right now.
+          </div>
+        )}
+
+        {status === 'locked' && (
+          <div className="cardgrid">
+            <AnalyticsUnlockCard onUnlocked={load} />
+          </div>
+        )}
+
+        {status === 'ok' && data && (
+          <>
+            <div className="statcards">
+              <div className="statcard reveal">
+                <div className="statcard__value">{(data.total || 0).toLocaleString()}</div>
+                <div className="statcard__label">Total views</div>
+              </div>
+              <div className="statcard reveal">
+                <div className="statcard__value">{(data.unique || 0).toLocaleString()}</div>
+                <div className="statcard__label">Unique visitors</div>
+              </div>
+              <div className="statcard reveal">
+                <div className="statcard__value">{(data.today || 0).toLocaleString()}</div>
+                <div className="statcard__label">Today</div>
+              </div>
+              <div className="statcard reveal">
+                <div className="statcard__value">{(data.last7 || 0).toLocaleString()}</div>
+                <div className="statcard__label">Last 7 days</div>
+              </div>
+            </div>
+
+            <div className="geowrap reveal">
+              <div className="geomap">
+                <img src="/worldmap.png" className="geomap__base" alt="" />
+                {Array.isArray(data.points) && data.points.length > 0 ? (
+                  data.points.map((p, i) => {
+                    const size = 8 + Math.min(18, Math.sqrt(p.count) * 4)
+                    return (
+                      <span
+                        key={`${p.lat},${p.lng},${i}`}
+                        className="geodot"
+                        style={{
+                          left: `${((p.lng + 180) / 360) * 100}%`,
+                          top: `${((90 - p.lat) / 180) * 100}%`,
+                          width: `${size}px`,
+                          height: `${size}px`,
+                        }}
+                        title={`${p.city || '—'}, ${p.country} · ${p.count} view(s)`}
+                      />
+                    )
+                  })
+                ) : null}
+              </div>
+              {(!data.points || data.points.length === 0) && (
+                <p className="geomap__empty">No locations recorded yet.</p>
+              )}
+            </div>
+
+            {Array.isArray(data.byCountry) && data.byCountry.length > 0 && (
+              <div className="geopanel reveal">
+                <h3 className="geopanel__title">Top countries</h3>
+                <ul className="geobars">
+                  {data.byCountry.map((c) => (
+                    <li className="geobar" key={c.country}>
+                      <span className="geobar__label">{c.country || '—'}</span>
+                      <span className="geobar__track">
+                        <span
+                          className="geobar__fill"
+                          style={{ width: `${maxCountry ? (c.count / maxCountry) * 100 : 0}%` }}
+                        />
+                      </span>
+                      <span className="geobar__count">{c.count.toLocaleString()}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {Array.isArray(data.recent) && data.recent.length > 0 && (
+              <div className="geopanel reveal">
+                <h3 className="geopanel__title">Recent visits</h3>
+                <ul className="georecent">
+                  {data.recent.map((r, i) => (
+                    <li className="georecent__item" key={`${r.ts}-${i}`}>
+                      <span className="georecent__place">
+                        {[r.city, r.country].filter(Boolean).join(', ') || 'Unknown location'}
+                      </span>
+                      <span className="georecent__time">{timeAgo(r.ts)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <p className="geonote">
+              Approximate city-level location derived from the visitor's network — no
+              IP addresses or personal data are stored.
+            </p>
+          </>
+        )}
+      </div>
+    </>
+  )
+}
+
 // Classify a lyric line: structural (blank, [Section] header, or fully
 // parenthetical note) vs singable. Only singable lines are highlighted/timed.
 function isStructuralLine(line) {
@@ -1503,6 +1773,12 @@ function App() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Fire one open page-view on mount (once per load). Non-blocking; errors are
+  // ignored. The endpoint records only coarse geo and no-ops if unconfigured.
+  useEffect(() => {
+    fetch('/api/track', { method: 'POST', keepalive: true }).catch(() => {})
+  }, [])
+
   // Expose the active tab on <body> so CSS can target tab-specific mobile layout
   // (e.g. the Music tab's taller player/lyrics that fills the top half).
   useEffect(() => {
@@ -1810,24 +2086,28 @@ function App() {
           <span className="hubbar__name">{profile.name}</span>
         </button>
         <div className="hubtabs">
-          {TABS.map((t) => (
-            <button
-              key={t}
-              className={`hubtab${tab === t ? ' hubtab--active' : ''}${t === 'Favorites' ? ' hubtab--fav' : ''}`}
-              onClick={() => setTab(t)}
-              aria-current={tab === t ? 'page' : undefined}
-              aria-label={t === 'Favorites' ? 'Favorites' : undefined}
-            >
-              {t === 'Favorites' ? (
-                <>
-                  <span className="tabicon" aria-hidden="true">♥</span>
-                  <span className="tablabel">Favorites</span>
-                </>
-              ) : (
-                t
-              )}
-            </button>
-          ))}
+          {TABS.map((t) => {
+            const iconTab = t === 'Favorites' || t === 'Analytics'
+            const icon = t === 'Favorites' ? '♥' : t === 'Analytics' ? '📊' : ''
+            return (
+              <button
+                key={t}
+                className={`hubtab${tab === t ? ' hubtab--active' : ''}${iconTab ? ' hubtab--fav' : ''}`}
+                onClick={() => setTab(t)}
+                aria-current={tab === t ? 'page' : undefined}
+                aria-label={iconTab ? t : undefined}
+              >
+                {iconTab ? (
+                  <>
+                    <span className="tabicon" aria-hidden="true">{icon}</span>
+                    <span className="tablabel">{t}</span>
+                  </>
+                ) : (
+                  t
+                )}
+              </button>
+            )
+          })}
         </div>
         <button
           className="themetoggle"
@@ -1939,11 +2219,12 @@ function App() {
             onPlayFavorites={onPlayFavorites}
           />
         )}
+        {tab === 'Analytics' && <AnalyticsTab />}
       </main>
 
       <footer className="footer hub-footer">
         <span>© {new Date().getFullYear()} AJ Miller T. Perez</span>
-        <span className="footer__made">Career · Application · Telegram Bot · Music · Favorites — built with React + Vite</span>
+        <span className="footer__made">Career · Application · Telegram Bot · Music · Favorites · Analytics — built with React + Vite</span>
       </footer>
 
       <button

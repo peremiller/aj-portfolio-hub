@@ -288,11 +288,12 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
 /* ── Small phones: fit all four tabs on one row, no horizontal scroll, and
    trim oversized type a notch. ───────────────────────────────────────── */
 @media (max-width: 420px){
-  /* The tab strip stops scrolling and instead shrinks to fit the viewport. */
-  .hubtabs{flex-wrap:nowrap;overflow-x:visible;gap:3px;width:100%;justify-content:space-between}
-  .hubtab{font-size:12px;padding:7px 7px;flex:0 1 auto;letter-spacing:0}
-  /* Favorites is icon-only here, so it can be tighter than the text tabs. */
-  .hubtab--fav{padding:7px 9px}
+  /* The tab strip stops scrolling and instead shrinks to fit the viewport.
+     Six tabs (4 text + ♥ + 📊) must fit one row with no horizontal scroll. */
+  .hubtabs{flex-wrap:nowrap;overflow-x:visible;gap:2px;width:100%;justify-content:space-between}
+  .hubtab{font-size:12px;padding:7px 5px;flex:0 1 auto;letter-spacing:-.2px}
+  /* Favorites + Analytics are icon-only here, so they can be tighter. */
+  .hubtab--fav{padding:7px 6px}
   .hubbar{gap:8px;padding:10px 12px}
   .hubbar__mark{width:32px;height:32px;font-size:14px;border-radius:9px}
   .hubbar__name{font-size:13px}
@@ -333,9 +334,11 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
 }
 
 @media (max-width: 360px){
-  .hubtabs{gap:2px}
-  .hubtab{font-size:11px;padding:6px 5px}
-  .hubtab--fav{padding:6px 7px}
+  .hubtabs{gap:1px}
+  .hubtab{font-size:11px;padding:6px 3px}
+  .hubtab--fav{padding:6px 5px}
+  .hubtab--fav{padding:6px 6px}
+  .hubtab--fav .tabicon{font-size:15px}
   .hubbar{gap:6px;padding:10px 10px}
   .hubbar__mark{width:28px;height:28px;font-size:12px}
   /* Hide the long brand name; the mark alone keeps the row narrow enough. */
@@ -414,3 +417,43 @@ body:not([data-tab="Music"]) .player__inner{grid-template-columns:1fr}
 .unlockcard__input:focus{outline:none;border-color:var(--accent)}
 .unlockcard__error{margin:0;font-size:13px;font-weight:600;color:var(--accent)}
 .unlockcard__btn{margin-top:4px}
+
+/* ── Analytics tab: metric cards, world map + dots, country bars, recents ── */
+.statcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:26px}
+.statcard{padding:22px 20px;background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:var(--radius);transition:border-color .25s,transform .25s}
+.statcard:hover{border-color:var(--accent);transform:translateY(-3px)}
+.statcard__value{font-size:clamp(26px,4vw,38px);font-weight:900;letter-spacing:-1px;line-height:1}
+.statcard__label{margin-top:8px;font-size:13px;color:var(--muted);font-weight:600}
+
+.geowrap{margin:0 0 26px}
+.geomap{position:relative;width:100%;max-width:820px;margin:0 auto;aspect-ratio:2/1;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel-2);overflow:hidden}
+.geomap__base{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:.9;pointer-events:none;user-select:none}
+.geodot{position:absolute;transform:translate(-50%,-50%);border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--accent-soft),0 0 12px 2px var(--accent-glow-1);cursor:default;animation:geopulse 2.6s ease-in-out infinite}
+@keyframes geopulse{0%,100%{box-shadow:0 0 0 2px var(--accent-soft),0 0 8px 1px var(--accent-glow-1);opacity:.85}50%{box-shadow:0 0 0 4px var(--accent-soft),0 0 16px 4px var(--accent-glow-1);opacity:1}}
+@media (prefers-reduced-motion: reduce){.geodot{animation:none}}
+.geomap__empty{text-align:center;color:var(--muted);font-size:14px;margin:14px 0 0}
+
+.geopanel{margin:0 0 26px;padding:24px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius)}
+.geopanel__title{margin:0 0 16px;font-size:16px}
+.geobars{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.geobar{display:grid;grid-template-columns:56px 1fr auto;align-items:center;gap:12px}
+.geobar__label{font-size:13px;font-weight:700;color:var(--text)}
+.geobar__track{position:relative;height:10px;border-radius:999px;background:var(--accent-soft);overflow:hidden}
+.geobar__fill{position:absolute;inset:0 auto 0 0;height:100%;border-radius:999px;background:var(--grad);min-width:4px;transition:width .4s ease}
+.geobar__count{font-size:13px;font-weight:600;color:var(--muted);min-width:36px;text-align:right}
+
+.georecent{list-style:none;margin:0;padding:0}
+.georecent__item{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:10px 0;border-bottom:1px solid var(--list-line)}
+.georecent__item:last-child{border-bottom:0}
+.georecent__place{font-size:14px;color:var(--text)}
+.georecent__time{font-size:12px;color:var(--muted-2);white-space:nowrap}
+
+.geonote{max-width:640px;font-size:12px;color:var(--muted-2);line-height:1.5;margin:0}
+
+@media (max-width: 420px){
+  .statcards{grid-template-columns:repeat(2,1fr);gap:10px}
+  .statcard{padding:16px 14px}
+  .geopanel{padding:18px}
+  .geobar{grid-template-columns:44px 1fr auto;gap:9px}
+  .georecent__place{font-size:13px}
+}
