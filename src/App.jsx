@@ -341,6 +341,22 @@ const apps = [
 
 const TABS = ['Career', 'Application', 'Telegram Bot', 'Music', 'Favorites']
 
+// Section anchors surfaced in the burger menu.
+const CAREER_SECTIONS = [
+  { id: 'top', label: 'Top' },
+  { id: 'about', label: 'About' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'projects', label: 'Impact' },
+  { id: 'recognition', label: 'Credentials & Honors' },
+  { id: 'contact', label: 'Contact' },
+]
+const MUSIC_SECTIONS = [
+  { id: 'music-recommended', label: 'Recommended' },
+  { id: 'music-playlists', label: 'Playlists' },
+  { id: 'music-songs', label: 'Songs' },
+]
+
 const PlaneIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M22 2 11 13" />
@@ -1007,7 +1023,7 @@ function MusicTab({
       )}
 
       {recommended.length > 0 && (
-      <div className="musicsub musicsub--recommended">
+      <div className="musicsub musicsub--recommended" id="music-recommended">
         <h2 className="musicsub__title">Recommended</h2>
         <p className="musicsub__count">Most-played songs</p>
         <div className="songgrid">
@@ -1026,7 +1042,7 @@ function MusicTab({
       )}
 
       {filteredPlaylists.length > 0 && (
-      <div className="musicsub">
+      <div className="musicsub" id="music-playlists">
         <h2 className="musicsub__title">Playlists</h2>
         <p className="musicsub__count">{filteredPlaylists.length} playlists</p>
         <div className="plgrid">
@@ -1045,7 +1061,7 @@ function MusicTab({
       )}
 
       {filteredSongs.length > 0 && (
-      <div className="musicsub">
+      <div className="musicsub" id="music-songs">
         <h2 className="musicsub__title">Songs</h2>
         <p className="musicsub__count">{filteredSongs.length} songs</p>
         <div className="songgrid">
@@ -1414,6 +1430,7 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
 
 function App() {
   const [tab, setTab] = useState('Career')
+  const [menuOpen, setMenuOpen] = useState(false)
   const [theme, setTheme] = useState(
     () => (typeof document !== 'undefined' && document.documentElement.dataset.theme) || 'light'
   )
@@ -1708,6 +1725,34 @@ function App() {
     }
   }
 
+  // Burger-menu navigation: jump to a tab and optionally scroll to a section id
+  // within it (waiting for the tab to render when switching).
+  const navigateTo = (targetTab, sectionId) => {
+    setMenuOpen(false)
+    const switching = targetTab && targetTab !== tab
+    if (switching) setTab(targetTab)
+    if (!sectionId) {
+      window.scrollTo({ top: 0, behavior: switching ? 'auto' : 'smooth' })
+      return
+    }
+    const doScroll = () => {
+      const el = document.getElementById(sectionId)
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+    if (switching) setTimeout(doScroll, 90)
+    else doScroll()
+  }
+
+  // Close the menu on Escape.
+  useEffect(() => {
+    if (!menuOpen) return
+    const onKey = (e) => {
+      if (e.key === 'Escape') setMenuOpen(false)
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [menuOpen])
+
   // Scroll to top whenever the active tab changes.
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -1739,6 +1784,17 @@ function App() {
   return (
     <>
       <nav className="hubbar">
+        <button
+          className="hubbar__burger"
+          onClick={() => setMenuOpen(true)}
+          aria-label="Open menu"
+          aria-expanded={menuOpen}
+          aria-controls="site-drawer"
+        >
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+        </button>
         <button
           className="hubbar__brand"
           onClick={() => {
@@ -1782,6 +1838,61 @@ function App() {
           {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
         </button>
       </nav>
+
+      <div
+        className={`drawer__overlay${menuOpen ? ' drawer__overlay--show' : ''}`}
+        onClick={() => setMenuOpen(false)}
+        aria-hidden="true"
+      />
+      <aside
+        id="site-drawer"
+        className={`drawer${menuOpen ? ' drawer--open' : ''}`}
+        aria-hidden={!menuOpen}
+        aria-label="Site menu"
+      >
+        <div className="drawer__head">
+          <span className="drawer__title">Menu</span>
+          <button
+            className="drawer__close"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
+          >
+            ×
+          </button>
+        </div>
+        <nav className="drawer__nav">
+          <p className="drawer__group">Pages</p>
+          {TABS.map((t) => (
+            <button
+              key={t}
+              className={`drawer__link${tab === t ? ' drawer__link--active' : ''}`}
+              onClick={() => navigateTo(t)}
+            >
+              {t}
+            </button>
+          ))}
+          <p className="drawer__group">Career page</p>
+          {CAREER_SECTIONS.map((s) => (
+            <button
+              key={s.id}
+              className="drawer__link drawer__link--sub"
+              onClick={() => navigateTo('Career', s.id)}
+            >
+              {s.label}
+            </button>
+          ))}
+          <p className="drawer__group">Music page</p>
+          {MUSIC_SECTIONS.map((s) => (
+            <button
+              key={s.id}
+              className="drawer__link drawer__link--sub"
+              onClick={() => navigateTo('Music', s.id)}
+            >
+              {s.label}
+            </button>
+          ))}
+        </nav>
+      </aside>
 
       {playerVisible && currentTrack && (
         <NowPlayingBar

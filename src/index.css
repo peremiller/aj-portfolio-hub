@@ -9,6 +9,25 @@
 .hubbar__brand{display:flex;align-items:center;gap:12px;font-weight:700;flex-shrink:0}
 .hubbar__mark{display:grid;place-items:center;width:36px;height:36px}
 .hubbar__logo{width:100%;height:100%;object-fit:contain;display:block}
+.hubbar__burger{display:inline-flex;flex-direction:column;justify-content:center;gap:5px;width:38px;height:38px;padding:9px;margin-right:6px;background:none;border:0;cursor:pointer;border-radius:9px;flex-shrink:0}
+.hubbar__burger:hover{background:var(--panel-2)}
+.hubbar__burger span{display:block;height:2px;width:100%;background:var(--text);border-radius:2px}
+.drawer__overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);opacity:0;visibility:hidden;transition:opacity .25s;z-index:60}
+.drawer__overlay--show{opacity:1;visibility:visible}
+.drawer{position:fixed;top:0;left:0;height:100%;width:min(84vw,300px);background:var(--panel);border-right:1px solid var(--line);transform:translateX(-100%);transition:transform .28s cubic-bezier(.2,.7,.2,1);z-index:61;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.22)}
+.drawer--open{transform:none}
+.drawer__head{display:flex;align-items:center;justify-content:space-between;padding:18px 18px 8px}
+.drawer__title{font-weight:800;font-size:15px;letter-spacing:.3px}
+.drawer__close{background:none;border:0;font-size:24px;line-height:1;color:var(--muted);cursor:pointer;width:32px;height:32px;border-radius:8px}
+.drawer__close:hover{background:var(--panel-2);color:var(--text)}
+.drawer__nav{overflow-y:auto;padding:4px 10px 24px;display:flex;flex-direction:column}
+.drawer__group{margin:14px 8px 4px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted-2);font-weight:700}
+.drawer__link{text-align:left;background:none;border:0;cursor:pointer;color:var(--text);font-size:15px;font-weight:600;padding:10px 12px;border-radius:10px;transition:background .15s,color .15s}
+.drawer__link:hover{background:var(--panel-2)}
+.drawer__link--active{color:var(--accent);background:var(--accent-soft)}
+.drawer__link--sub{font-size:14px;font-weight:500;color:var(--muted);padding:8px 12px 8px 18px}
+.drawer__link--sub:hover{color:var(--text)}
+.section,.hero,.tabhero,.musicsub{scroll-margin-top:92px}
 .hubbar__name{font-size:15px;letter-spacing:.2px}
 .hubtabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
 .hubtabs::-webkit-scrollbar{display:none}
