@@ -1685,13 +1685,11 @@ function LyricsPanel({ lyrics, audioRef, trackId }) {
   )
 }
 
-function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPrev, hasNext, multi, position }) {
-  // Track whether audio is actively playing so we can hide the "Open in Suno"
-  // link while playing (it reappears on pause/stop).
+function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPrev, hasNext, multi, position, lyricsOpen, setLyricsOpen }) {
+  // Track whether audio is actively playing (kept for future play-state UI).
   const [playing, setPlaying] = useState(() => !audioRef.current?.paused)
-  // Mobile: let the user collapse the lyrics panel to free room for the
-  // playlists/songs listings in the locked one-screen layout. Default open.
-  const [lyricsOpen, setLyricsOpen] = useState(true)
+  // lyricsOpen is lifted to App so the one-screen "music-locked" layout can be
+  // released when the user collapses the lyrics (listings then scroll normally).
 
   useEffect(() => {
     const el = audioRef.current
@@ -1901,6 +1899,8 @@ function App() {
   const [activePlaylistId, setActivePlaylistId] = useState(null)
   const [shouldPlay, setShouldPlay] = useState(false)
   const [playerVisible, setPlayerVisible] = useState(false)
+  // Lyrics open/collapsed (lifted from NowPlayingBar). Drives the mobile lock.
+  const [lyricsOpen, setLyricsOpen] = useState(true)
   // Remember whether audio was playing when the browser tab was hidden.
   const wasPlayingOnHide = useRef(false)
 
@@ -1928,14 +1928,16 @@ function App() {
   // Lock the Music page to one screen (no vertical scroll) while the player is
   // open — the playlists/songs listings below then scroll horizontally instead.
   useEffect(() => {
-    const locked = playerVisible && tab === 'Music'
+    // Only lock while the lyrics are OPEN. Collapsing lyrics releases the lock so
+    // the playlists/songs flow below the player in the normal scrolling grid.
+    const locked = playerVisible && tab === 'Music' && lyricsOpen
     document.documentElement.classList.toggle('music-locked', locked)
     document.body.classList.toggle('music-locked', locked)
     return () => {
       document.documentElement.classList.remove('music-locked')
       document.body.classList.remove('music-locked')
     }
-  }, [playerVisible, tab])
+  }, [playerVisible, tab, lyricsOpen])
 
   // Hide the "7:27" song + playlist everywhere.
   const HIDE_RE = /7\s*:?\s*27/
@@ -2399,6 +2401,8 @@ function App() {
           hasNext={queueIndex < queue.length - 1}
           multi={queue.length > 1}
           position={`${queueIndex + 1} / ${queue.length}`}
+          lyricsOpen={lyricsOpen}
+          setLyricsOpen={setLyricsOpen}
         />
       )}
 

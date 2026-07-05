@@ -619,6 +619,19 @@ html{scrollbar-color:color-mix(in srgb,var(--accent) 55%,var(--line)) transparen
 /* Remove the animated leaves on mobile (keep on desktop) */
 @media (max-width:720px){ .leaves{display:none} }
 
+/* Music, player open + lyrics collapsed (mobile): drop the Music hero and the
+   horizontal swipe row, and show the Playlists + Songs as real vertical 2-column
+   grids right under the compact player (per request). */
+@media (max-width:720px){
+  body[data-tab="Music"]:has(.player--lyrics-collapsed) .tabhero{display:none}
+  body[data-tab="Music"]:has(.player--lyrics-collapsed) #music-onelane{display:none}
+  body[data-tab="Music"]:has(.player--lyrics-collapsed) #music-playlists,
+  body[data-tab="Music"]:has(.player--lyrics-collapsed) #music-songs{display:block}
+  body[data-tab="Music"]:has(.player--lyrics-collapsed) .plgrid,
+  body[data-tab="Music"]:has(.player--lyrics-collapsed) .songgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  body[data-tab="Music"]:has(.player--lyrics-collapsed) .musicsub__title{font-size:16px;margin:18px 0 10px}
+}
+
 /* ===== Color themes (accent selector). Green is the default (:root). ===== */
 html[data-accent="red"]{--bg:#faf7f5;--bg-2:#f2ebe8;--panel:#ffffff;--panel-2:#f7f1ee;--line:#e8ddd8;--text:#211b1a;--muted:#6c5f5c;--muted-2:#9b8d89;--accent:#c0443f;--accent-2:#d9785f;--grad:linear-gradient(120deg,#cf4b46 0%,#d9785f 100%);--accent-soft:#cf4b461a;--accent-glow-1:rgba(207,75,70,.16);--accent-glow-2:rgba(217,120,95,.12);--bar-bg:rgba(250,247,245,.78)}
 html[data-accent="red"][data-theme="dark"]{--bg:#181210;--bg-2:#211915;--panel:#211917;--panel-2:#2a201c;--line:#3a2b26;--text:#f3ebe8;--muted:#bcaca6;--muted-2:#8b7a74;--accent:#ef6f6b;--accent-2:#f0a07a;--grad:linear-gradient(120deg,#ef6f6b 0%,#f0a07a 100%);--accent-soft:#ef6f6b26;--accent-glow-1:rgba(239,111,107,.26);--accent-glow-2:rgba(240,160,122,.18);--bar-bg:rgba(24,18,16,.72)}
