@@ -552,3 +552,14 @@ body.music-locked .musiclane{flex:1;min-height:0;align-items:stretch;padding-bot
 .plgrid::-webkit-scrollbar-thumb,.songgrid::-webkit-scrollbar-thumb,.musiclane::-webkit-scrollbar-thumb{background:var(--line);border-radius:999px}
 .hubtab{transition:color .2s,background .2s,border-color .2s,transform .15s}
 .hubtab:hover{transform:translateY(-1px)}
+
+/* ===== Mini-player: only title + controls to the right of the cover ===== */
+@media (max-width:720px){
+  :is(body[data-tab="Career"],body[data-tab="Application"],body[data-tab="Telegram Bot"],body[data-tab="Analytics"]) .player__left{align-items:flex-start;gap:12px}
+  :is(body[data-tab="Career"],body[data-tab="Application"],body[data-tab="Telegram Bot"],body[data-tab="Analytics"]) .player__cover{width:52px;height:52px}
+  :is(body[data-tab="Career"],body[data-tab="Application"],body[data-tab="Telegram Bot"],body[data-tab="Analytics"]) .player__meta{min-width:0;flex:1}
+  :is(body[data-tab="Career"],body[data-tab="Application"],body[data-tab="Telegram Bot"],body[data-tab="Analytics"]) :is(.player__nowplaying,.player__artist,.player__style,.player__headactions){display:none}
+  :is(body[data-tab="Career"],body[data-tab="Application"],body[data-tab="Telegram Bot"],body[data-tab="Analytics"]) .player__metahead{flex-direction:column;gap:0;padding-right:38px}
+  :is(body[data-tab="Career"],body[data-tab="Application"],body[data-tab="Telegram Bot"],body[data-tab="Analytics"]) .player__title{font-size:15px;margin:0 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  :is(body[data-tab="Career"],body[data-tab="Application"],body[data-tab="Telegram Bot"],body[data-tab="Analytics"]) .player__audio{width:100%;height:38px}
+}
