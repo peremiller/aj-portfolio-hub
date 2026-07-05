@@ -1733,15 +1733,14 @@ function LyricsPanel({ lyrics, audioRef, trackId }) {
     return <div className="player__lyrics">No lyrics for this track.</div>
   }
 
-  // Highlight the active singable line plus the previous 2 singable lines, so
-  // three lines glow at once. activePos is the active line's index within the
-  // singable-only sequence; we walk back two more singable lines from there.
+  // Highlight a 4-line band: the previous 2 singable lines, the active line, and
+  // the next singable line. activePos is the active line's index within the
+  // singable-only sequence.
   const activePos = activeLine >= 0 ? singableIndexes.indexOf(activeLine) : -1
   const highlighted = new Set()
   if (activePos >= 0) {
-    for (let d = 0; d < 3; d++) {
-      const p = activePos - d
-      if (p >= 0) highlighted.add(singableIndexes[p])
+    for (let p = activePos - 2; p <= activePos + 1; p++) {
+      if (p >= 0 && p < singableIndexes.length) highlighted.add(singableIndexes[p])
     }
   }
 
