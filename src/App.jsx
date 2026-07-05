@@ -1737,12 +1737,38 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
       </button>
       <div className="player__inner">
         <div className="player__left">
-          <img
-            className="player__cover"
-            src={song.image}
-            alt={song.title}
-            loading="lazy"
-          />
+          <div className="player__leftcol">
+            <img
+              className="player__cover"
+              src={song.image}
+              alt={song.title}
+              loading="lazy"
+            />
+            {multi && (
+              <div className="player__nav">
+                <button
+                  type="button"
+                  className="player__skip"
+                  onClick={onPrev}
+                  disabled={!hasPrev}
+                  aria-label="Previous track"
+                  title="Previous track"
+                >
+                  ⏮
+                </button>
+                <button
+                  type="button"
+                  className="player__skip"
+                  onClick={onNext}
+                  disabled={!hasNext}
+                  aria-label="Next track"
+                  title="Next track"
+                >
+                  ⏭
+                </button>
+              </div>
+            )}
+          </div>
           <div className="player__meta">
             <div className="player__metahead">
               <div>
@@ -1771,45 +1797,16 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
             )}
             {song.audio ? (
               <div className="player__audiorow">
-                {multi && (
-                  <>
-                    <button
-                      type="button"
-                      className="player__skip"
-                      onClick={onPrev}
-                      disabled={!hasPrev}
-                      aria-label="Previous track"
-                      title="Previous track"
-                    >
-                      ⏮
-                    </button>
-                    <button
-                      type="button"
-                      className="player__skip"
-                      onClick={onNext}
-                      disabled={!hasNext}
-                      aria-label="Next track"
-                      title="Next track"
-                    >
-                      ⏭
-                    </button>
-                  </>
-                )}
                 {song.lyrics && (
                   <button
                     type="button"
-                    className="player__lyricstoggle"
+                    className={`player__lyricstoggle${lyricsOpen ? ' player__lyricstoggle--open' : ''}`}
                     onClick={() => setLyricsOpen((o) => !o)}
                     aria-label={lyricsOpen ? 'Collapse lyrics' : 'Show lyrics'}
                     aria-expanded={lyricsOpen}
                     title={lyricsOpen ? 'Collapse lyrics' : 'Show lyrics'}
                   >
-                    <span
-                      className={`player__chevron${lyricsOpen ? '' : ' player__chevron--up'}`}
-                      aria-hidden="true"
-                    >
-                      ⌄
-                    </span>
+                    Lyrics
                   </button>
                 )}
                 <audio
