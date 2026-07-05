@@ -11,7 +11,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'sha256-ozMP74u5Ka6EmsjoPInzfu1+SkVRrHQOZ4pdErWbSVg='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.suno.ai https://www.google.com https://*.gstatic.com; media-src 'self' https://*.suno.ai; connect-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests"
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'sha256-0c9ohHg2c3mGpjGUKIOVQf+Ik2A2+3kDxIbSdv0qYkY='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.suno.ai https://www.google.com https://*.gstatic.com; media-src 'self' https://*.suno.ai; connect-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests"
         },
         { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },

@@ -342,6 +342,12 @@ const apps = [
 
 const TABS = ['Career', 'Application', 'Telegram Bot', 'Music', 'Favorites', 'Analytics']
 
+// Color themes (accent). Green is the default; Red is the original palette.
+const THEMES = [
+  { id: 'green', label: 'Green', color: '#2e9e5b' },
+  { id: 'red', label: 'Red', color: '#c0443f' },
+]
+
 // Section anchors surfaced in the burger menu.
 const CAREER_SECTIONS = [
   { id: 'top', label: 'Top' },
@@ -1835,6 +1841,10 @@ function App() {
   const [theme, setTheme] = useState(
     () => (typeof document !== 'undefined' && document.documentElement.dataset.theme) || 'light'
   )
+  const [accent, setAccent] = useState(
+    () => (typeof document !== 'undefined' && document.documentElement.dataset.accent) || 'green'
+  )
+  const [pickerOpen, setPickerOpen] = useState(false)
 
   // ── Favorites (song + playlist ids), persisted to localStorage. Suno doesn't
   // expose the user's liked songs, so favorites are stored locally per device. ──
@@ -2135,6 +2145,32 @@ function App() {
     }
   }
 
+  const chooseAccent = (id) => {
+    setAccent(id)
+    setPickerOpen(false)
+    document.documentElement.dataset.accent = id
+    try {
+      localStorage.setItem('accent', id)
+    } catch {
+      // ignore storage failures
+    }
+  }
+
+  // Close the theme picker on Escape or an outside click.
+  useEffect(() => {
+    if (!pickerOpen) return
+    const onDoc = (e) => {
+      if (e.key === 'Escape') return setPickerOpen(false)
+      if (e.type === 'pointerdown' && !e.target.closest('.themepicker')) setPickerOpen(false)
+    }
+    document.addEventListener('keydown', onDoc)
+    document.addEventListener('pointerdown', onDoc)
+    return () => {
+      document.removeEventListener('keydown', onDoc)
+      document.removeEventListener('pointerdown', onDoc)
+    }
+  }, [pickerOpen])
+
   // Burger-menu navigation: jump to a tab and optionally scroll to a section id
   // within it (waiting for the tab to render when switching).
   const navigateTo = (targetTab, sectionId) => {
@@ -2246,6 +2282,35 @@ function App() {
               </button>
             )
           })}
+        </div>
+        <div className="themepicker">
+          <button
+            className="themepicker__btn"
+            onClick={() => setPickerOpen((o) => !o)}
+            aria-label="Choose color theme"
+            aria-haspopup="menu"
+            aria-expanded={pickerOpen}
+            title="Color theme"
+          >
+            <span className="themepicker__dot" aria-hidden="true" />
+          </button>
+          {pickerOpen && (
+            <div className="themepicker__menu" role="menu">
+              {THEMES.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={accent === t.id}
+                  className={`themeopt${accent === t.id ? ' themeopt--active' : ''}`}
+                  onClick={() => chooseAccent(t.id)}
+                >
+                  <span className="themeopt__sw" style={{ background: t.color }} aria-hidden="true" />
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <button
           className="themetoggle"
