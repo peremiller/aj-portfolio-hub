@@ -255,30 +255,35 @@ const memberships = [
 const bots = [
   {
     name: 'Weather',
+    icon: '🌦️',
     handle: '@pjo_weather_bot',
     desc: 'Daily forecasts and on-demand weather delivered straight to Telegram.',
     status: 'live',
   },
   {
     name: 'Tagalog Translate',
+    icon: '🔤',
     handle: '@tagalog_translate_bot',
     desc: 'Two-way Tagalog ⇄ English translation with automatic direction detection.',
     status: 'dev',
   },
   {
     name: 'Disaster Watch',
+    icon: '🚨',
     handle: '@disaster_watch_bot',
     desc: 'Real-time alerts for earthquakes, tsunamis, typhoons, floods, and volcanic activity.',
     status: 'live',
   },
   {
     name: 'PH Dollar Rate',
+    icon: '💵',
     handle: '@ph_dollar_rate',
     desc: 'Compares USD→PHP buy & sell rates across Philippine banks.',
     status: 'live',
   },
   {
     name: 'Pelikula Finder',
+    icon: '🎬',
     handle: '@pelikula_finder_bot',
     desc: 'Finds now-playing movies and showtimes in nearby cinemas.',
     status: 'dev',
@@ -288,53 +293,63 @@ const bots = [
 const apps = [
   {
     name: 'PicPress — Image to PDF Merger',
+    icon: '📄',
     desc: 'Merge images into a single PDF in the browser — rotate, reorder, and export with a zero-dependency PDF writer. Everything runs client-side; nothing is uploaded.',
     url: 'https://image-pdf-merger.vercel.app',
   },
   {
     name: 'Calm Capital',
+    icon: '🧘',
     desc: 'Behavioral-wealth dashboard — investment policy statement, synthetic paycheck, net-worth tracking, and a "bear mode" for downturns.',
     url: 'https://peremiller.github.io/calm-capital/',
   },
   {
     name: 'Cash Reserve Planner',
+    icon: '🪣',
     desc: 'Three-bucket liquidity planner with a reserve glide path and multi-currency support.',
     url: 'https://cash-reserve-planner.vercel.app',
     status: 'dev',
   },
   {
     name: 'Dynamic Withdrawal',
+    icon: '🎚️',
     desc: 'Models dynamic retirement withdrawal strategies that adapt spending to market performance.',
     url: 'https://peremiller.github.io/dynamic-withdrawal/',
   },
   {
     name: 'Retirement Income Maximizer',
+    icon: '🏖️',
     desc: 'Calculators for maximizing retirement income — delaying Social Security to 70 and joint-and-survivor annuities.',
     url: 'https://peremiller.github.io/retirement-planner/',
   },
   {
     name: 'Asset Location Optimizer',
+    icon: '🗂️',
     desc: 'Places bonds in tax-deferred accounts and equities in taxable accounts for asset-location tax efficiency (PWA).',
     url: 'https://asset-location-optimizer.vercel.app',
   },
   {
     name: 'Job Portal (TalentMatch)',
+    icon: '💼',
     desc: 'Matches your CV to job openings and lets you apply, with OAuth sign-in.',
     url: 'https://job-portal-beta-rose.vercel.app',
     status: 'dev',
   },
   {
     name: 'Blockchain Problems',
+    icon: '⛓️',
     desc: 'Interactive data-visualization of the top problems facing the blockchain industry.',
     url: 'https://blockchain-problems.vercel.app/',
   },
   {
     name: 'VoltDown',
+    icon: '⚡',
     desc: 'Lists 1,000 solutions to high electricity prices, each scored on impact, feasibility (0-100), and estimated cost, with subtasks and editable statuses — plus search, filter, a "Quick wins" sort, a click-to-open detail panel with per-subtask cost, a live progress dashboard, and JSON/CSV export.',
     url: 'https://electricity-solutions.vercel.app',
   },
   {
     name: 'HackCal',
+    icon: '🗓️',
     desc: 'Offline-first tech hackathon calendar with month and list views, filtering, and .ics export.',
     url: 'https://hackathon-calendar-umber.vercel.app',
   },
@@ -705,7 +720,13 @@ function AppCard({ app }) {
     <div className="itemcard reveal" key={app.name}>
       <div className="itemcard__top">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <AppFavicon url={app.url} name={app.name} />
+          {app.icon ? (
+            <span className="itemcard__favicon itemcard__favicon--emoji" aria-hidden="true">
+              {app.icon}
+            </span>
+          ) : (
+            <AppFavicon url={app.url} name={app.name} />
+          )}
           <h3>{app.name}</h3>
         </div>
         <span className={`badge ${live ? 'badge--live' : 'badge--dev'}`}>
@@ -884,7 +905,9 @@ function TelegramBotTab() {
               <div className="itemcard reveal" key={bot.handle}>
                 <div className="itemcard__top itemcard__top--bot">
                   <div className="itemcard__lead">
-                    <span className="itemcard__mark"><PlaneIcon /></span>
+                    <span className="itemcard__mark itemcard__mark--emoji" aria-hidden="true">
+                      {bot.icon || <PlaneIcon />}
+                    </span>
                     <div className="itemcard__namewrap">
                       <h3>{bot.name}</h3>
                       <p className="itemcard__handle">{bot.handle}</p>
@@ -1568,10 +1591,36 @@ function isDashLine(line) {
   return stripped !== '' && /^[-–—_=]+$/.test(stripped)
 }
 
+// Auto-correct lyric capitalization for display: capitalize the first letter of
+// each line and fix the standalone pronoun "i" → "I" (incl. contractions).
+function capitalizeLyricLine(line) {
+  if (!line) return line
+  const m = line.match(/[a-zA-Z]/)
+  let out = line
+  if (m) {
+    const idx = line.indexOf(m[0])
+    out = line.slice(0, idx) + line[idx].toUpperCase() + line.slice(idx + 1)
+  }
+  return out.replace(/\bi\b/g, 'I')
+}
+
 function LyricsPanel({ lyrics, audioRef, trackId }) {
   const containerRef = useRef(null)
   const lineRefs = useRef([])
   const [activeLine, setActiveLine] = useState(-1)
+  // Auto-scroll is paused once the user scrolls the lyrics by hand; it resumes
+  // automatically when a new track loads. autoScrollingRef flags OUR own
+  // programmatic scrolls so they aren't mistaken for a manual scroll.
+  const userScrolledRef = useRef(false)
+  const autoScrollingRef = useRef(false)
+  const autoScrollTimer = useRef(null)
+  const markAutoScroll = () => {
+    autoScrollingRef.current = true
+    if (autoScrollTimer.current) clearTimeout(autoScrollTimer.current)
+    autoScrollTimer.current = setTimeout(() => {
+      autoScrollingRef.current = false
+    }, 700)
+  }
 
   // Parse lyrics into lines + the singable-line index map (memo-free; cheap).
   // Each singable line carries a LENGTH WEIGHT (word count, min 1) so longer
@@ -1605,12 +1654,30 @@ function LyricsPanel({ lyrics, audioRef, trackId }) {
     window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-  // Reset to the top whenever the track changes.
+  // Reset to the top whenever the track changes — and re-enable auto-scroll.
   useEffect(() => {
     setActiveLine(-1)
+    userScrolledRef.current = false
     const c = containerRef.current
-    if (c) c.scrollTop = 0
+    if (c) {
+      markAutoScroll()
+      c.scrollTop = 0
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trackId])
+
+  // Detect a manual scroll (anything not triggered by our own auto-scroll) and
+  // pause auto-scrolling until the next track.
+  useEffect(() => {
+    const c = containerRef.current
+    if (!c) return
+    const onScroll = () => {
+      if (autoScrollingRef.current) return
+      userScrolledRef.current = true
+    }
+    c.addEventListener('scroll', onScroll, { passive: true })
+    return () => c.removeEventListener('scroll', onScroll)
+  }, [])
 
   // Track playback position and compute the active singable line using a
   // length-weighted estimate. Real per-line Suno timestamps require auth and
@@ -1646,12 +1713,14 @@ function LyricsPanel({ lyrics, audioRef, trackId }) {
   // scrollIntoView would also scroll document ancestors).
   useEffect(() => {
     if (activeLine < 0) return
+    if (userScrolledRef.current) return // paused: the user scrolled by hand
     const container = containerRef.current
     const node = lineRefs.current[activeLine]
     if (!container || !node) return
     const target =
       node.offsetTop - container.clientHeight / 2 + node.offsetHeight / 2
     const top = Math.max(0, target)
+    markAutoScroll()
     if (typeof container.scrollTo === 'function') {
       container.scrollTo({ top, behavior: reduceMotion ? 'auto' : 'smooth' })
     } else {
@@ -1677,7 +1746,7 @@ function LyricsPanel({ lyrics, audioRef, trackId }) {
             isStructuralLine(line) ? ' lyrics__line--structural' : ''
           }`}
         >
-          {line === '' ? ' ' : line}
+          {line === '' ? ' ' : capitalizeLyricLine(line)}
         </p>
         )
       )}
@@ -1757,6 +1826,30 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
               alt={song.title}
               loading="lazy"
             />
+            {multi && (
+              <div className="player__nav">
+                <button
+                  type="button"
+                  className="player__skip"
+                  onClick={onPrev}
+                  disabled={!hasPrev}
+                  aria-label="Previous track"
+                  title="Previous track"
+                >
+                  ⏮
+                </button>
+                <button
+                  type="button"
+                  className="player__skip"
+                  onClick={onNext}
+                  disabled={!hasNext}
+                  aria-label="Next track"
+                  title="Next track"
+                >
+                  ⏭
+                </button>
+              </div>
+            )}
           </div>
           <div className="player__meta">
             <div className="player__metahead">
@@ -1773,30 +1866,6 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
             )}
             {song.audio ? (
               <div className="player__audiorow">
-                {multi && (
-                  <div className="player__nav">
-                    <button
-                      type="button"
-                      className="player__skip"
-                      onClick={onPrev}
-                      disabled={!hasPrev}
-                      aria-label="Previous track"
-                      title="Previous track"
-                    >
-                      ⏮
-                    </button>
-                    <button
-                      type="button"
-                      className="player__skip"
-                      onClick={onNext}
-                      disabled={!hasNext}
-                      aria-label="Next track"
-                      title="Next track"
-                    >
-                      ⏭
-                    </button>
-                  </div>
-                )}
                 {song.lyrics && (
                   <button
                     type="button"
@@ -1938,6 +2007,33 @@ function App() {
       document.body.classList.remove('music-locked')
     }
   }, [playerVisible, tab, lyricsOpen])
+
+  // Dock the player to the BOTTOM on the non-Music tabs and expose its measured
+  // height as --playerbar-h so page padding + the scroll-top button clear it.
+  useEffect(() => {
+    const bottomTabs = ['Career', 'Application', 'Telegram Bot', 'Favorites']
+    const docked = playerVisible && bottomTabs.includes(tab)
+    document.body.classList.toggle('player-docked', docked)
+    if (!docked) {
+      document.body.style.removeProperty('--playerbar-h')
+      return
+    }
+    const el = document.querySelector('.player')
+    if (!el) return
+    const update = () =>
+      document.body.style.setProperty('--playerbar-h', `${el.offsetHeight}px`)
+    update()
+    let ro
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(update)
+      ro.observe(el)
+    }
+    return () => {
+      if (ro) ro.disconnect()
+      document.body.classList.remove('player-docked')
+      document.body.style.removeProperty('--playerbar-h')
+    }
+  }, [playerVisible, tab])
 
   // Hide the "7:27" song + playlist everywhere.
   const HIDE_RE = /7\s*:?\s*27/

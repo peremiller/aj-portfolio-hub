@@ -222,6 +222,8 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
 
 /* app favicon */
 .itemcard__favicon{width:40px;height:40px;border-radius:11px;object-fit:cover;background:var(--panel-2);border:1px solid var(--line);flex-shrink:0}
+.itemcard__favicon--emoji{display:grid;place-items:center;font-size:21px;line-height:1;background:var(--accent-soft)}
+.itemcard__mark--emoji{background:var(--accent-soft);font-size:20px;line-height:1}
 .itemcard__faviconfallback{width:40px;height:40px;border-radius:11px;background:var(--accent-soft);border:1px solid var(--line);flex-shrink:0}
 
 /* music loading state */
@@ -236,8 +238,10 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
   .hubbar{flex-wrap:wrap;align-items:center;gap:10px;padding:12px clamp(14px,4vw,24px)}
   .hubbar__brand{order:1;flex:1;min-width:0;margin-right:0}
   .hubbar__name{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .themetoggle{order:2}
-  .hubtabs{order:3;flex:0 0 100%;width:100%;margin-left:0;justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:4px;padding-bottom:2px}
+  /* Theme picker sits directly left of the dark-mode (moon) button, not the logo. */
+  .themepicker{order:2}
+  .themetoggle{order:3}
+  .hubtabs{order:4;flex:0 0 100%;width:100%;margin-left:0;justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:4px;padding-bottom:2px}
   .hubtab{font-size:13px;padding:8px 13px;flex:0 0 auto}
   /* Favorites tab collapses to its heart icon only on phones, freeing row space. */
   .hubtab--fav .tablabel{display:none}
@@ -379,6 +383,13 @@ html[data-theme="dark"] .spot{background:linear-gradient(180deg,color-mix(in srg
 .scrolltop:hover{background:color-mix(in srgb,var(--accent) 85%,#000);transform:translateY(-2px)}
 @media (max-width:420px){.scrolltop{width:42px;height:42px;right:14px;bottom:14px}}
 @media (prefers-reduced-motion:reduce){.spot{animation:none;opacity:.55}.hero__name{animation:none}.scrolltop{transition:none}}
+
+/* Player docked to the BOTTOM on the non-Music tabs (Career/Application/Telegram
+   Bot/Favorites). --playerbar-h is the measured bar height (set in JS). */
+body.player-docked .player{position:fixed;top:auto;bottom:0;left:0;right:0;margin-top:0;border-top:1px solid var(--line);border-bottom:0;box-shadow:0 -10px 30px -16px rgba(0,0,0,.45)}
+body.player-docked{padding-bottom:var(--playerbar-h,88px)}
+body.player-docked .scrolltop{bottom:calc(var(--playerbar-h,88px) + 16px)}
+@media (max-width:420px){body.player-docked .scrolltop{bottom:calc(var(--playerbar-h,88px) + 14px)}}
 
 /* ── Player on tabs OTHER than Music: compact bar, no lyrics panel. ─────── */
 body:not([data-tab="Music"]) .player__lyrics{display:none}
