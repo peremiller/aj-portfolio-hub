@@ -1591,6 +1591,17 @@ function isDashLine(line) {
   return stripped !== '' && /^[-–—_=]+$/.test(stripped)
 }
 
+// Strip standalone "432" / "432," tokens (432 Hz tuning notes) that leak into
+// the sung lyrics. Leaves "432Hz" and other numbers alone, then tidies spacing.
+function stripLyricNoise(line) {
+  if (!line) return line
+  return line
+    .replace(/\b432\b,?/g, '')
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/\s+([,.;:!?])/g, '$1')
+    .trim()
+}
+
 // Auto-correct lyric capitalization for display: capitalize the first letter of
 // each line and fix the standalone pronoun "i" → "I" (incl. contractions).
 function capitalizeLyricLine(line) {
@@ -1628,7 +1639,7 @@ function LyricsPanel({ lyrics, audioRef, trackId }) {
   // noticeably better proxy than equal time per line. We also build a
   // cumulative-weight array so the active line is the weight bracket that
   // contains the effective playback progress.
-  const lines = (lyrics || '').split('\n')
+  const lines = (lyrics || '').split('\n').map(stripLyricNoise)
   const singableIndexes = []
   const lineWeights = []
   lines.forEach((line, i) => {
