@@ -1771,6 +1771,30 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
             )}
             {song.audio ? (
               <div className="player__audiorow">
+                {multi && (
+                  <>
+                    <button
+                      type="button"
+                      className="player__skip"
+                      onClick={onPrev}
+                      disabled={!hasPrev}
+                      aria-label="Previous track"
+                      title="Previous track"
+                    >
+                      ⏮
+                    </button>
+                    <button
+                      type="button"
+                      className="player__skip"
+                      onClick={onNext}
+                      disabled={!hasNext}
+                      aria-label="Next track"
+                      title="Next track"
+                    >
+                      ⏭
+                    </button>
+                  </>
+                )}
                 {song.lyrics && (
                   <button
                     type="button"
@@ -1800,28 +1824,6 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
               </div>
             ) : (
               <p className="player__noaudio">No audio available for this track.</p>
-            )}
-            {multi && (
-              <div className="player__controls">
-                <button
-                  type="button"
-                  className="player__skip"
-                  onClick={onPrev}
-                  disabled={!hasPrev}
-                  aria-label="Previous track"
-                >
-                  ⏮ Prev
-                </button>
-                <button
-                  type="button"
-                  className="player__skip"
-                  onClick={onNext}
-                  disabled={!hasNext}
-                  aria-label="Next track"
-                >
-                  Next ⏭
-                </button>
-              </div>
             )}
           </div>
         </div>

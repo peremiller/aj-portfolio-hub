@@ -149,7 +149,7 @@ html[data-theme="dark"] .badge--dev .badge__dot{background:#fbbf24}
 .player__suno{flex-shrink:0;display:inline-flex;align-items:center;font-size:12px;font-weight:600;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap;transition:border-color .2s,color .2s,transform .2s}
 .player__suno:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
 .player__controls{display:flex;gap:10px;margin-top:10px}
-.player__skip{appearance:none;font:inherit;font-size:13px;font-weight:600;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:7px 14px;cursor:pointer;transition:border-color .2s,color .2s,transform .2s,opacity .2s}
+.player__skip{appearance:none;font:inherit;font-size:15px;line-height:1;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:8px;width:34px;height:34px;padding:0;display:grid;place-items:center;flex-shrink:0;cursor:pointer;transition:border-color .2s,color .2s,background .2s,transform .2s,opacity .2s}
 .player__skip:hover:not(:disabled){border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
 .player__skip:disabled{opacity:.4;cursor:not-allowed}
 .player__style{font-size:12px;color:var(--muted-2);margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -249,7 +249,7 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
      absolute × close button (top-right). padding-right keeps the title clear too. */
   .player__metahead{flex-direction:column;align-items:flex-start;gap:8px;padding-right:44px}
   .player__headactions{align-self:flex-start}
-  .player__lyrics{max-height:180px}
+  .player__lyrics{max-height:240px}
 
   /* Mobile vertical centering — the intro/header text sits centered in the
      space below the fixed top bar, instead of hugging the top. The .hubmain
@@ -281,7 +281,7 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
 
   /* Music tab (mobile): player + lyrics occupy the top half of the screen,
      the playlists/songs listings scroll in the lower half beneath the sticky bar. */
-  body[data-tab="Music"] .player__lyrics{max-height:40vh}
+  body[data-tab="Music"] .player__lyrics{max-height:54vh}
   body[data-tab="Music"] .player__cover{width:68px;height:68px}
 }
 
@@ -381,7 +381,7 @@ body:not([data-tab="Music"]) .player__inner{grid-template-columns:1fr}
   body.music-locked .player__cover{width:54px;height:54px}
   body.music-locked .player__title{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
   body.music-locked .player__style{display:none}
-  body.music-locked .player__lyrics{max-height:12vh}
+  body.music-locked .player__lyrics{max-height:17vh}
   /* Compact the search/language controls so the locked layout still fits one screen. */
   body.music-locked .musicsearch{padding:6px clamp(12px,4vw,18px) 0;gap:6px}
   body.music-locked .musicsearch__field{height:34px;flex-basis:160px}
@@ -512,31 +512,18 @@ html[data-theme="dark"] .stars{display:block}
 body.music-locked .musiclane{flex:1;min-height:0;align-items:stretch;padding-bottom:2px}
 
 /* ===== Mobile mini-player on Career / Application / Telegram Bot / Analytics ===== */
+/* ===== Music player: dull-gold / bronze background on every tab ===== */
+.player{background:linear-gradient(180deg,#7c6234 0%,#5d4826 100%);border-bottom-color:rgba(0,0,0,.28)}
+.player__title,.player__style,.player__noaudio{color:#f5ecd8}
+.player__nowplaying{color:#e7cf9d}
+.player__artist{color:#e9dcc0}
+.player__close{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.28);color:#f5ecd8}
+.player__close:hover{background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.42);color:#fff;transform:translateY(-1px)}
+.player__lyricstoggle,.player__skip{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.28);color:#f5ecd8}
+.player__lyricstoggle:hover,.player__skip:hover:not(:disabled){background:rgba(255,255,255,.26);border-color:rgba(255,255,255,.45);color:#fff;transform:translateY(-1px)}
+/* Hide the icon Prev/Next only on the compact mini-player tabs */
 @media (max-width:720px){
-  body[data-tab="Career"] .player,
-  body[data-tab="Application"] .player,
-  body[data-tab="Telegram Bot"] .player,
-  body[data-tab="Analytics"] .player{background:linear-gradient(180deg,#7c6234 0%,#5d4826 100%);border-bottom-color:rgba(0,0,0,.25)}
-  body[data-tab="Career"] .player *,
-  body[data-tab="Application"] .player *,
-  body[data-tab="Telegram Bot"] .player *,
-  body[data-tab="Analytics"] .player *{color:#f5ecd8}
-  body[data-tab="Career"] .player__nowplaying,
-  body[data-tab="Application"] .player__nowplaying,
-  body[data-tab="Telegram Bot"] .player__nowplaying,
-  body[data-tab="Analytics"] .player__nowplaying{color:#e7cf9d}
-  body[data-tab="Career"] .player__cover,
-  body[data-tab="Application"] .player__cover,
-  body[data-tab="Telegram Bot"] .player__cover,
-  body[data-tab="Analytics"] .player__cover{width:42px;height:42px;border-radius:9px}
-  body[data-tab="Career"] .player__controls,
-  body[data-tab="Application"] .player__controls,
-  body[data-tab="Telegram Bot"] .player__controls,
-  body[data-tab="Analytics"] .player__controls{display:none}
-  body[data-tab="Career"] .player__close,
-  body[data-tab="Application"] .player__close,
-  body[data-tab="Telegram Bot"] .player__close,
-  body[data-tab="Analytics"] .player__close{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.25);color:#f5ecd8}
+  :is(body[data-tab="Career"],body[data-tab="Application"],body[data-tab="Telegram Bot"],body[data-tab="Analytics"]) .player__skip{display:none}
 }
 
 /* ===== Aesthetic polish ===== */
