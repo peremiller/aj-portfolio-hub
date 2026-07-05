@@ -415,9 +415,9 @@ const LEAF_CONF = [
   { top: 37, size: 24, dur: 22, delay: -27, op: 0.5, v: 0 },
   { top: 63, size: 16, dur: 34, delay: -8, op: 0.4, v: 1 },
 ]
-function Leaves() {
+function Leaves({ hero }) {
   return (
-    <div className="leaves" aria-hidden="true">
+    <div className={`leaves${hero ? ' leaves--hero' : ''}`} aria-hidden="true">
       {LEAF_CONF.map((c, i) => (
         <span
           key={i}
@@ -496,7 +496,7 @@ function CareerTab() {
     <>
       <header className="hero" id="top">
         <div className="hero__glow" />
-        <Leaves />
+        <Leaves hero />
         <Stars />
         <div className="hero__spotlight" aria-hidden="true">
           <span className="spot spot--l" />
@@ -517,7 +517,7 @@ function CareerTab() {
           <p className="hero__eyebrow">{profile.location}</p>
           <h1 className="hero__name">{profile.name}</h1>
           <p className="hero__headline">{profile.headline}</p>
-          <p className="hero__tagline">{profile.tagline}</p>
+          <p className="hero__tagline hero__tagline--quoted">{profile.tagline}</p>
           <div className="hero__cta">
             <a className="btn btn--primary" href="#contact">
               Get in touch
@@ -1178,6 +1178,32 @@ function MusicTab({
           ))}
         </div>
       </div>
+      )}
+
+      {/* Mobile only: Playlists + Songs merged into one horizontal row. */}
+      {(filteredPlaylists.length > 0 || filteredSongs.length > 0) && (
+        <div className="musiclane" id="music-onelane">
+          {filteredPlaylists.map((pl) => (
+            <PlaylistCard
+              key={`l-${pl.id}`}
+              pl={pl}
+              active={activePlaylistId && activePlaylistId === pl.id}
+              onPlayPlaylist={onPlayPlaylist}
+              isFav={favPlaylists.has(pl.id)}
+              onToggleFav={onToggleFavPlaylist}
+            />
+          ))}
+          {filteredSongs.map((song) => (
+            <SongCard
+              key={`s-${song.id}`}
+              song={song}
+              active={currentTrack && currentTrack.id === song.id}
+              onPlaySong={onPlaySong}
+              isFav={favSongs.has(song.id)}
+              onToggleFav={onToggleFavSong}
+            />
+          ))}
+        </div>
       )}
     </>
   )
