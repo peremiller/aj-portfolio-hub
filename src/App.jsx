@@ -312,7 +312,7 @@ const apps = [
   },
   {
     name: 'Dynamic Withdrawal',
-    icon: '🎚️',
+    icon: '📉',
     desc: 'Models dynamic retirement withdrawal strategies that adapt spending to market performance.',
     url: 'https://peremiller.github.io/dynamic-withdrawal/',
   },
