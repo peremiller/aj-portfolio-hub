@@ -1764,6 +1764,13 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
                     Open in Suno ↗
                   </a>
                 )}
+              </div>
+            </div>
+            {styleLine(song.tags) && (
+              <p className="player__style">{styleLine(song.tags)}</p>
+            )}
+            {song.audio ? (
+              <div className="player__audiorow">
                 {song.lyrics && (
                   <button
                     type="button"
@@ -1773,24 +1780,24 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
                     aria-expanded={lyricsOpen}
                     title={lyricsOpen ? 'Collapse lyrics' : 'Show lyrics'}
                   >
-                    <span className={`player__chevron${lyricsOpen ? '' : ' player__chevron--up'}`} aria-hidden="true">⌄</span>
+                    <span
+                      className={`player__chevron${lyricsOpen ? '' : ' player__chevron--up'}`}
+                      aria-hidden="true"
+                    >
+                      ⌄
+                    </span>
                   </button>
                 )}
+                <audio
+                  ref={audioRef}
+                  className="player__audio"
+                  key={song.id}
+                  src={song.audio}
+                  controls
+                  preload="none"
+                  onEnded={onEnded}
+                />
               </div>
-            </div>
-            {styleLine(song.tags) && (
-              <p className="player__style">{styleLine(song.tags)}</p>
-            )}
-            {song.audio ? (
-              <audio
-                ref={audioRef}
-                className="player__audio"
-                key={song.id}
-                src={song.audio}
-                controls
-                preload="none"
-                onEnded={onEnded}
-              />
             ) : (
               <p className="player__noaudio">No audio available for this track.</p>
             )}

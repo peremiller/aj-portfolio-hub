@@ -563,3 +563,13 @@ body.music-locked .musiclane{flex:1;min-height:0;align-items:stretch;padding-bot
   :is(body[data-tab="Career"],body[data-tab="Application"],body[data-tab="Telegram Bot"],body[data-tab="Analytics"]) .player__title{font-size:15px;margin:0 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   :is(body[data-tab="Career"],body[data-tab="Application"],body[data-tab="Telegram Bot"],body[data-tab="Analytics"]) .player__audio{width:100%;height:38px}
 }
+
+/* Lyrics toggle sits to the LEFT of the audio controls (Music tab) */
+.player__audiorow{display:flex;align-items:center;gap:10px}
+.player__audiorow .player__audio{flex:1;min-width:0;margin-top:0}
+.player__audiorow .player__lyricstoggle{flex-shrink:0}
+
+/* "Open in Suno" / Suno links stay readable in light mode */
+.player__suno{color:var(--text);background:var(--panel)}
+.plcard__suno,.songcard__suno{color:var(--accent)}
+.plcard__suno:hover,.songcard__suno:hover{color:var(--text)}
