@@ -340,10 +340,16 @@ const apps = [
   },
 ]
 
-const TABS = ['Career', 'Application', 'Telegram Bot', 'Music', 'Favorites', 'Analytics']
+const TABS = ['Career', 'Application', 'Telegram Bot', 'Music', 'Favorites']
 
-// Color themes (accent). Green is the default; Red is the original palette.
+// Color themes (accent). "Default" (a warm mix of royal gold, deep saffron,
+// dusty rose, steel blue and charcoal) is the default; Green and Red are options.
 const THEMES = [
+  {
+    id: 'default',
+    label: 'Default',
+    color: 'linear-gradient(135deg,#cf9526 0%,#c08081 55%,#4a7ba6 100%)',
+  },
   { id: 'green', label: 'Green', color: '#2e9e5b' },
   { id: 'red', label: 'Red', color: '#c0443f' },
 ]
@@ -523,7 +529,7 @@ function CareerTab() {
           <p className="hero__eyebrow">{profile.location}</p>
           <h1 className="hero__name">{profile.name}</h1>
           <p className="hero__headline">{profile.headline}</p>
-          <p className="hero__tagline hero__tagline--quoted">{profile.tagline}</p>
+          <p className="hero__tagline">{profile.tagline}</p>
           <div className="hero__cta">
             <a className="btn btn--primary" href="#contact">
               Get in touch
@@ -1747,30 +1753,6 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
               alt={song.title}
               loading="lazy"
             />
-            {multi && (
-              <div className="player__nav">
-                <button
-                  type="button"
-                  className="player__skip"
-                  onClick={onPrev}
-                  disabled={!hasPrev}
-                  aria-label="Previous track"
-                  title="Previous track"
-                >
-                  ⏮
-                </button>
-                <button
-                  type="button"
-                  className="player__skip"
-                  onClick={onNext}
-                  disabled={!hasNext}
-                  aria-label="Next track"
-                  title="Next track"
-                >
-                  ⏭
-                </button>
-              </div>
-            )}
           </div>
           <div className="player__meta">
             <div className="player__metahead">
@@ -1800,6 +1782,30 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
             )}
             {song.audio ? (
               <div className="player__audiorow">
+                {multi && (
+                  <div className="player__nav">
+                    <button
+                      type="button"
+                      className="player__skip"
+                      onClick={onPrev}
+                      disabled={!hasPrev}
+                      aria-label="Previous track"
+                      title="Previous track"
+                    >
+                      ⏮
+                    </button>
+                    <button
+                      type="button"
+                      className="player__skip"
+                      onClick={onNext}
+                      disabled={!hasNext}
+                      aria-label="Next track"
+                      title="Next track"
+                    >
+                      ⏭
+                    </button>
+                  </div>
+                )}
                 {song.lyrics && (
                   <button
                     type="button"
@@ -1842,7 +1848,7 @@ function App() {
     () => (typeof document !== 'undefined' && document.documentElement.dataset.theme) || 'light'
   )
   const [accent, setAccent] = useState(
-    () => (typeof document !== 'undefined' && document.documentElement.dataset.accent) || 'green'
+    () => (typeof document !== 'undefined' && document.documentElement.dataset.accent) || 'default'
   )
   const [pickerOpen, setPickerOpen] = useState(false)
 
@@ -2156,6 +2162,17 @@ function App() {
     }
   }
 
+  // Swap the browser favicon / touch icons to match the active theme colour.
+  useEffect(() => {
+    const set = (sel, href) => {
+      const el = document.querySelector(sel)
+      if (el) el.href = href
+    }
+    set('link[rel="icon"][sizes="32x32"]', `/favicon-32-${accent}.png?v=4`)
+    set('link[rel="icon"][sizes="256x256"]', `/favicon-${accent}.png?v=4`)
+    set('link[rel="apple-touch-icon"]', `/apple-touch-${accent}.png?v=4`)
+  }, [accent])
+
   // Close the theme picker on Escape or an outside click.
   useEffect(() => {
     if (!pickerOpen) return
@@ -2251,7 +2268,7 @@ function App() {
           aria-label="Go to Career"
         >
           <span className="hubbar__mark" aria-hidden="true">
-            <img className="hubbar__logo" src="/logo.png" alt="" />
+            <img className="hubbar__logo" src={`/logo-${accent}.png`} alt="" />
           </span>
           <span className="hubbar__name">{profile.name}</span>
         </button>

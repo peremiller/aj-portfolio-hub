@@ -541,7 +541,14 @@ body.music-locked .musiclane{flex:1;min-height:0;align-items:stretch;padding-bot
 
 /* ===== Aesthetic polish ===== */
 .itemcard,.skillcard,.listcard,.project,.job,.statcard,.plcard,.songcard,.favplayer,.geomap{box-shadow:0 1px 2px rgba(20,35,22,.05),0 10px 26px -16px rgba(24,60,34,.28)}
-.itemcard:hover,.project:hover,.job:hover,.skillcard:hover,.listcard:hover{box-shadow:0 6px 16px rgba(24,60,34,.09),0 22px 44px -20px rgba(24,70,38,.34)}
+.itemcard:hover,.project:hover,.job:hover,.skillcard:hover,.listcard:hover{box-shadow:0 6px 16px color-mix(in srgb,var(--accent) 13%,transparent),0 22px 44px -20px color-mix(in srgb,var(--accent) 34%,transparent)}
+/* Aesthetic polish — theme-aware selection & scrollbar */
+::selection{background:color-mix(in srgb,var(--accent) 24%,transparent);color:var(--text)}
+html{scrollbar-color:color-mix(in srgb,var(--accent) 55%,var(--line)) transparent}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--accent) 42%,var(--line));border-radius:99px;border:3px solid var(--bg)}
+::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb,var(--accent) 62%,var(--line))}
+::-webkit-scrollbar-track{background:transparent}
 .btn{letter-spacing:.2px}
 .btn--primary{box-shadow:0 6px 18px color-mix(in srgb,var(--accent) 30%,transparent),inset 0 1px 0 rgba(255,255,255,.18)}
 .statcard{transition:transform .25s ease,box-shadow .25s ease}
@@ -600,6 +607,11 @@ body.music-locked .musiclane{flex:1;min-height:0;align-items:stretch;padding-bot
 /* ===== Color themes (accent selector). Green is the default (:root). ===== */
 html[data-accent="red"]{--bg:#faf7f5;--bg-2:#f2ebe8;--panel:#ffffff;--panel-2:#f7f1ee;--line:#e8ddd8;--text:#211b1a;--muted:#6c5f5c;--muted-2:#9b8d89;--accent:#c0443f;--accent-2:#d9785f;--grad:linear-gradient(120deg,#cf4b46 0%,#d9785f 100%);--accent-soft:#cf4b461a;--accent-glow-1:rgba(207,75,70,.16);--accent-glow-2:rgba(217,120,95,.12);--bar-bg:rgba(250,247,245,.78)}
 html[data-accent="red"][data-theme="dark"]{--bg:#181210;--bg-2:#211915;--panel:#211917;--panel-2:#2a201c;--line:#3a2b26;--text:#f3ebe8;--muted:#bcaca6;--muted-2:#8b7a74;--accent:#ef6f6b;--accent-2:#f0a07a;--grad:linear-gradient(120deg,#ef6f6b 0%,#f0a07a 100%);--accent-soft:#ef6f6b26;--accent-glow-1:rgba(239,111,107,.26);--accent-glow-2:rgba(240,160,122,.18);--bar-bg:rgba(24,18,16,.72)}
+/* Default theme — a warm mix of royal gold, deep saffron, dusty rose, steel blue & charcoal */
+html[data-accent="default"]{--bg:#f9f5ec;--bg-2:#f0e9d9;--panel:#ffffff;--panel-2:#f6f0e4;--line:#e7ddc9;--text:#313a40;--muted:#6d685c;--muted-2:#9a9382;--accent:#bd7b12;--accent-2:#c08081;--grad:linear-gradient(120deg,#cf9526 0%,#c08081 55%,#4a7ba6 100%);--accent-soft:rgba(189,123,18,.10);--accent-glow-1:rgba(207,149,38,.18);--accent-glow-2:rgba(74,123,166,.16);--bar-bg:rgba(249,245,236,.80)}
+html[data-accent="default"][data-theme="dark"]{--bg:#16130d;--bg-2:#1f1a11;--panel:#201b12;--panel-2:#2a2316;--line:#3a3120;--text:#efe8d9;--muted:#beb39c;--muted-2:#8c8069;--accent:#d99c3a;--accent-2:#d29699;--grad:linear-gradient(120deg,#d99c3a 0%,#d29699 55%,#5f96c8 100%);--accent-soft:rgba(217,156,58,.18);--accent-glow-1:rgba(217,156,58,.24);--accent-glow-2:rgba(96,150,200,.20);--bar-bg:rgba(22,19,13,.74)}
+/* Gold reads better with dark ink on the primary buttons */
+html[data-accent="default"] .btn--primary,html[data-accent="default"] .favplayer__btn--primary{color:#241a06}
 
 /* Theme picker (swatch dropdown, left of the dark-mode toggle) */
 .themepicker{position:relative;flex-shrink:0}
