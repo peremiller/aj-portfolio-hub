@@ -1000,9 +1000,6 @@ function SongCard({ song, active, onPlaySong, isFav, onToggleFav }) {
         >
           <span className="songcard__title">{song.title}</span>
         </button>
-        {styleLine(song.tags) && (
-          <p className="songcard__style">{styleLine(song.tags)}</p>
-        )}
         <div className="songcard__foot">
           <p className="songcard__meta">{song.plays} plays</p>
           <a className="songcard__suno" href={song.url} target="_blank" rel="noreferrer">

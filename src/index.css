@@ -517,12 +517,15 @@ body.music-locked .musiclane{flex:1;min-height:0;align-items:stretch;padding-bot
    plus a faint "batik" resist-dye dot motif, layered over the dull gold. Kept
    low-contrast so the light player text stays legible. */
 .player{
-  background:
-    repeating-linear-gradient(45deg, rgba(255,244,214,.06) 0 3px, transparent 3px 9px),
-    repeating-linear-gradient(-45deg, rgba(0,0,0,.07) 0 3px, transparent 3px 9px),
-    radial-gradient(circle at center, rgba(255,244,214,.06) .8px, transparent 1.6px) 0 0 / 16px 16px,
+  background-color:#6b5230;
+  background-image:
+    /* banig woven mat: perpendicular over/under strips (light warp, dark weft) */
+    repeating-linear-gradient(45deg, rgba(255,240,210,.16) 0 5px, rgba(255,240,210,0) 5px 11px),
+    repeating-linear-gradient(135deg, rgba(0,0,0,.18) 0 5px, rgba(0,0,0,0) 5px 11px),
+    /* faint batik resist-dye dot motif */
+    radial-gradient(circle at center, rgba(255,240,210,.08) 1px, transparent 1.8px) 0 0 / 22px 22px,
     linear-gradient(180deg,#7c6234 0%,#5d4826 100%);
-  border-bottom-color:rgba(0,0,0,.28);
+  border-bottom-color:rgba(0,0,0,.3);
 }
 .player__title,.player__style,.player__noaudio{color:#f5ecd8}
 .player__nowplaying{color:#e7cf9d}
