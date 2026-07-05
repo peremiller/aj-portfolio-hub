@@ -1076,7 +1076,7 @@ function MusicTab({
           <input
             type="search"
             className="musicsearch__input"
-            placeholder="Search songs, lyrics, or playlists…"
+            placeholder="Search songs, lyrics, or playlists."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             aria-label="Search songs and playlists"
@@ -1241,10 +1241,6 @@ function FavoritesTab({
         <div className="tabhero__inner reveal">
           <p className="tabhero__kicker">Favorites</p>
           <h1 className="tabhero__title">Your Favorites</h1>
-          <p className="tabhero__lead">
-            One mix of everything you've hearted — your favorite songs plus every track
-            from your favorite playlists. Saved on this device.
-          </p>
         </div>
       </div>
 
@@ -1561,7 +1557,15 @@ function isStructuralLine(line) {
   if (t === '') return true
   if (/^\[.*\]$/.test(t)) return true
   if (/^\(.*\)$/.test(t)) return true
+  if (isDashLine(line)) return true
   return false
+}
+
+// A "divider" line made only of dashes / underscores / equals (e.g. "-------").
+// These are visual separators we strip out of the lyrics rectangle entirely.
+function isDashLine(line) {
+  const stripped = (line || '').replace(/\s/g, '')
+  return stripped !== '' && /^[-–—_=]+$/.test(stripped)
 }
 
 function LyricsPanel({ lyrics, audioRef, trackId }) {
@@ -1662,7 +1666,8 @@ function LyricsPanel({ lyrics, audioRef, trackId }) {
 
   return (
     <div className="player__lyrics" ref={containerRef}>
-      {lines.map((line, i) => (
+      {lines.map((line, i) =>
+        isDashLine(line) ? null : (
         <p
           key={i}
           ref={(node) => {
@@ -1674,7 +1679,8 @@ function LyricsPanel({ lyrics, audioRef, trackId }) {
         >
           {line === '' ? ' ' : line}
         </p>
-      ))}
+        )
+      )}
     </div>
   )
 }
@@ -1762,19 +1768,6 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
                 </p>
                 <p className="player__title">{song.title}</p>
                 <p className="player__artist">AJ Miller</p>
-              </div>
-              <div className="player__headactions">
-                {song.url && !playing && (
-                  <a
-                    className="player__suno"
-                    href={song.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    title="Open in Suno"
-                  >
-                    Open in Suno ↗
-                  </a>
-                )}
               </div>
             </div>
             {styleLine(song.tags) && (

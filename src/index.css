@@ -136,7 +136,8 @@ html[data-theme="dark"] .badge--dev .badge__dot{background:#fbbf24}
 /* When the player is mounted it carries the nav-clearing offset, so the
    content below no longer needs its own padding-top. */
 .player + .hubmain{padding-top:0}
-.player__inner{max-width:var(--maxw);margin:0 auto;padding:16px clamp(18px,5vw,48px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start;position:relative}
+.player__inner{max-width:var(--maxw);margin:0 auto;padding:16px clamp(18px,5vw,48px);display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start;justify-items:center;position:relative}
+.player__left{width:100%}
 .player__close{position:absolute;top:10px;right:14px;z-index:1;appearance:none;width:30px;height:30px;display:grid;place-items:center;border-radius:8px;background:var(--panel);border:1px solid var(--line);color:var(--muted);font-size:20px;line-height:1;cursor:pointer;transition:border-color .2s,color .2s,transform .2s}
 .player__close:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
 .player__left{display:flex;gap:16px;align-items:flex-start;min-width:0}
@@ -155,7 +156,7 @@ html[data-theme="dark"] .badge--dev .badge__dot{background:#fbbf24}
 .player__style{font-size:12px;color:var(--muted-2);margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .player__audio{width:100%;margin-top:10px;height:36px}
 .player__noaudio{font-size:12px;color:var(--muted-2);margin:10px 0 0}
-.player__lyrics{position:relative;max-height:220px;overflow:auto;font-size:13px;line-height:1.6;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-width:0;scroll-behavior:smooth}
+.player__lyrics{position:relative;width:100%;max-width:680px;margin:0 auto;max-height:220px;overflow:auto;font-size:13px;line-height:1.6;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-width:0;scroll-behavior:smooth;text-align:center}
 .lyrics__line{margin:0;white-space:pre-wrap;color:var(--muted-2);transition:color .3s ease,font-weight .2s ease,opacity .3s ease,transform .25s ease;opacity:.8}
 .lyrics__line--structural{color:var(--muted-2);opacity:.55;font-style:italic}
 .lyrics__line--active{color:var(--accent);opacity:1;font-weight:700;transform:none}
@@ -173,7 +174,7 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
 /* music search + language filter (top of Music tab, outside .tabhero so it
    stays visible in the locked mobile layout) */
 .musicsearch{max-width:var(--maxw);margin:0 auto;padding:14px clamp(18px,5vw,48px) 0;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
-.musicsearch__field{position:relative;flex:1 1 240px;min-width:0;display:flex;align-items:center;height:40px;background:var(--panel);border:1px solid var(--line);border-radius:10px;transition:border-color .2s,box-shadow .2s}
+.musicsearch__field{position:relative;flex:1 1 100%;min-width:0;display:flex;align-items:center;height:40px;background:var(--panel);border:1px solid var(--line);border-radius:10px;transition:border-color .2s,box-shadow .2s}
 .musicsearch__field:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .musicsearch__icon{display:grid;place-items:center;width:36px;flex-shrink:0;color:var(--muted-2)}
 .musicsearch__icon svg{width:16px;height:16px}
@@ -262,9 +263,9 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
   /* Spread the hero text evenly across the full banner height (no big top gap). */
   .hero__inner{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;width:100%}
   .hero__eyebrow{display:none}
-  .hero__name{font-size:clamp(25px,7.6vw,40px);letter-spacing:-1px;line-height:1.04;margin:0}
-  .hero__headline{font-size:clamp(15px,4.3vw,21px);margin:0}
-  .hero__tagline{font-size:13px;line-height:1.5;margin:0 auto}
+  .hero__name{font-size:clamp(22px,6.8vw,34px);letter-spacing:-1px;line-height:1.05;margin:0}
+  .hero__headline{font-size:clamp(14px,3.9vw,19px);margin:0}
+  .hero__tagline{font-size:12.5px;line-height:1.5;margin:0 auto}
   .hero__cta{margin-top:0}
   .hero__stats{display:grid;grid-template-columns:repeat(2,minmax(0,auto));justify-content:center;margin-top:0;gap:14px 34px}
   .stat__value{font-size:clamp(21px,6vw,30px)}
@@ -283,6 +284,20 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
      the playlists/songs listings scroll in the lower half beneath the sticky bar. */
   body[data-tab="Music"] .player__lyrics{max-height:54vh}
   body[data-tab="Music"] .player__cover{width:68px;height:68px}
+  /* Favorites player matches the Music player size (not the oversized default). */
+  body[data-tab="Favorites"] .player__cover{width:68px;height:68px}
+
+  /* Mobile typography: dial the whole page down from laptop-sized text. */
+  body{font-size:15px}
+  .section__title{font-size:clamp(23px,6.2vw,30px)}
+  .section__kicker,.tabhero__kicker{font-size:11px;letter-spacing:1.6px}
+  .tabhero__title{font-size:clamp(23px,6.6vw,30px)}
+  .tabhero__lead{font-size:13.5px}
+  .about{font-size:14px}
+  .job__role,.project__top h3,.itemcard h3,.skillcard h3,.listcard h3{font-size:16px}
+  .job__period,.job__bullets,.job__bullets li,.project p,.itemcard__desc,.listcard li,.contact__lead,.skillcard li{font-size:13.5px}
+  .songcard__title,.plcard__name{font-size:14px}
+  .player__title{font-size:15px}
 }
 
 /* ── Small phones: fit all four tabs on one row, no horizontal scroll, and
@@ -306,10 +321,10 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
   /* Small-mobile: the two long stat labels wrap to two lines for an even grid. */
   .stat-br{display:inline}
   /* Non-hero type trimmed a notch (hero sizing handled in the ≤720 block). */
-  .tabhero__title{font-size:clamp(26px,8vw,34px)}
-  .tabhero__lead{font-size:14px}
-  .tabhero__kicker,.section__kicker{font-size:12px}
-  .section__title{font-size:clamp(24px,7vw,32px)}
+  .tabhero__title{font-size:clamp(22px,6.8vw,28px)}
+  .tabhero__lead{font-size:13px}
+  .tabhero__kicker,.section__kicker{font-size:11px}
+  .section__title{font-size:clamp(21px,5.8vw,27px)}
 
   /* Trim content type a notch across ALL tabs on small phones. */
   .about{font-size:14px}
@@ -384,8 +399,8 @@ body:not([data-tab="Music"]) .player__inner{grid-template-columns:1fr}
   body.music-locked .player__lyrics{max-height:17vh}
   /* Compact the search/language controls so the locked layout still fits one screen. */
   body.music-locked .musicsearch{padding:6px clamp(12px,4vw,18px) 0;gap:6px}
-  body.music-locked .musicsearch__field{height:34px;flex-basis:160px}
-  body.music-locked .musicsearch__input{font-size:13px}
+  body.music-locked .musicsearch__field{height:34px;flex-basis:100%}
+  body.music-locked .musicsearch__input{font-size:12.5px}
   body.music-locked .musicsearch__count{display:none}
   /* When lyrics are collapsed, give the listings the reclaimed room. */
   body.music-locked .player--lyrics-collapsed .player__lyrics{display:none}
@@ -393,7 +408,7 @@ body:not([data-tab="Music"]) .player__inner{grid-template-columns:1fr}
      expand to the bottom edge (no empty slot) and each card is sized to the
      row height, scrolling horizontally. */
   body.music-locked .hubmain{flex:1;min-height:0;display:flex;flex-direction:column;padding-top:0}
-  body.music-locked .musicsearch{flex:0 0 auto}
+  body.music-locked .musicsearch{flex:0 0 auto;width:100%}
   body.music-locked .musicsub{flex:1;min-height:0;display:flex;flex-direction:column;padding:4px clamp(12px,4vw,18px) 6px}
   body.music-locked .musicsub--recommended{display:none}
   body.music-locked .musicsub__title{flex:0 0 auto;margin:6px 0 4px;font-size:12px}
