@@ -1733,6 +1733,18 @@ function LyricsPanel({ lyrics, audioRef, trackId }) {
     return <div className="player__lyrics">No lyrics for this track.</div>
   }
 
+  // Highlight the active singable line plus the previous 2 singable lines, so
+  // three lines glow at once. activePos is the active line's index within the
+  // singable-only sequence; we walk back two more singable lines from there.
+  const activePos = activeLine >= 0 ? singableIndexes.indexOf(activeLine) : -1
+  const highlighted = new Set()
+  if (activePos >= 0) {
+    for (let d = 0; d < 3; d++) {
+      const p = activePos - d
+      if (p >= 0) highlighted.add(singableIndexes[p])
+    }
+  }
+
   return (
     <div className="player__lyrics" ref={containerRef}>
       {lines.map((line, i) =>
@@ -1742,7 +1754,7 @@ function LyricsPanel({ lyrics, audioRef, trackId }) {
           ref={(node) => {
             lineRefs.current[i] = node
           }}
-          className={`lyrics__line${i === activeLine ? ' lyrics__line--active' : ''}${
+          className={`lyrics__line${highlighted.has(i) ? ' lyrics__line--active' : ''}${
             isStructuralLine(line) ? ' lyrics__line--structural' : ''
           }`}
         >
