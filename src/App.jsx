@@ -1861,9 +1861,6 @@ function NowPlayingBar({ song, audioRef, onClose, onEnded, onPrev, onNext, hasPr
                 <p className="player__artist">AJ Miller</p>
               </div>
             </div>
-            {styleLine(song.tags) && (
-              <p className="player__style">{styleLine(song.tags)}</p>
-            )}
             {song.audio ? (
               <div className="player__audiorow">
                 {song.lyrics && (
