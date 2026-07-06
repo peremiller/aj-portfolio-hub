@@ -1744,13 +1744,13 @@ function LyricsPanel({ lyrics, audioRef, trackId }) {
     return <div className="player__lyrics">No lyrics for this track.</div>
   }
 
-  // Highlight a 4-line band: the previous 2 singable lines, the active line, and
-  // the next singable line. activePos is the active line's index within the
+  // Highlight a 6-line band: the previous 3 singable lines, the active line, and
+  // the next 2 singable lines. activePos is the active line's index within the
   // singable-only sequence.
   const activePos = activeLine >= 0 ? singableIndexes.indexOf(activeLine) : -1
   const highlighted = new Set()
   if (activePos >= 0) {
-    for (let p = activePos - 2; p <= activePos + 1; p++) {
+    for (let p = activePos - 3; p <= activePos + 2; p++) {
       if (p >= 0 && p < singableIndexes.length) highlighted.add(singableIndexes[p])
     }
   }

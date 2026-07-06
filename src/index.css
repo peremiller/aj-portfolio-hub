@@ -662,3 +662,20 @@ html[data-accent="default"] .btn--primary,html[data-accent="default"] .favplayer
 .themeopt:hover{background:var(--panel-2)}
 .themeopt--active{background:var(--accent-soft);color:var(--accent)}
 .themeopt__sw{width:16px;height:16px;border-radius:50%;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+
+/* Mobile: the horizontal inset applies ONLY to the lyrics row. The cover /
+   title / player controls span the full player width; only the lyrics card is
+   given equal left/right margins. Placed last so it wins the cascade, and
+   scoped to override the base + music-locked player__lyrics rules. */
+@media (max-width:720px){
+  body[data-tab="Music"] .player__inner{padding-left:0;padding-right:0}
+  body[data-tab="Music"] .player__left{padding-left:0;padding-right:0}
+  body[data-tab="Music"] .player__lyrics{
+    width:auto;
+    max-width:none;
+    align-self:stretch;
+    justify-self:stretch;
+    margin-left:16px;
+    margin-right:16px;
+  }
+}
