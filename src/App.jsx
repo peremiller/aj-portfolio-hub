@@ -23,6 +23,145 @@ function AppFavicon({ url, name }) {
   )
 }
 
+// Minimalist line-icon set (Lucide-style: 24px grid, rounded 1.75 stroke,
+// currentColor). Used for the app + Telegram-bot marks instead of emoji.
+const ICON_PATHS = {
+  'file-text': (
+    <>
+      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+      <path d="M14 2v5h6" />
+      <path d="M9 13h6" />
+      <path d="M9 17h6" />
+    </>
+  ),
+  landmark: (
+    <>
+      <line x1="3" x2="21" y1="22" y2="22" />
+      <line x1="6" x2="6" y1="18" y2="11" />
+      <line x1="10" x2="10" y1="18" y2="11" />
+      <line x1="14" x2="14" y1="18" y2="11" />
+      <line x1="18" x2="18" y1="18" y2="11" />
+      <polygon points="12 2 20 7 4 7" />
+    </>
+  ),
+  layers: (
+    <>
+      <polygon points="12 2 2 7 12 12 22 7 12 2" />
+      <polyline points="2 17 12 22 22 17" />
+      <polyline points="2 12 12 17 22 12" />
+    </>
+  ),
+  'trending-up': (
+    <>
+      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+      <polyline points="16 7 22 7 22 13" />
+    </>
+  ),
+  sunrise: (
+    <>
+      <path d="M12 2v8" />
+      <path d="m4.93 10.93 1.41 1.41" />
+      <path d="M2 18h2" />
+      <path d="M20 18h2" />
+      <path d="m19.07 10.93-1.41 1.41" />
+      <path d="M22 22H2" />
+      <path d="m8 6 4-4 4 4" />
+      <path d="M16 18a4 4 0 0 0-8 0" />
+    </>
+  ),
+  target: (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </>
+  ),
+  briefcase: (
+    <>
+      <rect width="20" height="14" x="2" y="7" rx="2" />
+      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+    </>
+  ),
+  link: (
+    <>
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </>
+  ),
+  zap: <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />,
+  calendar: (
+    <>
+      <path d="M8 2v4" />
+      <path d="M16 2v4" />
+      <rect width="18" height="18" x="3" y="4" rx="2" />
+      <path d="M3 10h18" />
+    </>
+  ),
+  'cloud-sun': (
+    <>
+      <path d="M12 2v2" />
+      <path d="m4.93 4.93 1.41 1.41" />
+      <path d="M20 12h2" />
+      <path d="m19.07 4.93-1.41 1.41" />
+      <path d="M15.947 12.65a4 4 0 0 0-5.925-4.128" />
+      <path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z" />
+    </>
+  ),
+  languages: (
+    <>
+      <path d="m5 8 6 6" />
+      <path d="m4 14 6-6 2-3" />
+      <path d="M2 5h12" />
+      <path d="M7 2h1" />
+      <path d="m22 22-5-10-5 10" />
+      <path d="M14 18h6" />
+    </>
+  ),
+  'alert-triangle': (
+    <>
+      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+      <path d="M12 9v4" />
+      <path d="M12 17h.01" />
+    </>
+  ),
+  dollar: (
+    <>
+      <line x1="12" x2="12" y1="2" y2="22" />
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+    </>
+  ),
+  film: (
+    <>
+      <rect width="18" height="18" x="3" y="3" rx="2" />
+      <path d="M7 3v18" />
+      <path d="M3 7.5h4" />
+      <path d="M3 12h18" />
+      <path d="M3 16.5h4" />
+      <path d="M17 3v18" />
+      <path d="M17 7.5h4" />
+      <path d="M17 16.5h4" />
+    </>
+  ),
+}
+
+function LineIcon({ name }) {
+  const paths = ICON_PATHS[name]
+  if (!paths) return null
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {paths}
+    </svg>
+  )
+}
+
 // Years of professional experience since December 2011 — recomputed on every load,
 // so it advances automatically each year (e.g. 14+ now, 15+ from December 2026).
 const CAREER_START_YEAR = 2011
@@ -255,35 +394,35 @@ const memberships = [
 const bots = [
   {
     name: 'Weather',
-    icon: '🌦️',
+    icon: 'cloud-sun',
     handle: '@pjo_weather_bot',
     desc: 'Daily forecasts and on-demand weather delivered straight to Telegram.',
     status: 'live',
   },
   {
     name: 'Tagalog Translate',
-    icon: '🔤',
+    icon: 'languages',
     handle: '@tagalog_translate_bot',
     desc: 'Two-way Tagalog ⇄ English translation with automatic direction detection.',
     status: 'dev',
   },
   {
     name: 'Disaster Watch',
-    icon: '🚨',
+    icon: 'alert-triangle',
     handle: '@disaster_watch_bot',
     desc: 'Real-time alerts for earthquakes, tsunamis, typhoons, floods, and volcanic activity.',
     status: 'live',
   },
   {
     name: 'PH Dollar Rate',
-    icon: '💵',
+    icon: 'dollar',
     handle: '@ph_dollar_rate',
     desc: 'Compares USD→PHP buy & sell rates across Philippine banks.',
     status: 'live',
   },
   {
     name: 'Pelikula Finder',
-    icon: '🎬',
+    icon: 'film',
     handle: '@pelikula_finder_bot',
     desc: 'Finds now-playing movies and showtimes in nearby cinemas.',
     status: 'dev',
@@ -293,63 +432,63 @@ const bots = [
 const apps = [
   {
     name: 'PicPress — Image to PDF Merger',
-    icon: '📄',
+    icon: 'file-text',
     desc: 'Merge images into a single PDF in the browser — rotate, reorder, and export with a zero-dependency PDF writer. Everything runs client-side; nothing is uploaded.',
     url: 'https://image-pdf-merger.vercel.app',
   },
   {
     name: 'Calm Capital',
-    icon: '🧘',
+    icon: 'landmark',
     desc: 'Behavioral-wealth dashboard — investment policy statement, synthetic paycheck, net-worth tracking, and a "bear mode" for downturns.',
     url: 'https://peremiller.github.io/calm-capital/',
   },
   {
     name: 'Cash Reserve Planner',
-    icon: '🪣',
+    icon: 'layers',
     desc: 'Three-bucket liquidity planner with a reserve glide path and multi-currency support.',
     url: 'https://cash-reserve-planner.vercel.app',
     status: 'dev',
   },
   {
     name: 'Dynamic Withdrawal',
-    icon: '📈',
+    icon: 'trending-up',
     desc: 'Models dynamic retirement withdrawal strategies that adapt spending to market performance.',
     url: 'https://peremiller.github.io/dynamic-withdrawal/',
   },
   {
     name: 'Retirement Income Maximizer',
-    icon: '🏖️',
+    icon: 'sunrise',
     desc: 'Calculators for maximizing retirement income — delaying Social Security to 70 and joint-and-survivor annuities.',
     url: 'https://peremiller.github.io/retirement-planner/',
   },
   {
     name: 'Asset Location Optimizer',
-    icon: '🗂️',
+    icon: 'target',
     desc: 'Places bonds in tax-deferred accounts and equities in taxable accounts for asset-location tax efficiency (PWA).',
     url: 'https://asset-location-optimizer.vercel.app',
   },
   {
     name: 'Job Portal (TalentMatch)',
-    icon: '💼',
+    icon: 'briefcase',
     desc: 'Matches your CV to job openings and lets you apply, with OAuth sign-in.',
     url: 'https://job-portal-beta-rose.vercel.app',
     status: 'dev',
   },
   {
     name: 'Blockchain Problems',
-    icon: '⛓️',
+    icon: 'link',
     desc: 'Interactive data-visualization of the top problems facing the blockchain industry.',
     url: 'https://blockchain-problems.vercel.app/',
   },
   {
     name: 'VoltDown',
-    icon: '⚡',
+    icon: 'zap',
     desc: 'Lists 1,000 solutions to high electricity prices, each scored on impact, feasibility (0-100), and estimated cost, with subtasks and editable statuses — plus search, filter, a "Quick wins" sort, a click-to-open detail panel with per-subtask cost, a live progress dashboard, and JSON/CSV export.',
     url: 'https://electricity-solutions.vercel.app',
   },
   {
     name: 'HackCal',
-    icon: '🗓️',
+    icon: 'calendar',
     desc: 'Offline-first tech hackathon calendar with month and list views, filtering, and .ics export.',
     url: 'https://hackathon-calendar-umber.vercel.app',
   },
@@ -720,9 +859,9 @@ function AppCard({ app }) {
     <div className="itemcard reveal" key={app.name}>
       <div className="itemcard__top">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {app.icon ? (
-            <span className="itemcard__favicon itemcard__favicon--emoji" aria-hidden="true">
-              {app.icon}
+          {app.icon && ICON_PATHS[app.icon] ? (
+            <span className="itemcard__favicon itemcard__favicon--icon" aria-hidden="true">
+              <LineIcon name={app.icon} />
             </span>
           ) : (
             <AppFavicon url={app.url} name={app.name} />
@@ -905,8 +1044,8 @@ function TelegramBotTab() {
               <div className="itemcard reveal" key={bot.handle}>
                 <div className="itemcard__top itemcard__top--bot">
                   <div className="itemcard__lead">
-                    <span className="itemcard__mark itemcard__mark--emoji" aria-hidden="true">
-                      {bot.icon || <PlaneIcon />}
+                    <span className="itemcard__mark itemcard__mark--icon" aria-hidden="true">
+                      {bot.icon && ICON_PATHS[bot.icon] ? <LineIcon name={bot.icon} /> : <PlaneIcon />}
                     </span>
                     <div className="itemcard__namewrap">
                       <h3>{bot.name}</h3>

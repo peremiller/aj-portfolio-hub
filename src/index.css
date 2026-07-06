@@ -222,8 +222,10 @@ html[data-theme="dark"] .lyrics__line--active{color:var(--accent)}
 
 /* app favicon */
 .itemcard__favicon{width:40px;height:40px;border-radius:11px;object-fit:cover;background:var(--panel-2);border:1px solid var(--line);flex-shrink:0}
-.itemcard__favicon--emoji{display:grid;place-items:center;font-size:21px;line-height:1;background:var(--accent-soft)}
-.itemcard__mark--emoji{background:var(--accent-soft);font-size:20px;line-height:1}
+.itemcard__favicon--icon{display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+.itemcard__favicon--icon svg{width:20px;height:20px}
+.itemcard__mark--icon{background:var(--accent-soft);color:var(--accent);box-shadow:none}
+.itemcard__mark--icon svg{width:19px;height:19px}
 .itemcard__faviconfallback{width:40px;height:40px;border-radius:11px;background:var(--accent-soft);border:1px solid var(--line);flex-shrink:0}
 
 /* music loading state */
