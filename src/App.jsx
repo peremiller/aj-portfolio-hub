@@ -89,6 +89,13 @@ const ICON_PATHS = {
     </>
   ),
   zap: <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />,
+  'graduation-cap': (
+    <>
+      <path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" />
+      <path d="M22 10v6" />
+      <path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" />
+    </>
+  ),
   calendar: (
     <>
       <path d="M8 2v4" />
@@ -491,6 +498,12 @@ const apps = [
     icon: 'calendar',
     desc: 'Offline-first tech hackathon calendar with month and list views, filtering, and .ics export.',
     url: 'https://hackathon-calendar-umber.vercel.app',
+  },
+  {
+    name: 'SkillForge Academy',
+    icon: 'graduation-cap',
+    desc: 'Expert training academy — 19 skill tracks and 100 curated video lessons with structured learning paths across engineering, product, and quality.',
+    url: 'https://training-academy-five.vercel.app/',
   },
 ]
 
