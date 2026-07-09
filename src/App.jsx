@@ -502,7 +502,7 @@ const apps = [
   {
     name: 'SkillForge Academy',
     icon: 'graduation-cap',
-    desc: 'Expert training academy — 19 skill tracks and 100 curated video lessons with structured learning paths across engineering, product, and quality.',
+    desc: 'Expert training academy — a growing library of curated video lessons and structured skill tracks across engineering, product, and quality.',
     url: 'https://training-academy-five.vercel.app/',
   },
 ]
@@ -978,6 +978,31 @@ function ApplicationTab() {
   //   'open'   → 200 → render returned apps as extra cards
   const [privState, setPrivState] = useState('none')
   const [privateApps, setPrivateApps] = useState([])
+  // Live SkillForge Academy counts (public tracks/videos), fetched from its
+  // own /api/stats so the card description stays current as courses are added.
+  const [academy, setAcademy] = useState(null)
+
+  useEffect(() => {
+    let alive = true
+    fetch('https://training-academy-five.vercel.app/api/stats')
+      .then((r) => r.json())
+      .then((d) => {
+        if (alive && d && d.ok && d.publicTracks && d.publicVideos) setAcademy(d)
+      })
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [])
+
+  // Fold the live counts into the academy card's description when available.
+  const withLiveCounts = (app) => {
+    if (!academy || app.url !== 'https://training-academy-five.vercel.app/') return app
+    return {
+      ...app,
+      desc: `Expert training academy — ${academy.publicTracks} skill tracks and ${academy.publicVideos} curated video lessons with structured learning paths across engineering, product, and quality.`,
+    }
+  }
 
   const loadPrivate = async () => {
     try {
@@ -1019,7 +1044,7 @@ function ApplicationTab() {
       <div className="section">
         <div className="cardgrid">
           {apps.map((app) => (
-            <AppCard key={app.name} app={app} />
+            <AppCard key={app.name} app={withLiveCounts(app)} />
           ))}
           {privState === 'open' &&
             privateApps.map((app) => <AppCard key={app.name} app={app} />)}
