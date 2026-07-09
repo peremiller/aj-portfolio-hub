@@ -390,6 +390,11 @@ html[data-theme="dark"] .spot{background:linear-gradient(180deg,color-mix(in srg
    Bot/Favorites). --playerbar-h is the measured bar height (set in JS). */
 body.player-docked .player{position:fixed;top:auto;bottom:0;left:0;right:0;margin-top:0;border-top:1px solid var(--line);border-bottom:0;box-shadow:0 -10px 30px -16px rgba(0,0,0,.45)}
 body.player-docked{padding-bottom:var(--playerbar-h,88px)}
+/* The docked player sits at the BOTTOM, so it no longer occupies the top — undo
+   the `.player + .hubmain{padding-top:0}` clearance-removal or the page content
+   slides up under the fixed nav (top content becomes unreadable). */
+body.player-docked .player + .hubmain{padding-top:72px}
+@media (max-width:720px){body.player-docked .player + .hubmain{padding-top:102px}}
 body.player-docked .scrolltop{bottom:calc(var(--playerbar-h,88px) + 16px)}
 @media (max-width:420px){body.player-docked .scrolltop{bottom:calc(var(--playerbar-h,88px) + 14px)}}
 
