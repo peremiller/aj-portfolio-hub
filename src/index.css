@@ -793,3 +793,36 @@ html[data-accent="default"][data-theme="dark"]{
   }
   .is-tilting::after{opacity:1}
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Beyond 3D — modern platform effects (all progressively enhanced):
+   • View Transitions API: tabs morph instead of hard-cutting
+   • Native scroll-driven progress bar
+   • Magnetic buttons that drift toward the cursor
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* View Transitions: crossfade + slide the main content between tabs. The nav and
+   player belong to :root and stay put (their snapshots are identical). */
+@media (prefers-reduced-motion: no-preference){
+  .hubmain{view-transition-name:hubmain}
+  ::view-transition-old(root),::view-transition-new(root){animation:none}
+  ::view-transition-group(hubmain){animation-duration:.36s;animation-timing-function:cubic-bezier(.2,.75,.25,1)}
+  ::view-transition-old(hubmain){animation:vt-out .24s cubic-bezier(.4,0,.2,1) both}
+  ::view-transition-new(hubmain){animation:vt-in .38s cubic-bezier(.2,.75,.25,1) both}
+}
+@keyframes vt-out{to{opacity:0;transform:translateY(-10px)}}
+@keyframes vt-in{from{opacity:0;transform:translateY(14px)}}
+
+/* Scroll progress — a thin accent bar; native scroll-timeline where supported,
+   JS fallback (App.jsx) otherwise. */
+.scrollprogress{position:fixed;inset:0 0 auto 0;height:3px;z-index:70;transform-origin:0 50%;transform:scaleX(0);background:var(--grad);pointer-events:none;box-shadow:0 0 12px color-mix(in srgb,var(--accent) 45%,transparent)}
+@keyframes scroll-grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@supports (animation-timeline: scroll()){
+  .scrollprogress{animation:scroll-grow linear both;animation-timeline:scroll(root)}
+}
+
+/* Magnetic buttons — drift toward the cursor (values set in App.jsx). */
+@media (hover:hover) and (pointer:fine){
+  .btn{transform:translate(var(--mx,0px),var(--my,0px))}
+  .btn:hover{transform:translate(var(--mx,0px),var(--my,0px)) translateY(-2px)}
+}

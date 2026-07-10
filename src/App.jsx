@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import sunoFallback from './suno.json'
 
 function AppFavicon({ url, name }) {
@@ -2254,6 +2255,59 @@ function App() {
     }
   }, [])
 
+  // Magnetic buttons: primary/ghost buttons drift toward the cursor while hovered.
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return
+    const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (!fine || still) return
+    let current = null
+    const clear = (el) => {
+      if (!el) return
+      el.style.removeProperty('--mx')
+      el.style.removeProperty('--my')
+    }
+    const onMove = (e) => {
+      const btn = e.target && e.target.closest ? e.target.closest('.btn') : null
+      if (btn !== current) {
+        clear(current)
+        current = btn
+      }
+      if (!btn) return
+      const r = btn.getBoundingClientRect()
+      const dx = e.clientX - (r.left + r.width / 2)
+      const dy = e.clientY - (r.top + r.height / 2)
+      const cap = (v) => Math.max(-8, Math.min(8, v * 0.3))
+      btn.style.setProperty('--mx', `${cap(dx).toFixed(1)}px`)
+      btn.style.setProperty('--my', `${cap(dy).toFixed(1)}px`)
+    }
+    document.addEventListener('pointermove', onMove, { passive: true })
+    return () => {
+      document.removeEventListener('pointermove', onMove)
+      clear(current)
+    }
+  }, [])
+
+  // Scroll progress bar — native CSS scroll-driven animation handles it where
+  // supported; this is the fallback for browsers without scroll timelines.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (window.CSS && CSS.supports && CSS.supports('animation-timeline: scroll()')) return
+    const bar = document.querySelector('.scrollprogress')
+    if (!bar) return
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      bar.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [])
+
   // Lock the Music page to one screen (no vertical scroll) while the player is
   // open — the playlists/songs listings below then scroll horizontally instead.
   useEffect(() => {
@@ -2539,6 +2593,22 @@ function App() {
     }
   }, [pickerOpen])
 
+  // Morph between tabs with the View Transitions API (progressive enhancement:
+  // instant swap where unsupported or when reduced-motion is requested). flushSync
+  // forces the DOM to update inside the transition callback so it can be captured.
+  const swapTab = (next) => {
+    if (next === tab) return
+    const reduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (typeof document !== 'undefined' && document.startViewTransition && !reduced) {
+      document.startViewTransition(() => flushSync(() => setTab(next)))
+    } else {
+      setTab(next)
+    }
+  }
+
   // Burger-menu navigation: jump to a tab and optionally scroll to a section id
   // within it (waiting for the tab to render when switching).
   const navigateTo = (targetTab, sectionId) => {
@@ -2597,6 +2667,7 @@ function App() {
 
   return (
     <>
+      <div className="scrollprogress" aria-hidden="true" />
       <nav className="hubbar">
         <button
           className="hubbar__burger"
@@ -2612,7 +2683,7 @@ function App() {
         <button
           className="hubbar__brand"
           onClick={() => {
-            setTab('Career')
+            swapTab('Career')
             window.scrollTo(0, 0)
           }}
           style={{ background: 'none', border: 0, cursor: 'pointer', color: 'inherit' }}
@@ -2632,7 +2703,7 @@ function App() {
               <button
                 key={t}
                 className={`hubtab${tab === t ? ' hubtab--active' : ''}${iconOnly ? ' hubtab--fav' : ''}${lead ? ' hubtab--lead' : ''}`}
-                onClick={() => setTab(t)}
+                onClick={() => swapTab(t)}
                 aria-current={tab === t ? 'page' : undefined}
                 aria-label={iconOnly ? t : undefined}
               >
