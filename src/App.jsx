@@ -103,6 +103,9 @@ const ICON_PATHS = {
       <path d="m10 11 5 3-5 3z" />
     </>
   ),
+  headphones: (
+    <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" />
+  ),
   calendar: (
     <>
       <path d="M8 2v4" />
@@ -517,6 +520,12 @@ const apps = [
     icon: 'file-video',
     desc: 'Recovers interrupted Chrome .crdownload files into playable .mp4 videos, right in the browser — nothing is uploaded.',
     url: 'https://crdownload-to-mp4.vercel.app',
+  },
+  {
+    name: 'SolveVerse Audiobook Library',
+    icon: 'headphones',
+    desc: 'A library of original SolveVerse sci-fi audiobooks — a trilogy shelf plus community-submitted uploads with an approval queue, each streamed with multi-voice narration.',
+    url: 'https://audiobook-library-three.vercel.app/',
   },
 ]
 
