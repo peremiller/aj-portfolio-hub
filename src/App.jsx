@@ -2212,6 +2212,48 @@ function App() {
     document.body.dataset.tab = tab
   }, [tab])
 
+  // Interactive 3D tilt: cards lean toward the cursor with a soft glare (pointer
+  // devices only; skipped for reduced-motion). Delegated pointermove sets CSS
+  // custom properties the stylesheet turns into a perspective transform.
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return
+    const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (!fine || still) return
+    const SEL = '.itemcard,.project,.skillcard,.listcard,.job,.statcard'
+    const MAX = 6
+    let current = null
+    const reset = (el) => {
+      if (!el) return
+      el.style.removeProperty('--rx')
+      el.style.removeProperty('--ry')
+      el.style.removeProperty('--gx')
+      el.style.removeProperty('--gy')
+      el.classList.remove('is-tilting')
+    }
+    const onMove = (e) => {
+      const card = e.target && e.target.closest ? e.target.closest(SEL) : null
+      if (card !== current) {
+        reset(current)
+        current = card
+      }
+      if (!card) return
+      const r = card.getBoundingClientRect()
+      const px = (e.clientX - r.left) / r.width
+      const py = (e.clientY - r.top) / r.height
+      card.style.setProperty('--ry', `${((px - 0.5) * 2 * MAX).toFixed(2)}deg`)
+      card.style.setProperty('--rx', `${((0.5 - py) * 2 * MAX).toFixed(2)}deg`)
+      card.style.setProperty('--gx', `${(px * 100).toFixed(1)}%`)
+      card.style.setProperty('--gy', `${(py * 100).toFixed(1)}%`)
+      card.classList.add('is-tilting')
+    }
+    document.addEventListener('pointermove', onMove, { passive: true })
+    return () => {
+      document.removeEventListener('pointermove', onMove)
+      reset(current)
+    }
+  }, [])
+
   // Lock the Music page to one screen (no vertical scroll) while the player is
   // open — the playlists/songs listings below then scroll horizontally instead.
   useEffect(() => {

@@ -762,3 +762,34 @@ html[data-accent="default"][data-theme="dark"]{
 
 /* — A touch more breathing room in section rhythm — */
 .section__head{margin-bottom:44px}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Interactive 3D tilt — cards lean toward the cursor with a soft glare
+   and a little parallax on their icon + title. Pointer devices only
+   (see the matching guard in App.jsx); reduced-motion users opt out.
+   ═══════════════════════════════════════════════════════════════════ */
+@media (hover:hover) and (pointer:fine){
+  .itemcard,.project,.skillcard,.listcard,.job,.statcard{
+    position:relative;
+    transform:perspective(950px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--tilt-lift,0px));
+    transform-style:preserve-3d;
+    transition:transform .5s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease,border-color .25s ease;
+    will-change:transform;
+  }
+  /* Track the cursor quickly while tilting; spring back slowly on leave. */
+  .itemcard.is-tilting,.project.is-tilting,.skillcard.is-tilting,.listcard.is-tilting,.job.is-tilting,.statcard.is-tilting{
+    --tilt-lift:-6px;
+    transition:transform .07s linear,box-shadow .3s ease,border-color .25s ease;
+  }
+  /* Keep the 3D transform on hover (overrides the flat translateY lift). */
+  .itemcard:hover,.project:hover,.job:hover,.skillcard:hover,.listcard:hover,.statcard:hover{
+    transform:perspective(950px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--tilt-lift,-4px));
+  }
+  /* Soft glare that follows the cursor. */
+  .itemcard::after,.project::after,.skillcard::after,.listcard::after,.job::after,.statcard::after{
+    content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:2;
+    background:radial-gradient(240px circle at var(--gx,50%) var(--gy,0%),rgba(255,255,255,.20),transparent 60%);
+    opacity:0;transition:opacity .3s ease;mix-blend-mode:soft-light;
+  }
+  .is-tilting::after{opacity:1}
+}
