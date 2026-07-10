@@ -96,6 +96,13 @@ const ICON_PATHS = {
       <path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" />
     </>
   ),
+  'file-video': (
+    <>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6" />
+      <path d="m10 11 5 3-5 3z" />
+    </>
+  ),
   calendar: (
     <>
       <path d="M8 2v4" />
@@ -504,6 +511,12 @@ const apps = [
     icon: 'graduation-cap',
     desc: 'Expert training academy — a growing library of curated video lessons and structured skill tracks across engineering, product, and quality.',
     url: 'https://training-academy-five.vercel.app/',
+  },
+  {
+    name: 'CRDownload → MP4',
+    icon: 'file-video',
+    desc: 'Recovers interrupted Chrome .crdownload files into playable .mp4 videos, right in the browser — nothing is uploaded.',
+    url: 'https://crdownload-to-mp4.vercel.app',
   },
 ]
 
