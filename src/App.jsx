@@ -2746,7 +2746,7 @@ function App() {
 
       <footer className="footer hub-footer">
         <span>© {new Date().getFullYear()} AJ Miller T. Perez</span>
-        <span className="footer__made">Career · Application · Telegram Bot · Music · Favorites · Analytics — built with React + Vite</span>
+        <span className="footer__made">Career · Application · Telegram Bot · Music · Favorites — built with React + Vite</span>
       </footer>
 
       <button
