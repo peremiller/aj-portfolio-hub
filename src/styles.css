@@ -1369,8 +1369,8 @@ ul {
   z-index: 45;
   left: 50%;
   bottom: 22px;
-  width: min(calc(100% - 36px), 540px);
-  min-height: 72px;
+  width: min(calc(100% - 36px), 620px);
+  min-height: 86px;
   padding: 10px 12px;
   border: 1px solid rgb(255 255 255 / 14%);
   border-radius: 12px;
@@ -1390,16 +1390,16 @@ ul {
   object-fit: cover;
 }
 
-.mini-player div {
+.mini-player .player-copy {
   min-width: 0;
 }
 
-.mini-player span,
+.mini-player .player-status,
 .mini-player strong {
   display: block;
 }
 
-.mini-player span {
+.mini-player .player-status {
   margin-bottom: 3px;
   color: rgb(255 255 255 / 58%);
   font-size: 10px;
@@ -1407,10 +1407,39 @@ ul {
   letter-spacing: 0.15em;
 }
 
+.mini-player .player-status.error {
+  color: #ffc3bb;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
 .mini-player strong {
   overflow: hidden;
   font-size: 13px;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-progress {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+}
+
+.player-progress input {
+  width: 100%;
+  height: 16px;
+  margin: 0;
+  accent-color: #e5a52f;
+  cursor: pointer;
+}
+
+.player-progress time {
+  color: rgb(255 255 255 / 60%);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
@@ -1488,6 +1517,7 @@ footer > div > span:last-child {
   .mobile-drawer-backdrop {
     position: fixed;
     inset: 0;
+    height: 100dvh;
     z-index: 70;
     display: block;
     background: rgb(0 0 0 / 45%);
@@ -1505,11 +1535,16 @@ footer > div > span:last-child {
     position: fixed;
     z-index: 71;
     inset: 0 auto 0 0;
+    height: 100dvh;
+    max-height: 100dvh;
     width: min(88vw, 390px);
     padding: 24px;
     display: block;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    isolation: isolate;
     color: var(--ink);
-    background: var(--surface);
+    background-color: var(--surface);
     box-shadow: var(--shadow);
     transform: translateX(-105%);
     transition: transform 200ms ease;
@@ -1942,6 +1977,28 @@ footer > div > span:last-child {
   .mini-player {
     bottom: 10px;
     width: calc(100% - 20px);
+    grid-template-columns: 46px minmax(0, 1fr) 38px 38px;
+    gap: 8px;
+    padding: 9px;
+  }
+
+  .mini-player img {
+    width: 46px;
+    height: 46px;
+  }
+
+  .mini-player button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .player-progress {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .player-progress time {
+    display: none;
   }
 
   footer nav {

@@ -138,13 +138,13 @@ export const telegramBots = [
 ];
 
 export const musicItems = [
-  { id: "meow", title: "Meow-Meow Twirl", type: "song", plays: 21, cover: meowCover, href: "https://suno.com/song/ceef3040-ea4d-413f-92a7-8862254c8d11" },
-  { id: "vietnamy", title: "Vietnamy Smiley", type: "song", plays: 18, cover: vietnamyCover, href: "https://suno.com/song/dc901bcc-2f73-4da2-a554-0f555372ebdb" },
-  { id: "breathe", title: "Breathe With the Light", type: "song", plays: 18, cover: breatheCover, href: "https://suno.com/song/8aff1600-9cd4-4b16-b874-b5b0b0a265b1" },
-  { id: "meow-playlist", title: "Meow Meow Twirl", type: "playlist", tracks: 2, cover: meowCover, href: "https://suno.com/playlist/1eba0100-ba49-4392-8869-91d965faf125" },
-  { id: "vietnamy-playlist", title: "Vietnamy Smiley", type: "playlist", tracks: 2, cover: vietnamyCover, href: "https://suno.com/playlist/c833c406-3b5c-4aaa-ba50-a442baad2ec5" },
-  { id: "breathe-playlist", title: "Breathe With the Light", type: "playlist", tracks: 2, cover: breatheCover, href: "https://suno.com/playlist/12c71505-a830-4a3c-beaf-75b90d973d8e" },
-  { id: "meow-alt", title: "Meow-Meow Twirl — Acoustic", type: "song", plays: 12, cover: meowCover, href: "https://suno.com/song/ceef3040-ea4d-413f-92a7-8862254c8d11" },
-  { id: "vietnamy-alt", title: "Vietnamy Smiley — Bright Mix", type: "song", plays: 14, cover: vietnamyCover, href: "https://suno.com/song/061fc9bb-f42a-4853-95e6-7be3fe4a1b3a" },
-  { id: "breathe-alt", title: "Breathe With the Light — Horizon Mix", type: "song", plays: 14, cover: breatheCover, href: "https://suno.com/song/26ed1acb-d419-49f7-b16d-f98ab678e6f1" },
+  { id: "meow", title: "Meow-Meow Twirl", type: "song", plays: 21, cover: meowCover, href: "https://suno.com/song/ceef3040-ea4d-413f-92a7-8862254c8d11", audio: "https://cdn1.suno.ai/ceef3040-ea4d-413f-92a7-8862254c8d11.mp3" },
+  { id: "vietnamy", title: "Vietnamy Smiley", type: "song", plays: 18, cover: vietnamyCover, href: "https://suno.com/song/dc901bcc-2f73-4da2-a554-0f555372ebdb", audio: "https://cdn1.suno.ai/dc901bcc-2f73-4da2-a554-0f555372ebdb.mp3" },
+  { id: "breathe", title: "Breathe With the Light", type: "song", plays: 18, cover: breatheCover, href: "https://suno.com/song/8aff1600-9cd4-4b16-b874-b5b0b0a265b1", audio: "https://cdn1.suno.ai/8aff1600-9cd4-4b16-b874-b5b0b0a265b1.mp3" },
+  { id: "meow-playlist", title: "Meow Meow Twirl", type: "playlist", tracks: 2, cover: meowCover, href: "https://suno.com/playlist/1eba0100-ba49-4392-8869-91d965faf125", audio: "https://cdn1.suno.ai/ceef3040-ea4d-413f-92a7-8862254c8d11.mp3" },
+  { id: "vietnamy-playlist", title: "Vietnamy Smiley", type: "playlist", tracks: 2, cover: vietnamyCover, href: "https://suno.com/playlist/c833c406-3b5c-4aaa-ba50-a442baad2ec5", audio: "https://cdn1.suno.ai/dc901bcc-2f73-4da2-a554-0f555372ebdb.mp3" },
+  { id: "breathe-playlist", title: "Breathe With the Light", type: "playlist", tracks: 2, cover: breatheCover, href: "https://suno.com/playlist/12c71505-a830-4a3c-beaf-75b90d973d8e", audio: "https://cdn1.suno.ai/8aff1600-9cd4-4b16-b874-b5b0b0a265b1.mp3" },
+  { id: "meow-alt", title: "Meow-Meow Twirl — Acoustic", type: "song", plays: 12, cover: meowCover, href: "https://suno.com/song/ceef3040-ea4d-413f-92a7-8862254c8d11", audio: "https://cdn1.suno.ai/ceef3040-ea4d-413f-92a7-8862254c8d11.mp3" },
+  { id: "vietnamy-alt", title: "Vietnamy Smiley — Bright Mix", type: "song", plays: 14, cover: vietnamyCover, href: "https://suno.com/song/061fc9bb-f42a-4853-95e6-7be3fe4a1b3a", audio: "https://cdn1.suno.ai/061fc9bb-f42a-4853-95e6-7be3fe4a1b3a.mp3" },
+  { id: "breathe-alt", title: "Breathe With the Light — Horizon Mix", type: "song", plays: 14, cover: breatheCover, href: "https://suno.com/song/26ed1acb-d419-49f7-b16d-f98ab678e6f1", audio: "https://cdn1.suno.ai/26ed1acb-d419-49f7-b16d-f98ab678e6f1.mp3" },
 ];

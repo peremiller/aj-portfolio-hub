@@ -104,81 +104,105 @@ function Header({ page, theme, setTheme, dark, setDark, navigate, menuOpen, setM
     return () => window.removeEventListener("pointerdown", handleOutside);
   }, []);
 
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [menuOpen, setMenuOpen]);
+
   return (
-    <header className="site-header">
-      <div className="header-inner">
-        <button className="mobile-menu-button icon-button" type="button" aria-label="Open menu" onClick={() => setMenuOpen(true)}>
-          <List size={22} weight="regular" />
-        </button>
+    <>
+      <header className="site-header">
+        <div className="header-inner">
+          <button className="mobile-menu-button icon-button" type="button" aria-label="Open menu" aria-expanded={menuOpen} aria-controls="mobile-navigation" onClick={() => setMenuOpen(true)}>
+            <List size={22} weight="regular" />
+          </button>
 
-        <button className="brand" type="button" aria-label="Go to Career" onClick={() => navigate("career")}>
-          <img src={logo} alt="AJ Miller T. Perez logo" />
-          <span>AJ Miller T. Perez</span>
-        </button>
+          <button className="brand" type="button" aria-label="Go to Career" onClick={() => navigate("career")}>
+            <img src={logo} alt="AJ Miller T. Perez logo" />
+            <span>AJ Miller T. Perez</span>
+          </button>
 
-        <nav className="desktop-nav" aria-label="Primary navigation">
-          {navItems.map((item) => (
-            <button key={item.id} className={page === item.id ? "active" : ""} type="button" onClick={() => navigate(item.id)}>
-              {item.label}
-            </button>
-          ))}
-        </nav>
+          <nav className="desktop-nav" aria-label="Primary navigation">
+            {navItems.map((item) => (
+              <button key={item.id} className={page === item.id ? "active" : ""} type="button" onClick={() => navigate(item.id)}>
+                {item.label}
+              </button>
+            ))}
+          </nav>
 
-        <div className="header-actions">
-          <a
-            className="resume-link"
-            href="https://aj-portfolio-hub.vercel.app/AJ-Miller-T-Perez-Resume.pdf"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Résumé
-            <DownloadSimple size={17} weight="regular" />
-          </a>
-          <div className="theme-control" ref={themeRef}>
+          <div className="header-actions">
+            <a
+              className="resume-link"
+              href="https://aj-portfolio-hub.vercel.app/AJ-Miller-T-Perez-Resume.pdf"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Résumé
+              <DownloadSimple size={17} weight="regular" />
+            </a>
+            <div className="theme-control" ref={themeRef}>
+              <button
+                className="icon-button"
+                type="button"
+                aria-label="Choose color theme"
+                aria-expanded={themeOpen}
+                onClick={() => setThemeOpen((open) => !open)}
+              >
+                <Palette size={19} weight="regular" />
+                <span className={`theme-indicator ${theme}`} aria-hidden="true" />
+              </button>
+              {themeOpen ? (
+                <div className="theme-menu" role="menu" aria-label="Color theme">
+                  {[
+                    ["default", "Default"],
+                    ["green", "Green"],
+                    ["red", "Red"],
+                  ].map(([value, label]) => (
+                    <button
+                      key={value}
+                      role="menuitemradio"
+                      aria-checked={theme === value}
+                      className={theme === value ? "selected" : ""}
+                      type="button"
+                      onClick={() => {
+                        setTheme(value);
+                        setThemeOpen(false);
+                      }}
+                    >
+                      <span className={`theme-swatch ${value}`} aria-hidden="true" />
+                      {label}
+                      {theme === value ? <CheckCircle size={17} weight="fill" /> : null}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
             <button
               className="icon-button"
               type="button"
-              aria-label="Choose color theme"
-              aria-expanded={themeOpen}
-              onClick={() => setThemeOpen((open) => !open)}
+              aria-label={dark ? "Use light mode" : "Use dark mode"}
+              onClick={() => setDark((mode) => !mode)}
             >
-              <Palette size={19} weight="regular" />
-              <span className={`theme-indicator ${theme}`} aria-hidden="true" />
+              {dark ? <Sun size={19} weight="regular" /> : <Moon size={19} weight="regular" />}
             </button>
-            {themeOpen ? (
-              <div className="theme-menu" role="menu" aria-label="Color theme">
-                {[
-                  ["default", "Default"],
-                  ["green", "Green"],
-                  ["red", "Red"],
-                ].map(([value, label]) => (
-                  <button
-                    key={value}
-                    role="menuitemradio"
-                    aria-checked={theme === value}
-                    className={theme === value ? "selected" : ""}
-                    type="button"
-                    onClick={() => {
-                      setTheme(value);
-                      setThemeOpen(false);
-                    }}
-                  >
-                    <span className={`theme-swatch ${value}`} aria-hidden="true" />
-                    {label}
-                    {theme === value ? <CheckCircle size={17} weight="fill" /> : null}
-                  </button>
-                ))}
-              </div>
-            ) : null}
           </div>
-          <button className="icon-button" type="button" aria-label={dark ? "Use light mode" : "Use dark mode"} onClick={() => setDark((mode) => !mode)}>
-            {dark ? <Sun size={19} weight="regular" /> : <Moon size={19} weight="regular" />}
-          </button>
         </div>
-      </div>
+      </header>
 
       <div className={`mobile-drawer-backdrop ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(false)} aria-hidden={!menuOpen} />
-      <aside className={`mobile-drawer ${menuOpen ? "open" : ""}`} aria-label="Menu" aria-hidden={!menuOpen}>
+      <aside id="mobile-navigation" className={`mobile-drawer ${menuOpen ? "open" : ""}`} aria-label="Menu" aria-hidden={!menuOpen}>
         <div className="drawer-header">
           <span>Navigate</span>
           <button className="icon-button" type="button" aria-label="Close menu" onClick={() => setMenuOpen(false)}>
@@ -195,7 +219,7 @@ function Header({ page, theme, setTheme, dark, setDark, navigate, menuOpen, setM
         </nav>
         <p className="drawer-note">Quality, product leadership, useful applications, bots, and original music—all in one portfolio.</p>
       </aside>
-    </header>
+    </>
   );
 }
 
@@ -412,13 +436,13 @@ function TelegramPage() {
   );
 }
 
-function MusicCard({ item, favorite, toggleFavorite, playing, setPlaying }) {
-  const isPlaying = playing === item.id;
+function MusicCard({ item, favorite, toggleFavorite, playing, playerIsPlaying, togglePlayback }) {
+  const isPlaying = playing === item.id && playerIsPlaying;
   return (
     <article className="music-card">
       <div className="cover-wrap">
         <img src={item.cover} alt={`${item.title} cover artwork`} />
-        <button className="play-button" type="button" aria-label={isPlaying ? `Pause ${item.title}` : `Play ${item.title}`} onClick={() => setPlaying(isPlaying ? null : item.id)}>
+        <button className="play-button" type="button" aria-label={isPlaying ? `Pause ${item.title}` : `Play ${item.title}`} onClick={() => togglePlayback(item)}>
           {isPlaying ? <Pause size={22} weight="fill" /> : <Play size={22} weight="fill" />}
         </button>
         <button className="favorite-button" type="button" aria-label={favorite ? `Remove ${item.title} from favorites` : `Add ${item.title} to favorites`} onClick={() => toggleFavorite(item.id)}>
@@ -430,7 +454,7 @@ function MusicCard({ item, favorite, toggleFavorite, playing, setPlaying }) {
   );
 }
 
-function MusicPage({ favorites, toggleFavorite, playing, setPlaying }) {
+function MusicPage({ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback }) {
   const [query, setQuery] = useState("");
   const matches = (item) => item.title.toLowerCase().includes(query.trim().toLowerCase());
   const recommended = musicItems.filter((item) => item.type === "song").slice(0, 3).filter(matches);
@@ -442,32 +466,32 @@ function MusicPage({ favorites, toggleFavorite, playing, setPlaying }) {
       <PageIntro eyebrow="Original music" title="Song &amp; playlists" description="AI-assisted original songs across acoustic pop, ballads, Filipino reggae, and feel-good anthems—written and produced on Suno." action={<a className="button primary intro-action" href="https://suno.com/@millertperez" target="_blank" rel="noreferrer">View on Suno <ArrowUpRight size={17} /></a>} />
       <section className="music-shell section-shell">
         <label className="search-field"><MagnifyingGlass size={20} /><span className="sr-only">Search songs and playlists</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search songs and playlists" /></label>
-        <MusicSection title="Recommended" subtitle="Most-played songs" items={recommended} {...{ favorites, toggleFavorite, playing, setPlaying }} />
-        <MusicSection title="Playlists" subtitle={`${playlists.length} curated playlists`} items={playlists} {...{ favorites, toggleFavorite, playing, setPlaying }} />
-        <MusicSection title="Songs" subtitle={`${songs.length} original releases`} items={songs} {...{ favorites, toggleFavorite, playing, setPlaying }} />
+        <MusicSection title="Recommended" subtitle="Most-played songs" items={recommended} {...{ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback }} />
+        <MusicSection title="Playlists" subtitle={`${playlists.length} curated playlists`} items={playlists} {...{ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback }} />
+        <MusicSection title="Songs" subtitle={`${songs.length} original releases`} items={songs} {...{ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback }} />
         {!recommended.length && !playlists.length && !songs.length ? <p className="empty-search">No music matches “{query}”. Try another title.</p> : null}
       </section>
     </>
   );
 }
 
-function MusicSection({ title, subtitle, items, favorites, toggleFavorite, playing, setPlaying }) {
+function MusicSection({ title, subtitle, items, favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback }) {
   if (!items.length) return null;
   return (
     <section className="music-section" id={title.toLowerCase()}>
       <div className="music-section-heading"><div><p className="eyebrow">{subtitle}</p><h2>{title}</h2></div><span>{String(items.length).padStart(2, "0")}</span></div>
-      <div className="music-grid">{items.map((item) => <MusicCard key={`${title}-${item.id}`} item={item} favorite={favorites.includes(item.id)} toggleFavorite={toggleFavorite} playing={playing} setPlaying={setPlaying} />)}</div>
+      <div className="music-grid">{items.map((item) => <MusicCard key={`${title}-${item.id}`} item={item} favorite={favorites.includes(item.id)} toggleFavorite={toggleFavorite} playing={playing} playerIsPlaying={playerIsPlaying} togglePlayback={togglePlayback} />)}</div>
     </section>
   );
 }
 
-function FavoritesPage({ favorites, toggleFavorite, playing, setPlaying, navigate }) {
+function FavoritesPage({ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback, navigate }) {
   const items = musicItems.filter((item) => favorites.includes(item.id));
   return (
     <>
       <PageIntro eyebrow="Favorites" title="Your saved collection" description="Songs and playlists you want to find again quickly." />
       <section className="favorites-section section-shell">
-        {items.length ? <div className="music-grid">{items.map((item) => <MusicCard key={item.id} item={item} favorite toggleFavorite={toggleFavorite} playing={playing} setPlaying={setPlaying} />)}</div> : (
+        {items.length ? <div className="music-grid">{items.map((item) => <MusicCard key={item.id} item={item} favorite toggleFavorite={toggleFavorite} playing={playing} playerIsPlaying={playerIsPlaying} togglePlayback={togglePlayback} />)}</div> : (
           <div className="empty-state"><HeartStraight size={42} weight="regular" /><h2>Nothing saved yet</h2><p>Explore the music catalog and select the heart on any song or playlist.</p><button className="button primary" type="button" onClick={() => navigate("music")}>Browse music <ArrowRight size={18} /></button></div>
         )}
       </section>
@@ -483,13 +507,37 @@ function Footer({ navigate }) {
   );
 }
 
-function MiniPlayer({ item, setPlaying, favorite, toggleFavorite }) {
+function formatTime(value) {
+  if (!Number.isFinite(value) || value < 0) return "0:00";
+  const minutes = Math.floor(value / 60);
+  const seconds = Math.floor(value % 60).toString().padStart(2, "0");
+  return `${minutes}:${seconds}`;
+}
+
+function MiniPlayer({ item, playerIsPlaying, togglePlayback, favorite, toggleFavorite, currentTime, duration, seekTo, audioError }) {
   if (!item) return null;
   return (
-    <div className="mini-player" role="status" aria-live="polite">
+    <div className="mini-player" aria-live="polite">
       <img src={item.cover} alt="" />
-      <div><span>Now previewing</span><strong>{item.title}</strong></div>
-      <button type="button" aria-label={`Pause ${item.title}`} onClick={() => setPlaying(null)}><Pause size={20} weight="fill" /></button>
+      <div className="player-copy">
+        <span className={audioError ? "player-status error" : "player-status"}>{audioError || (playerIsPlaying ? "Now playing" : "Paused")}</span>
+        <strong>{item.title}</strong>
+        <div className="player-progress">
+          <input
+            type="range"
+            aria-label={`Seek ${item.title}`}
+            min="0"
+            max={Math.max(duration || 0, 1)}
+            step="0.1"
+            value={Math.min(currentTime, duration || 0)}
+            onChange={(event) => seekTo(Number(event.target.value))}
+          />
+          <time>{formatTime(currentTime)} / {formatTime(duration)}</time>
+        </div>
+      </div>
+      <button type="button" aria-label={playerIsPlaying ? `Pause ${item.title}` : `Play ${item.title}`} onClick={() => togglePlayback(item)}>
+        {playerIsPlaying ? <Pause size={20} weight="fill" /> : <Play size={20} weight="fill" />}
+      </button>
       <button type="button" aria-label={favorite ? "Remove from favorites" : "Add to favorites"} onClick={() => toggleFavorite(item.id)}><HeartStraight size={20} weight={favorite ? "fill" : "regular"} /></button>
     </div>
   );
@@ -501,7 +549,12 @@ export function App() {
   const [dark, setDark] = useStoredState("aj-dark-mode", false);
   const [favorites, setFavorites] = useStoredState("aj-favorites", []);
   const [playing, setPlaying] = useState(null);
+  const [playerIsPlaying, setPlayerIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [audioError, setAudioError] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const audioRef = useRef(null);
 
   useEffect(() => {
     const onPopState = () => {
@@ -535,6 +588,41 @@ export function App() {
     setFavorites((items) => (items.includes(id) ? items.filter((item) => item !== id) : [...items, id]));
   }
 
+  function togglePlayback(item) {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    setAudioError("");
+
+    if (playing === item.id) {
+      if (audio.paused) {
+        audio.play().catch(() => {
+          setPlayerIsPlaying(false);
+          setAudioError("Playback unavailable — open this track on Suno.");
+        });
+      } else {
+        audio.pause();
+      }
+      return;
+    }
+
+    audio.src = item.audio;
+    audio.currentTime = 0;
+    setPlaying(item.id);
+    setCurrentTime(0);
+    setDuration(0);
+    audio.play().catch(() => {
+      setPlayerIsPlaying(false);
+      setAudioError("Playback unavailable — open this track on Suno.");
+    });
+  }
+
+  function seekTo(time) {
+    if (!audioRef.current) return;
+    audioRef.current.currentTime = time;
+    setCurrentTime(time);
+  }
+
   const currentTrack = useMemo(() => musicItems.find((item) => item.id === playing) || null, [playing]);
 
   return (
@@ -544,11 +632,28 @@ export function App() {
         {page === "career" ? <CareerPage navigate={navigate} /> : null}
         {page === "applications" ? <ApplicationsPage /> : null}
         {page === "telegram" ? <TelegramPage /> : null}
-        {page === "music" ? <MusicPage {...{ favorites, toggleFavorite, playing, setPlaying }} /> : null}
-        {page === "favorites" ? <FavoritesPage {...{ favorites, toggleFavorite, playing, setPlaying, navigate }} /> : null}
+        {page === "music" ? <MusicPage {...{ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback }} /> : null}
+        {page === "favorites" ? <FavoritesPage {...{ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback, navigate }} /> : null}
       </main>
       <Footer navigate={navigate} />
-      <MiniPlayer item={currentTrack} setPlaying={setPlaying} favorite={currentTrack ? favorites.includes(currentTrack.id) : false} toggleFavorite={toggleFavorite} />
+      <audio
+        ref={audioRef}
+        preload="metadata"
+        onLoadedMetadata={(event) => setDuration(event.currentTarget.duration)}
+        onDurationChange={(event) => setDuration(event.currentTarget.duration)}
+        onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
+        onPlay={() => setPlayerIsPlaying(true)}
+        onPause={() => setPlayerIsPlaying(false)}
+        onEnded={(event) => {
+          setPlayerIsPlaying(false);
+          setCurrentTime(event.currentTarget.duration || 0);
+        }}
+        onError={() => {
+          setPlayerIsPlaying(false);
+          setAudioError("Playback unavailable — open this track on Suno.");
+        }}
+      />
+      <MiniPlayer item={currentTrack} {...{ playerIsPlaying, togglePlayback, currentTime, duration, seekTo, audioError }} favorite={currentTrack ? favorites.includes(currentTrack.id) : false} toggleFavorite={toggleFavorite} />
     </div>
   );
 }
