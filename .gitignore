@@ -1,20 +1,6 @@
-# Dependencies
-node_modules
-
-# Build output
-dist
-
-# Vercel
-.vercel
-
-# Claude
-.claude
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Editor / OS
+node_modules/
+dist/
+.npm-cache/
+.vercel/
 .DS_Store
-*.local
+*.log
