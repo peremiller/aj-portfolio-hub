@@ -509,7 +509,7 @@ function MusicPage({ favorites, toggleFavorite, playing, playerIsPlaying, toggle
 
   return (
     <>
-      <PageIntro eyebrow="Original music" title="Song &amp; playlists" description="AI-assisted original songs across acoustic pop, ballads, Filipino reggae, and feel-good anthems—written and produced on Suno." action={<a className="button primary intro-action" href="https://suno.com/@millertperez" target="_blank" rel="noreferrer">View on Suno <ArrowUpRight size={17} /></a>} />
+      <PageIntro eyebrow="Original music" title="Songs &amp; playlists" description="AI-assisted original songs across acoustic pop, ballads, Filipino reggae, and feel-good anthems—written and produced on Suno." action={<a className="button primary intro-action" href="https://suno.com/@millertperez" target="_blank" rel="noreferrer">View on Suno <ArrowUpRight size={17} /></a>} />
       <section className="music-shell section-shell">
         <div className={`catalog-sync ${catalogState.status}`} role="status" aria-live="polite">
           <span className="catalog-sync-dot" aria-hidden="true" />
