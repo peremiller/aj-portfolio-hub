@@ -7,15 +7,16 @@ import "@fontsource/inter/latin-700.css";
 import {
   ArrowRight,
   ArrowUpRight,
+  ArrowsClockwise,
   Bank,
   Briefcase,
   CaretDown,
   ChartBar,
   CheckCircle,
+  CircleNotch,
   Clock,
   CloudSun,
   CurrencyDollar,
-  DownloadSimple,
   EnvelopeSimple,
   FilmSlate,
   HeartStraight,
@@ -56,6 +57,56 @@ const routeMap = Object.fromEntries(navItems.map((item) => [item.path, item.id])
 
 function getRoute() {
   return routeMap[window.location.pathname] || "career";
+}
+
+function fallbackCover(index) {
+  return musicItems[index % Math.max(musicItems.length, 1)]?.cover || "";
+}
+
+function normalizeMusicCatalog(payload) {
+  const songs = Array.isArray(payload?.songs)
+    ? payload.songs
+        .filter((song) => song?.id && song?.audio)
+        .map((song, index) => ({
+          id: song.id,
+          sourceId: song.id,
+          title: song.title || "Untitled",
+          type: "song",
+          plays: Number(song.plays) || 0,
+          duration: Number(song.duration) || 0,
+          created: song.created || null,
+          cover: song.image || fallbackCover(index),
+          href: song.url || `https://suno.com/song/${song.id}`,
+          audio: song.audio,
+        }))
+    : [];
+
+  const playlists = Array.isArray(payload?.playlists)
+    ? payload.playlists
+        .filter((playlist) => playlist?.id)
+        .map((playlist, index) => ({
+          id: `playlist:${playlist.id}`,
+          sourceId: playlist.id,
+          title: playlist.title || "Untitled playlist",
+          type: "playlist",
+          tracks: Number(playlist.count) || 0,
+          plays: Number(playlist.plays) || 0,
+          cover: playlist.image || fallbackCover(index),
+          href: playlist.url || `https://suno.com/playlist/${playlist.id}`,
+          audio: "",
+        }))
+    : [];
+
+  return [...songs, ...playlists];
+}
+
+function formatCatalogTime(value) {
+  if (!value) return "";
+  try {
+    return new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date(value));
+  } catch {
+    return "";
+  }
 }
 
 function useStoredState(key, initialValue) {
@@ -143,15 +194,6 @@ function Header({ page, theme, setTheme, dark, setDark, navigate, menuOpen, setM
           </nav>
 
           <div className="header-actions">
-            <a
-              className="resume-link"
-              href="https://aj-portfolio-hub.vercel.app/AJ-Miller-T-Perez-Resume.pdf"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Résumé
-              <DownloadSimple size={17} weight="regular" />
-            </a>
             <div className="theme-control" ref={themeRef}>
               <button
                 className="icon-button"
@@ -367,7 +409,6 @@ function ContactSection() {
           <a href="mailto:pjomill@gmail.com"><EnvelopeSimple size={21} />pjomill@gmail.com<ArrowUpRight size={17} /></a>
           <a href="https://www.linkedin.com/in/millertperez/" target="_blank" rel="noreferrer"><LinkedinLogo size={21} />LinkedIn<ArrowUpRight size={17} /></a>
           <a href="tel:+639688515632"><Phone size={21} />+63 968 851 5632<ArrowUpRight size={17} /></a>
-          <a href="https://aj-portfolio-hub.vercel.app/AJ-Miller-T-Perez-Resume.pdf" target="_blank" rel="noreferrer"><DownloadSimple size={21} />Download résumé<ArrowUpRight size={17} /></a>
         </div>
       </div>
     </section>
@@ -436,14 +477,15 @@ function TelegramPage() {
   );
 }
 
-function MusicCard({ item, favorite, toggleFavorite, playing, playerIsPlaying, togglePlayback }) {
+function MusicCard({ item, favorite, toggleFavorite, playing, playerIsPlaying, togglePlayback, loadingItemId }) {
   const isPlaying = playing === item.id && playerIsPlaying;
+  const isLoading = loadingItemId === item.id;
   return (
     <article className="music-card">
       <div className="cover-wrap">
         <img src={item.cover} alt={`${item.title} cover artwork`} />
-        <button className="play-button" type="button" aria-label={isPlaying ? `Pause ${item.title}` : `Play ${item.title}`} onClick={() => togglePlayback(item)}>
-          {isPlaying ? <Pause size={22} weight="fill" /> : <Play size={22} weight="fill" />}
+        <button className="play-button" type="button" disabled={isLoading} aria-label={isLoading ? `Loading ${item.title}` : isPlaying ? `Pause ${item.title}` : `Play ${item.title}`} onClick={() => togglePlayback(item)}>
+          {isLoading ? <CircleNotch className="spin" size={23} weight="bold" /> : isPlaying ? <Pause size={22} weight="fill" /> : <Play size={22} weight="fill" />}
         </button>
         <button className="favorite-button" type="button" aria-label={favorite ? `Remove ${item.title} from favorites` : `Add ${item.title} to favorites`} onClick={() => toggleFavorite(item.id)}>
           <HeartStraight size={20} weight={favorite ? "fill" : "regular"} />
@@ -454,44 +496,56 @@ function MusicCard({ item, favorite, toggleFavorite, playing, playerIsPlaying, t
   );
 }
 
-function MusicPage({ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback }) {
+function MusicPage({ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback, loadingItemId, musicCatalog, catalogState, refreshMusic }) {
   const [query, setQuery] = useState("");
   const matches = (item) => item.title.toLowerCase().includes(query.trim().toLowerCase());
-  const recommended = musicItems.filter((item) => item.type === "song").slice(0, 3).filter(matches);
-  const playlists = musicItems.filter((item) => item.type === "playlist").filter(matches);
-  const songs = musicItems.filter((item) => item.type === "song").filter(matches);
+  const allSongs = musicCatalog.filter((item) => item.type === "song");
+  const allPlaylists = musicCatalog.filter((item) => item.type === "playlist");
+  const recommended = [...allSongs].sort((a, b) => b.plays - a.plays).slice(0, 3).filter(matches);
+  const playlists = allPlaylists.filter(matches);
+  const songs = allSongs.filter(matches);
+  const updatedTime = formatCatalogTime(catalogState.updatedAt);
+  const statusTitle = catalogState.status === "live" ? "Live catalog" : catalogState.status === "loading" ? "Syncing with Suno" : "Showing saved highlights";
 
   return (
     <>
       <PageIntro eyebrow="Original music" title="Song &amp; playlists" description="AI-assisted original songs across acoustic pop, ballads, Filipino reggae, and feel-good anthems—written and produced on Suno." action={<a className="button primary intro-action" href="https://suno.com/@millertperez" target="_blank" rel="noreferrer">View on Suno <ArrowUpRight size={17} /></a>} />
       <section className="music-shell section-shell">
+        <div className={`catalog-sync ${catalogState.status}`} role="status" aria-live="polite">
+          <span className="catalog-sync-dot" aria-hidden="true" />
+          <div><strong>{statusTitle}</strong><p>{allSongs.length} songs · {allPlaylists.length} playlists{updatedTime ? ` · Updated ${updatedTime}` : ""}</p></div>
+          <button type="button" onClick={() => refreshMusic({ force: true })} disabled={catalogState.status === "loading"}>
+            {catalogState.status === "loading" ? <CircleNotch className="spin" size={18} /> : <ArrowsClockwise size={18} />}
+            Refresh
+          </button>
+        </div>
         <label className="search-field"><MagnifyingGlass size={20} /><span className="sr-only">Search songs and playlists</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search songs and playlists" /></label>
-        <MusicSection title="Recommended" subtitle="Most-played songs" items={recommended} {...{ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback }} />
-        <MusicSection title="Playlists" subtitle={`${playlists.length} curated playlists`} items={playlists} {...{ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback }} />
-        <MusicSection title="Songs" subtitle={`${songs.length} original releases`} items={songs} {...{ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback }} />
+        <MusicSection title="Recommended" subtitle="Most-played songs" items={recommended} {...{ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback, loadingItemId }} />
+        <MusicSection title="Playlists" subtitle={`${playlists.length} curated playlists`} items={playlists} {...{ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback, loadingItemId }} />
+        <MusicSection title="Songs" subtitle={`${songs.length} original releases`} items={songs} {...{ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback, loadingItemId }} />
         {!recommended.length && !playlists.length && !songs.length ? <p className="empty-search">No music matches “{query}”. Try another title.</p> : null}
       </section>
     </>
   );
 }
 
-function MusicSection({ title, subtitle, items, favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback }) {
+function MusicSection({ title, subtitle, items, favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback, loadingItemId }) {
   if (!items.length) return null;
   return (
     <section className="music-section" id={title.toLowerCase()}>
       <div className="music-section-heading"><div><p className="eyebrow">{subtitle}</p><h2>{title}</h2></div><span>{String(items.length).padStart(2, "0")}</span></div>
-      <div className="music-grid">{items.map((item) => <MusicCard key={`${title}-${item.id}`} item={item} favorite={favorites.includes(item.id)} toggleFavorite={toggleFavorite} playing={playing} playerIsPlaying={playerIsPlaying} togglePlayback={togglePlayback} />)}</div>
+      <div className="music-grid">{items.map((item) => <MusicCard key={`${title}-${item.id}`} item={item} favorite={favorites.includes(item.id)} toggleFavorite={toggleFavorite} playing={playing} playerIsPlaying={playerIsPlaying} togglePlayback={togglePlayback} loadingItemId={loadingItemId} />)}</div>
     </section>
   );
 }
 
-function FavoritesPage({ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback, navigate }) {
-  const items = musicItems.filter((item) => favorites.includes(item.id));
+function FavoritesPage({ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback, loadingItemId, musicCatalog, navigate }) {
+  const items = musicCatalog.filter((item) => favorites.includes(item.id));
   return (
     <>
       <PageIntro eyebrow="Favorites" title="Your saved collection" description="Songs and playlists you want to find again quickly." />
       <section className="favorites-section section-shell">
-        {items.length ? <div className="music-grid">{items.map((item) => <MusicCard key={item.id} item={item} favorite toggleFavorite={toggleFavorite} playing={playing} playerIsPlaying={playerIsPlaying} togglePlayback={togglePlayback} />)}</div> : (
+        {items.length ? <div className="music-grid">{items.map((item) => <MusicCard key={item.id} item={item} favorite toggleFavorite={toggleFavorite} playing={playing} playerIsPlaying={playerIsPlaying} togglePlayback={togglePlayback} loadingItemId={loadingItemId} />)}</div> : (
           <div className="empty-state"><HeartStraight size={42} weight="regular" /><h2>Nothing saved yet</h2><p>Explore the music catalog and select the heart on any song or playlist.</p><button className="button primary" type="button" onClick={() => navigate("music")}>Browse music <ArrowRight size={18} /></button></div>
         )}
       </section>
@@ -514,7 +568,7 @@ function formatTime(value) {
   return `${minutes}:${seconds}`;
 }
 
-function MiniPlayer({ item, playerIsPlaying, togglePlayback, favorite, toggleFavorite, currentTime, duration, seekTo, audioError }) {
+function MiniPlayer({ item, playerIsPlaying, togglePlayback, favorite, toggleFavorite, currentTime, duration, seekTo, audioError, closePlayer }) {
   if (!item) return null;
   return (
     <div className="mini-player" aria-live="polite">
@@ -539,6 +593,7 @@ function MiniPlayer({ item, playerIsPlaying, togglePlayback, favorite, toggleFav
         {playerIsPlaying ? <Pause size={20} weight="fill" /> : <Play size={20} weight="fill" />}
       </button>
       <button type="button" aria-label={favorite ? "Remove from favorites" : "Add to favorites"} onClick={() => toggleFavorite(item.id)}><HeartStraight size={20} weight={favorite ? "fill" : "regular"} /></button>
+      <button className="player-close" type="button" aria-label="Close music player" onClick={closePlayer}><X size={19} weight="bold" /></button>
     </div>
   );
 }
@@ -553,8 +608,13 @@ export function App() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [audioError, setAudioError] = useState("");
+  const [musicCatalog, setMusicCatalog] = useState(musicItems);
+  const [catalogState, setCatalogState] = useState({ status: "loading", updatedAt: null });
+  const [loadingItemId, setLoadingItemId] = useState(null);
+  const [playbackItem, setPlaybackItem] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const audioRef = useRef(null);
+  const playlistPreviewCache = useRef(new Map());
 
   useEffect(() => {
     const onPopState = () => {
@@ -576,6 +636,20 @@ export function App() {
     document.title = `${label} — AJ Miller T. Perez`;
   }, [page]);
 
+  useEffect(() => {
+    refreshMusic();
+    const interval = window.setInterval(() => refreshMusic({ silent: true }), 5 * 60 * 1000);
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") refreshMusic({ silent: true });
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, []);
+
   function navigate(id) {
     const item = navItems.find((nav) => nav.id === id) || navItems[0];
     if (window.location.pathname !== item.path) window.history.pushState({}, "", item.path);
@@ -588,7 +662,25 @@ export function App() {
     setFavorites((items) => (items.includes(id) ? items.filter((item) => item !== id) : [...items, id]));
   }
 
-  function togglePlayback(item) {
+  async function refreshMusic({ force = false, silent = false } = {}) {
+    if (!silent) setCatalogState((state) => ({ ...state, status: "loading" }));
+
+    try {
+      const query = force ? `?refresh=${Date.now()}` : "";
+      const response = await fetch(`/api/suno${query}`, { headers: { Accept: "application/json" }, cache: "no-store" });
+      if (!response.ok) throw new Error("Music sync failed");
+      const payload = await response.json();
+      const nextCatalog = normalizeMusicCatalog(payload);
+      if (!nextCatalog.some((item) => item.type === "song")) throw new Error("Music catalog was empty");
+
+      setMusicCatalog(nextCatalog);
+      setCatalogState({ status: "live", updatedAt: payload.fetched_at || new Date().toISOString() });
+    } catch {
+      setCatalogState((state) => ({ ...state, status: "fallback" }));
+    }
+  }
+
+  async function togglePlayback(item) {
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -606,15 +698,48 @@ export function App() {
       return;
     }
 
-    audio.src = item.audio;
-    audio.currentTime = 0;
-    setPlaying(item.id);
-    setCurrentTime(0);
-    setDuration(0);
-    audio.play().catch(() => {
+    let playableItem = item;
+
+    try {
+      if (item.type === "playlist" && !item.audio) {
+        setLoadingItemId(item.id);
+        let preview = playlistPreviewCache.current.get(item.sourceId);
+
+        if (!preview) {
+          const response = await fetch(`/api/playlist?id=${encodeURIComponent(item.sourceId)}`, { headers: { Accept: "application/json" }, cache: "no-store" });
+          if (!response.ok) throw new Error("Playlist unavailable");
+          const payload = await response.json();
+          preview = Array.isArray(payload.tracks) ? payload.tracks.find((track) => track?.audio) : null;
+          if (!preview) throw new Error("Playlist is empty");
+          playlistPreviewCache.current.set(item.sourceId, preview);
+        }
+
+        playableItem = {
+          ...item,
+          title: preview.title || item.title,
+          playlistTitle: item.title,
+          cover: preview.image || item.cover,
+          audio: preview.audio,
+        };
+      }
+
+      if (!playableItem.audio) throw new Error("Track unavailable");
+
+      audio.src = playableItem.audio;
+      audio.currentTime = 0;
+      setPlaying(item.id);
+      setPlaybackItem(playableItem);
+      setCurrentTime(0);
+      setDuration(0);
+      await audio.play();
+    } catch {
+      setPlaying(item.id);
+      setPlaybackItem(playableItem);
       setPlayerIsPlaying(false);
       setAudioError("Playback unavailable — open this track on Suno.");
-    });
+    } finally {
+      setLoadingItemId(null);
+    }
   }
 
   function seekTo(time) {
@@ -623,7 +748,25 @@ export function App() {
     setCurrentTime(time);
   }
 
-  const currentTrack = useMemo(() => musicItems.find((item) => item.id === playing) || null, [playing]);
+  function closePlayer() {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.removeAttribute("src");
+      audio.load();
+    }
+    setPlaying(null);
+    setPlaybackItem(null);
+    setPlayerIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+    setAudioError("");
+  }
+
+  const currentTrack = useMemo(
+    () => playbackItem || musicCatalog.find((item) => item.id === playing) || null,
+    [musicCatalog, playbackItem, playing],
+  );
 
   return (
     <div className="app-shell">
@@ -632,8 +775,8 @@ export function App() {
         {page === "career" ? <CareerPage navigate={navigate} /> : null}
         {page === "applications" ? <ApplicationsPage /> : null}
         {page === "telegram" ? <TelegramPage /> : null}
-        {page === "music" ? <MusicPage {...{ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback }} /> : null}
-        {page === "favorites" ? <FavoritesPage {...{ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback, navigate }} /> : null}
+        {page === "music" ? <MusicPage {...{ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback, loadingItemId, musicCatalog, catalogState, refreshMusic }} /> : null}
+        {page === "favorites" ? <FavoritesPage {...{ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback, loadingItemId, musicCatalog, navigate }} /> : null}
       </main>
       <Footer navigate={navigate} />
       <audio
@@ -653,7 +796,7 @@ export function App() {
           setAudioError("Playback unavailable — open this track on Suno.");
         }}
       />
-      <MiniPlayer item={currentTrack} {...{ playerIsPlaying, togglePlayback, currentTime, duration, seekTo, audioError }} favorite={currentTrack ? favorites.includes(currentTrack.id) : false} toggleFavorite={toggleFavorite} />
+      <MiniPlayer item={currentTrack} {...{ playerIsPlaying, togglePlayback, currentTime, duration, seekTo, audioError, closePlayer }} favorite={currentTrack ? favorites.includes(currentTrack.id) : false} toggleFavorite={toggleFavorite} />
     </div>
   );
 }
