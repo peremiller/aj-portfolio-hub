@@ -115,10 +115,10 @@ export const honors = [
 
 export const applications = [
   { name: "PicPress — Image to PDF Merger", status: "Live", description: "Merge, rotate, reorder, and export images as one PDF entirely in the browser.", href: "https://image-pdf-merger.vercel.app/", category: "Document tools" },
-  { name: "Calm Capital", status: "Live", description: "A behavioral-wealth dashboard for investment policy, synthetic paychecks, and net-worth tracking.", href: "https://peremiller.github.io/calm-capital/", category: "Wealth" },
+  { name: "Calm Capital", status: "In development", description: "A behavioral-wealth dashboard for investment policy, synthetic paychecks, and net-worth tracking.", href: "https://peremiller.github.io/calm-capital/", category: "Wealth" },
   { name: "Cash Reserve Planner", status: "In development", description: "A three-bucket liquidity planner with a reserve glide path and multi-currency support.", href: "https://cash-reserve-planner.vercel.app/", category: "Wealth" },
-  { name: "Dynamic Withdrawal", status: "Live", description: "Model retirement withdrawals that adapt spending to market performance.", href: "https://peremiller.github.io/dynamic-withdrawal/", category: "Retirement" },
-  { name: "Retirement Income Maximizer", status: "Live", description: "Explore Social Security timing and joint-and-survivor income strategies.", href: "https://peremiller.github.io/retirement-planner/", category: "Retirement" },
+  { name: "Dynamic Withdrawal", status: "In development", description: "Model retirement withdrawals that adapt spending to market performance.", href: "https://peremiller.github.io/dynamic-withdrawal/", category: "Retirement" },
+  { name: "Retirement Income Maximizer", status: "In development", description: "Explore Social Security timing and joint-and-survivor income strategies.", href: "https://peremiller.github.io/retirement-planner/", category: "Retirement" },
   { name: "Asset Location Optimizer", status: "Live", description: "Place bonds and equities across account types for tax-efficient asset location.", href: "https://asset-location-optimizer.vercel.app/", category: "Wealth" },
   { name: "TalentMatch", status: "In development", description: "Match a CV to openings and streamline applications with OAuth sign-in.", href: "https://job-portal-beta-rose.vercel.app/", category: "Career" },
   { name: "Blockchain Problems", status: "Live", description: "An interactive view of the top challenges facing the blockchain industry.", href: "https://blockchain-problems.vercel.app/", category: "Research" },
