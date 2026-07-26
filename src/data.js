@@ -115,6 +115,7 @@ export const honors = [
 
 export const applications = [
   { name: "PicPress — Image to PDF Merger", status: "Live", description: "Merge, rotate, reorder, and export images as one PDF entirely in the browser.", href: "https://image-pdf-merger.vercel.app/", category: "Document tools" },
+  { name: "MPP → XLSX", status: "Live", description: "Convert Microsoft Project files into private, on-device Excel workbooks.", href: "https://mpp-to-xlsx.vercel.app/", category: "Document tools" },
   { name: "Calm Capital", status: "In development", description: "A behavioral-wealth dashboard for investment policy, synthetic paychecks, and net-worth tracking.", href: "https://peremiller.github.io/calm-capital/", category: "Wealth" },
   { name: "Cash Reserve Planner", status: "In development", description: "A three-bucket liquidity planner with a reserve glide path and multi-currency support.", href: "https://cash-reserve-planner.vercel.app/", category: "Wealth" },
   { name: "Dynamic Withdrawal", status: "In development", description: "Model retirement withdrawals that adapt spending to market performance.", href: "https://peremiller.github.io/dynamic-withdrawal/", category: "Retirement" },
