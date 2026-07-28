@@ -114,6 +114,7 @@ export const honors = [
 ];
 
 export const applications = [
+  { name: "VideokePH", status: "Live", description: "A polished Filipino videoke songbook with search, queue management, charts, scoring, and party-ready controls.", href: "https://videoke-six.vercel.app/", category: "Media" },
   { name: "PicPress — Image to PDF Merger", status: "Live", description: "Merge, rotate, reorder, and export images as one PDF entirely in the browser.", href: "https://image-pdf-merger.vercel.app/", category: "Document tools" },
   { name: "MPP → XLSX", status: "Live", description: "Convert Microsoft Project files into private, on-device Excel workbooks.", href: "https://mpp-to-xlsx.vercel.app/", category: "Document tools" },
   { name: "Calm Capital", status: "In development", description: "A behavioral-wealth dashboard for investment policy, synthetic paychecks, and net-worth tracking.", href: "https://peremiller.github.io/calm-capital/", category: "Wealth" },
