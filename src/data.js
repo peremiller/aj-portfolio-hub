@@ -2,6 +2,8 @@ import meowCover from "./assets/meow-meow-twirl.png";
 import vietnamyCover from "./assets/vietnamy-smiley.png";
 import breatheCover from "./assets/breathe-with-the-light.png";
 
+export { applications, telegramBots } from "./catalog-data.js";
+
 export const navItems = [
   { id: "career", label: "Career", path: "/career" },
   { id: "applications", label: "Applications", path: "/applications" },
@@ -111,32 +113,6 @@ export const honors = [
   "3rd Place, Startup Weekend Manila 2019",
   "Participant, Testing Cup Poland 2018",
   "Most Outstanding Employee of the Year 2013",
-];
-
-export const applications = [
-  { name: "VideokePH — Premium Digital Songbook", status: "Live", description: "A premium Filipino karaoke directory with verified machine codes, trending songs, favorites, and queue management.", href: "https://videoke-six.vercel.app/", category: "Media" },
-  { name: "PicPress — Image to PDF Merger", status: "Live", description: "Merge, rotate, reorder, and export images as one PDF entirely in the browser.", href: "https://image-pdf-merger.vercel.app/", category: "Document tools" },
-  { name: "MPP → XLSX", status: "Live", description: "Convert Microsoft Project files into private, on-device Excel workbooks.", href: "https://mpp-to-xlsx.vercel.app/", category: "Document tools" },
-  { name: "Calm Capital", status: "In development", description: "A behavioral-wealth dashboard for investment policy, synthetic paychecks, and net-worth tracking.", href: "https://peremiller.github.io/calm-capital/", category: "Wealth" },
-  { name: "Cash Reserve Planner", status: "In development", description: "A three-bucket liquidity planner with a reserve glide path and multi-currency support.", href: "https://cash-reserve-planner.vercel.app/", category: "Wealth" },
-  { name: "Dynamic Withdrawal", status: "In development", description: "Model retirement withdrawals that adapt spending to market performance.", href: "https://peremiller.github.io/dynamic-withdrawal/", category: "Retirement" },
-  { name: "Retirement Income Maximizer", status: "In development", description: "Explore Social Security timing and joint-and-survivor income strategies.", href: "https://peremiller.github.io/retirement-planner/", category: "Retirement" },
-  { name: "Asset Location Optimizer", status: "Live", description: "Place bonds and equities across account types for tax-efficient asset location.", href: "https://asset-location-optimizer.vercel.app/", category: "Wealth" },
-  { name: "TalentMatch", status: "In development", description: "Match a CV to openings and streamline applications with OAuth sign-in.", href: "https://job-portal-beta-rose.vercel.app/", category: "Career" },
-  { name: "Blockchain Problems", status: "Live", description: "An interactive view of the top challenges facing the blockchain industry.", href: "https://blockchain-problems.vercel.app/", category: "Research" },
-  { name: "VoltDown", status: "Live", description: "Prioritized solutions to high electricity prices with impact, feasibility, and cost scoring.", href: "https://electricity-solutions.vercel.app/", category: "Energy" },
-  { name: "HackCal", status: "Live", description: "An offline-first tech hackathon calendar with filters and calendar export.", href: "https://hackathon-calendar-umber.vercel.app/", category: "Productivity" },
-  { name: "SkillForge Academy", status: "Live", description: "Curated training tracks across engineering, product, and quality.", href: "https://training-academy-five.vercel.app/", category: "Learning" },
-  { name: "CRDownload → MP4", status: "Live", description: "Recover interrupted Chrome downloads into playable MP4 files in the browser.", href: "https://crdownload-to-mp4.vercel.app/", category: "Media tools" },
-  { name: "SolveVerse Audiobook Library", status: "Live", description: "Original sci-fi audiobooks, community submissions, and multi-voice streaming.", href: "https://audiobook-library-three.vercel.app/", category: "Media" },
-];
-
-export const telegramBots = [
-  { name: "Weather", handle: "@pjo_weather_bot", status: "Live", description: "Daily forecasts and on-demand weather delivered straight to Telegram.", href: "https://t.me/pjo_weather_bot", icon: "weather" },
-  { name: "Tagalog Translate", handle: "@tagalog_translate_bot", status: "In development", description: "Two-way Tagalog ⇄ English translation with automatic direction detection.", href: "https://t.me/tagalog_translate_bot", icon: "translate" },
-  { name: "Disaster Watch", handle: "@disaster_watch_bot", status: "Live", description: "Real-time alerts for earthquakes, tsunamis, typhoons, floods, and volcanic activity.", href: "https://t.me/disaster_watch_bot", icon: "alert" },
-  { name: "PH Dollar Rate", handle: "@ph_dollar_rate", status: "Live", description: "Compare USD→PHP buy and sell rates across Philippine banks.", href: "https://t.me/ph_dollar_rate", icon: "currency" },
-  { name: "Pelikula Finder", handle: "@pelikula_finder_bot", status: "In development", description: "Find now-playing movies and showtimes in nearby cinemas.", href: "https://t.me/pelikula_finder_bot", icon: "film" },
 ];
 
 export const musicItems = [
