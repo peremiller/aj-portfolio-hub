@@ -280,6 +280,17 @@ function CareerPage({ navigate }) {
           <h1>AJ Miller T. Perez</h1>
           <p className="hero-role">Product &amp; Program Leader</p>
           <p className="hero-specialty">Engineering Quality · AI-Enabled Transformation</p>
+          <div className="hero-contact-links" aria-label="Direct contact">
+            <a href="tel:+639688515632" aria-label="Call AJ Miller T. Perez at +63 968 851 5632">
+              <Phone size={18} weight="regular" />
+              <span>+63 968 851 5632</span>
+            </a>
+            <a href="https://www.linkedin.com/in/millertperez/" target="_blank" rel="noreferrer" aria-label="Open AJ Miller T. Perez on LinkedIn">
+              <LinkedinLogo size={18} weight="regular" />
+              <span>linkedin.com/in/millertperez</span>
+              <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+            </a>
+          </div>
           <div className="hero-statement">
             <span aria-hidden="true" />
             <p>Quality is not a checkpoint.<br />It is the operating system.</p>
