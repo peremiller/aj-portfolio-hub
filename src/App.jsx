@@ -285,6 +285,10 @@ function CareerPage({ navigate }) {
               <Phone size={18} weight="regular" />
               <span>+63 968 851 5632</span>
             </a>
+            <a href="mailto:pjomill@gmail.com" aria-label="Email AJ Miller T. Perez at pjomill@gmail.com">
+              <EnvelopeSimple size={18} weight="regular" />
+              <span>pjomill@gmail.com</span>
+            </a>
             <a href="https://www.linkedin.com/in/millertperez/" target="_blank" rel="noreferrer" aria-label="Open AJ Miller T. Perez on LinkedIn">
               <LinkedinLogo size={18} weight="regular" />
               <span>linkedin.com/in/millertperez</span>
