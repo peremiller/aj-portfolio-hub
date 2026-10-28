@@ -51,7 +51,7 @@ import {
 import logoDefault from "./assets/logo-default.png";
 import logoGreen from "./assets/logo-green.png";
 import logoRed from "./assets/logo-red.png";
-import systemsBlueprint from "./assets/systems-blueprint.png";
+
 
 const routeMap = Object.fromEntries(navItems.map((item) => [item.path, item.id]));
 
@@ -182,18 +182,19 @@ function Header({ page, theme, setTheme, dark, setDark, navigate, menuOpen, setM
 
           <button className="brand" type="button" aria-label="Go to Career" onClick={() => navigate("career")}>
             <img src={logo} alt="AJ Miller T. Perez logo" />
-            <span>AJ Miller T. Perez</span>
+            <span>AJ Miller T. Perez<small>Strategy. Systems. Impact.</small></span>
           </button>
 
           <nav className="desktop-nav" aria-label="Primary navigation">
             {navItems.map((item) => (
-              <button key={item.id} className={page === item.id ? "active" : ""} type="button" onClick={() => navigate(item.id)}>
+              <button key={item.id} className={page === item.id ? "active" : ""} aria-current={page === item.id ? "page" : undefined} type="button" onClick={() => navigate(item.id)}>
                 {item.label}
               </button>
             ))}
           </nav>
 
           <div className="header-actions">
+            <a className="header-contact" href="mailto:pjomill@gmail.com">Let’s talk <ArrowUpRight size={15} /></a>
             <div className="theme-control" ref={themeRef}>
               <button
                 className="icon-button"
@@ -244,7 +245,7 @@ function Header({ page, theme, setTheme, dark, setDark, navigate, menuOpen, setM
       </header>
 
       <div className={`mobile-drawer-backdrop ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(false)} aria-hidden={!menuOpen} />
-      <aside id="mobile-navigation" className={`mobile-drawer ${menuOpen ? "open" : ""}`} aria-label="Menu" aria-hidden={!menuOpen}>
+      <aside id="mobile-navigation" className={`mobile-drawer ${menuOpen ? "open" : ""}`} aria-label="Menu" aria-hidden={!menuOpen} inert={!menuOpen}>
         <div className="drawer-header">
           <span>Navigate</span>
           <button className="icon-button" type="button" aria-label="Close menu" onClick={() => setMenuOpen(false)}>
@@ -253,7 +254,7 @@ function Header({ page, theme, setTheme, dark, setDark, navigate, menuOpen, setM
         </div>
         <nav aria-label="Mobile navigation">
           {navItems.map((item) => (
-            <button key={item.id} className={page === item.id ? "active" : ""} type="button" onClick={() => navigate(item.id)}>
+            <button key={item.id} className={page === item.id ? "active" : ""} aria-current={page === item.id ? "page" : undefined} type="button" onClick={() => navigate(item.id)}>
               <span>{item.label}</span>
               <ArrowRight size={17} />
             </button>
@@ -274,65 +275,53 @@ function CareerPage({ navigate }) {
 
   return (
     <>
-      <section className="career-hero" id="top">
-        <div className="hero-copy">
-          <p className="location-line">Metro Manila · Philippines</p>
-          <h1>AJ Miller T. Perez</h1>
-          <p className="hero-role">Product &amp; Program Leader</p>
-          <p className="hero-specialty">Engineering Quality · AI-Enabled Transformation</p>
-          <div className="hero-contact-links" aria-label="Direct contact">
-            <a href="tel:+639688515632" aria-label="Call AJ Miller T. Perez at +63 968 851 5632">
-              <Phone size={18} weight="regular" />
-              <span>+63 968 851 5632</span>
-            </a>
-            <a href="mailto:pjomill@gmail.com" aria-label="Email AJ Miller T. Perez at pjomill@gmail.com">
-              <EnvelopeSimple size={18} weight="regular" />
-              <span>pjomill@gmail.com</span>
-            </a>
-            <a href="https://www.linkedin.com/in/millertperez/" target="_blank" rel="noreferrer" aria-label="Open AJ Miller T. Perez on LinkedIn">
-              <LinkedinLogo size={18} weight="regular" />
-              <span>linkedin.com/in/millertperez</span>
-              <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
-            </a>
+      <section className="career-hero" id="top" aria-labelledby="hero-heading">
+        <div className="hero-inner section-shell">
+          <div className="hero-copy">
+            <p className="location-line"><span /> AJ Miller T. Perez · Product &amp; Program Leader</p>
+            <h1 id="hero-heading">Clarity in complexity.<br /><em>Confidence</em><br />at scale.</h1>
+            <p className="hero-summary">I connect engineering quality, product thinking, and AI to turn ambitious programs into dependable outcomes.</p>
+            <div className="hero-actions">
+              <button className="button primary" type="button" onClick={() => scrollTo("selected-impact")}>Explore the impact <ArrowUpRight size={19} /></button>
+              <button className="button secondary" type="button" onClick={() => scrollTo("contact")}>Start a conversation <ArrowRight size={18} /></button>
+            </div>
+            <div className="hero-signature"><span>14+ years of making delivery work.</span><span>Metro Manila, Philippines</span></div>
           </div>
-          <div className="hero-statement">
-            <span aria-hidden="true" />
-            <p>Quality is not a checkpoint.<br />It is the operating system.</p>
-          </div>
-          <p className="hero-summary">14+ years building execution systems across engineering, product, and operations.</p>
-          <div className="hero-actions">
-            <button className="button primary" type="button" onClick={() => scrollTo("selected-impact")}>
-              Explore selected work <ArrowRight size={18} />
-            </button>
-            <button className="button secondary" type="button" onClick={() => scrollTo("contact")}>
-              Start a conversation <ArrowRight size={18} />
-            </button>
+          <div className="systems-art" aria-hidden="true">
+            <div className="art-coordinate">FIG. 01 / THE CONNECTED SYSTEM</div>
+            <div className="system-orbit orbit-one" /><div className="system-orbit orbit-two" /><div className="system-orbit orbit-three" />
+            <div className="orbit-cross cross-one" /><div className="orbit-cross cross-two" />
+            <div className="system-core"><span>AJM</span><small>BUILT ON QUALITY</small></div>
+            <div className="system-node node-quality"><span>01</span>Engineering quality<i /></div>
+            <div className="system-node node-delivery"><span>02</span>Product &amp; delivery<i /></div>
+            <div className="system-node node-ai"><span>03</span>AI transformation<i /></div>
+            <div className="art-caption"><span className="signal-dot" /> Independent disciplines. One connected perspective.</div>
           </div>
         </div>
-        <div className="hero-visual" role="img" aria-label="Technical systems blueprint showing interconnected delivery workflows">
-          <img src={systemsBlueprint} alt="" />
-          <span className="visual-label">Systems · Quality · Scale</span>
-        </div>
+        <div className="hero-bottom section-shell"><span>Quality is the operating system.</span><a href="#selected-impact">Discover the work <span>↓</span></a><span>PORTFOLIO / 2026</span></div>
       </section>
 
       <section className="evidence-band" aria-label="Career outcomes">
-        <div><Clock size={31} weight="regular" /><p><strong>2 weeks</strong><span>faster releases</span></p></div>
-        <div><ChartBar size={31} weight="regular" /><p><strong>120 hours</strong><span>saved monthly</span></p></div>
-        <div><PersonArmsSpread size={31} weight="regular" /><p><strong>95%</strong><span>accessibility</span></p></div>
-        <div><UsersThree size={31} weight="regular" /><p><strong>20+</strong><span>engineers led</span></p></div>
+        <div className="evidence-inner section-shell">
+          <div><strong>2<span> weeks</span></strong><p>Faster release cycles</p></div>
+          <div><strong>120<span> hrs</span></strong><p>Manual effort saved monthly</p></div>
+          <div><strong>95<span>%</span></strong><p>Accessibility compliance achieved</p></div>
+          <div><strong>20<span>+</span></strong><p>QA engineers enabled</p></div>
+        </div>
       </section>
+      <nav className="chapter-nav section-shell" aria-label="Career sections"><a href="#selected-impact"><span>01</span> Selected impact</a><a href="#ventures"><span>02</span> Products</a><a href="#experience"><span>03</span> Experience</a><a href="#skills"><span>04</span> Expertise</a><a href="#contact"><span>05</span> Connect</a></nav>
 
       <section className="case-study section-shell" id="selected-impact">
         <div className="case-copy">
-          <p className="eyebrow">Selected impact / 01</p>
-          <h2>Automation at scale</h2>
-          <p className="case-summary">A Selenium rollout for a 20-person QA team reduced cycle time and removed 120 manual testing hours each month.</p>
+          <p className="eyebrow">01 / Selected impact</p>
+          <h2>Better systems.<br /><em>Stronger outcomes.</em></h2>
+          <p className="case-summary">A scalable automation program that gave a 20-person QA team time back—and made faster releases a repeatable outcome.</p>
           <div className="tag-row"><span>Automation</span><span>DevOps</span><span>Leadership</span></div>
-          <button className="text-link" type="button" aria-expanded={caseOpen} onClick={() => setCaseOpen((open) => !open)}>
+          <button className="text-link" type="button" aria-expanded={caseOpen} aria-controls="automation-outcome" onClick={() => setCaseOpen((open) => !open)}>
             {caseOpen ? "Close outcome" : "Read the outcome"} <ArrowRight size={17} />
           </button>
           {caseOpen ? (
-            <div className="case-details">
+            <div className="case-details" id="automation-outcome">
               <p>Designed the automation rollout around high-value regression paths, adoption coaching, reusable patterns, and shared delivery metrics.</p>
               <ul>
                 <li>Two weeks removed from the release cycle</li>
@@ -342,15 +331,19 @@ function CareerPage({ navigate }) {
             </div>
           ) : null}
         </div>
-        <div className="case-art" role="img" aria-label="Systems architecture blueprint artwork">
-          <img src={systemsBlueprint} alt="" />
-          <div className="case-stat"><span>20</span><p>QA engineers enabled</p></div>
-          <div className="case-stat"><span>5</span><p>cross-functional teams</p></div>
+        <div className="outcome-panel">
+          <div className="outcome-top"><span>ENGINEERING EFFECTIVENESS</span><span><i /> Selected career outcome</span></div>
+          <div className="outcome-number">120<span>hours / month</span></div>
+          <p>Less repetition.<br />More room for meaningful work.</p>
+          <div className="outcome-rule"><span /><span /><span /><span /><span /><span /><span /><span /><span /><span /><span /><span /></div>
+          <div className="outcome-bottom"><div><strong>−2 weeks</strong><span>Release cycle time</span></div><div><strong>5 teams</strong><span>Cross-functional reach</span></div><ArrowUpRight size={32} weight="light" /></div>
         </div>
       </section>
 
+      <FeaturedProducts navigate={navigate} />
+
       <section className="about-section section-shell" id="about">
-        <SectionHeading eyebrow="01 — About" title="Leadership that connects strategy to release" intro="I align quality, product, engineering, and operations so complex programs move with clarity—and measurable outcomes." />
+        <SectionHeading eyebrow="The perspective" title="The details matter. So does the bigger picture." intro="I align quality, product, engineering, and operations so complex programs move with clarity—and measurable outcomes." />
         <div className="about-grid">
           <p>I’ve evolved from hands-on QA into a cross-functional leader driving end-to-end execution for global clients across Banking, Healthcare, E-Commerce, Legal, and Energy.</p>
           <p>I embed AI quality, accessibility, risk-based thinking, and practical delivery systems directly into the product lifecycle—improving speed, cost, reliability, and team confidence.</p>
@@ -358,7 +351,7 @@ function CareerPage({ navigate }) {
       </section>
 
       <section className="experience-section section-shell" id="experience">
-        <SectionHeading eyebrow="02 — Experience" title="Where I’ve worked" intro="A career built around increasingly complex delivery, broader leadership, and stronger evidence." />
+        <SectionHeading eyebrow="03 / Experience" title="Built through experience." intro="A career built around increasingly complex delivery, broader leadership, and stronger evidence." />
         <div className="timeline">
           {experience.map((job) => (
             <article className="timeline-item" key={`${job.company}-${job.period}`}>
@@ -375,7 +368,7 @@ function CareerPage({ navigate }) {
       </section>
 
       <section className="capabilities-section section-shell" id="skills">
-        <SectionHeading eyebrow="03 — Capabilities" title="What I bring to the table" intro="A practical mix of quality engineering depth, program leadership, AI fluency, and inclusive design." />
+        <SectionHeading eyebrow="04 / Expertise" title="Depth across disciplines." intro="A practical mix of quality engineering depth, program leadership, AI fluency, and inclusive design." />
         <div className="capability-grid">
           {capabilityGroups.map((group, index) => (
             <article key={group.title}>
@@ -388,7 +381,7 @@ function CareerPage({ navigate }) {
       </section>
 
       <section className="impact-section section-shell" id="impact">
-        <SectionHeading eyebrow="04 — Evidence" title="Impact, measured" intro="Selected outcomes that show how strategy becomes better delivery performance." />
+        <SectionHeading eyebrow="The evidence" title="Progress you can measure." intro="Selected outcomes that show how strategy becomes better delivery performance." />
         <div className="impact-list">
           {impactStories.map((story, index) => (
             <article key={story.title}>
@@ -401,7 +394,7 @@ function CareerPage({ navigate }) {
       </section>
 
       <section className="recognition-section section-shell" id="recognition">
-        <SectionHeading eyebrow="05 — Recognition" title="Credentials &amp; honors" intro="Continuous learning, professional community, and recognition across quality, accessibility, innovation, and leadership." />
+        <SectionHeading eyebrow="Recognition" title="A commitment to the craft." intro="Continuous learning, professional community, and recognition across quality, accessibility, innovation, and leadership." />
         <div className="recognition-grid">
           <article><h3>Licenses &amp; certifications</h3><ul>{credentials.map((item) => <li key={item}><CheckCircle size={18} weight="fill" /><span>{item}</span></li>)}</ul></article>
           <article><h3>Honors &amp; awards</h3><ul>{honors.map((item) => <li key={item}><CheckCircle size={18} weight="fill" /><span>{item}</span></li>)}</ul></article>
@@ -414,12 +407,27 @@ function CareerPage({ navigate }) {
   );
 }
 
+function FeaturedProducts({ navigate }) {
+  const picks = ["hackcal", "picpress", "videokeph"].map((id) => applications.find((app) => app.id === id)).filter(Boolean);
+  return <section className="featured-products section-shell" id="ventures">
+    <div className="featured-heading"><div><p className="eyebrow">02 / From thinking to making</p><h2>Ideas made <em>useful.</em></h2></div><button className="text-link" onClick={() => navigate("applications")}>Explore all applications <ArrowUpRight size={18} /></button></div>
+    <div className="featured-grid">{picks.map((app, index) => <a className={`product-feature product-${app.id}`} key={app.id} href={app.href} target="_blank" rel="noreferrer">
+      <div className="product-illustration" aria-hidden="true">
+        <span className="product-type">{app.category} / 0{index + 1}</span>
+        {app.id === "hackcal" ? <div className="calendar-art"><div><span>HackCal</span><span>● ● ●</span></div><strong>Make your next<br />big idea happen.</strong><div className="calendar-week">{"MTWTFSS".split("").map((day,i)=><span key={i}>{day}<b className={i === 3 ? "selected" : ""}>{12+i}</b></span>)}</div><p><i /> Discover. Plan. Build.</p></div> : app.id === "picpress" ? <div className="paper-art"><div className="paper-back" /><div className="paper-front"><span>PicPress</span><div className="paper-photo"><span /></div><i /><i /><small>IMAGES → ONE PDF</small></div><span className="paper-plus">+</span></div> : <div className="music-art"><div className="vinyl"><span>V</span></div><strong>VideokePH</strong><p>Find your next song.</p><div className="sound-wave">{[16,25,42,29,52,38,23,45,33,18,28,14].map((h,i)=><i key={i} style={{height:h}} />)}</div></div>}
+      </div>
+      <div className="product-info"><span>{app.id === "picpress" ? "PicPress" : app.id === "videokeph" ? "VideokePH" : "HackCal"}</span><ArrowUpRight size={22} /></div>
+      <p>{app.id === "hackcal" ? "A clearer path from discovering a hackathon to showing up ready to build." : app.id === "picpress" ? "A simple, private way to turn a collection of images into one polished PDF." : "The Filipino karaoke songbook, reimagined for the way we sing today."}</p>
+    </a>)}</div>
+  </section>;
+}
+
 function ContactSection() {
   return (
     <section className="contact-section section-shell" id="contact">
-      <p className="eyebrow">06 — Contact</p>
+      <p className="eyebrow">05 / The next conversation</p>
       <div className="contact-grid">
-        <div><h2>Let’s build something that works—and keeps working.</h2><p>Open to product, program, quality-engineering, AI, and digital-transformation opportunities.</p></div>
+        <div><h2>Good things start with a conversation.</h2><p>Open to product, program, quality-engineering, AI, and digital-transformation opportunities.</p></div>
         <div className="contact-actions">
           <a href="mailto:pjomill@gmail.com"><EnvelopeSimple size={21} />pjomill@gmail.com<ArrowUpRight size={17} /></a>
           <a href="https://www.linkedin.com/in/millertperez/" target="_blank" rel="noreferrer"><LinkedinLogo size={21} />LinkedIn<ArrowUpRight size={17} /></a>
@@ -449,7 +457,7 @@ function ApplicationsPage() {
       <PageIntro eyebrow="Applications" title="Useful products, shipped" description="A collection of focused tools spanning wealth, energy, careers, learning, media, and everyday productivity." />
       <section className="catalog-section section-shell">
         <div className="filter-row" aria-label="Filter applications">
-          {categories.map((item) => <button key={item} className={category === item ? "active" : ""} type="button" onClick={() => setCategory(item)}>{item}</button>)}
+          {categories.map((item) => <button key={item} className={category === item ? "active" : ""} type="button" aria-pressed={category === item} onClick={() => setCategory(item)}>{item}</button>)}
         </div>
         <div className="app-grid">
           {visibleApps.map((app, index) => (
@@ -571,7 +579,7 @@ function FavoritesPage({ favorites, toggleFavorite, playing, playerIsPlaying, to
 function Footer({ navigate }) {
   return (
     <footer>
-      <div><span>© 2026 AJ Miller T. Perez</span><nav aria-label="Footer navigation">{navItems.map((item) => <button key={item.id} type="button" onClick={() => navigate(item.id)}>{item.label}</button>)}</nav><span>Built with React + Vite</span></div>
+      <div><span>© 2026 AJ Miller T. Perez</span><nav aria-label="Footer navigation">{navItems.map((item) => <button key={item.id} type="button" onClick={() => navigate(item.id)}>{item.label}</button>)}</nav><span>Thoughtful by design. Dependable by default.</span></div>
     </footer>
   );
 }
@@ -786,7 +794,8 @@ export function App() {
   return (
     <div className="app-shell">
       <Header {...{ page, theme, setTheme, dark, setDark, navigate, menuOpen, setMenuOpen }} />
-      <main>
+      <a className="skip-link" href="#main-content">Skip to content</a>
+      <main id="main-content" tabIndex={-1}>
         {page === "career" ? <CareerPage navigate={navigate} /> : null}
         {page === "applications" ? <ApplicationsPage /> : null}
         {page === "telegram" ? <TelegramPage /> : null}
