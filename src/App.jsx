@@ -266,7 +266,7 @@ function Header({ page, theme, setTheme, dark, setDark, navigate, menuOpen, setM
   );
 }
 
-function CareerPage({ navigate }) {
+function CareerPage() {
   const [caseOpen, setCaseOpen] = useState(false);
 
   function scrollTo(id) {
@@ -309,7 +309,7 @@ function CareerPage({ navigate }) {
           <div><strong>20<span>+</span></strong><p>QA engineers enabled</p></div>
         </div>
       </section>
-      <nav className="chapter-nav section-shell" aria-label="Career sections"><a href="#selected-impact"><span>01</span> Selected impact</a><a href="#ventures"><span>02</span> Products</a><a href="#experience"><span>03</span> Experience</a><a href="#skills"><span>04</span> Expertise</a><a href="#contact"><span>05</span> Connect</a></nav>
+      <nav className="chapter-nav section-shell" aria-label="Career sections"><a href="#selected-impact"><span>01</span> Selected impact</a><a href="#experience"><span>02</span> Experience</a><a href="#skills"><span>03</span> Expertise</a><a href="#contact"><span>04</span> Connect</a></nav>
 
       <section className="case-study section-shell" id="selected-impact">
         <div className="case-copy">
@@ -340,8 +340,6 @@ function CareerPage({ navigate }) {
         </div>
       </section>
 
-      <FeaturedProducts navigate={navigate} />
-
       <section className="about-section section-shell" id="about">
         <SectionHeading eyebrow="The perspective" title="The details matter. So does the bigger picture." intro="I align quality, product, engineering, and operations so complex programs move with clarity—and measurable outcomes." />
         <div className="about-grid">
@@ -351,7 +349,7 @@ function CareerPage({ navigate }) {
       </section>
 
       <section className="experience-section section-shell" id="experience">
-        <SectionHeading eyebrow="03 / Experience" title="Built through experience." intro="A career built around increasingly complex delivery, broader leadership, and stronger evidence." />
+        <SectionHeading eyebrow="02 / Experience" title="Built through experience." intro="A career built around increasingly complex delivery, broader leadership, and stronger evidence." />
         <div className="timeline">
           {experience.map((job) => (
             <article className="timeline-item" key={`${job.company}-${job.period}`}>
@@ -368,7 +366,7 @@ function CareerPage({ navigate }) {
       </section>
 
       <section className="capabilities-section section-shell" id="skills">
-        <SectionHeading eyebrow="04 / Expertise" title="Depth across disciplines." intro="A practical mix of quality engineering depth, program leadership, AI fluency, and inclusive design." />
+        <SectionHeading eyebrow="03 / Expertise" title="Depth across disciplines." intro="A practical mix of quality engineering depth, program leadership, AI fluency, and inclusive design." />
         <div className="capability-grid">
           {capabilityGroups.map((group, index) => (
             <article key={group.title}>
@@ -402,30 +400,15 @@ function CareerPage({ navigate }) {
         </div>
       </section>
 
-      <ContactSection navigate={navigate} />
+      <ContactSection />
     </>
   );
-}
-
-function FeaturedProducts({ navigate }) {
-  const picks = ["hackcal", "picpress", "videokeph"].map((id) => applications.find((app) => app.id === id)).filter(Boolean);
-  return <section className="featured-products section-shell" id="ventures">
-    <div className="featured-heading"><div><p className="eyebrow">02 / From thinking to making</p><h2>Ideas made <em>useful.</em></h2></div><button className="text-link" onClick={() => navigate("applications")}>Explore all applications <ArrowUpRight size={18} /></button></div>
-    <div className="featured-grid">{picks.map((app, index) => <a className={`product-feature product-${app.id}`} key={app.id} href={app.href} target="_blank" rel="noreferrer">
-      <div className="product-illustration" aria-hidden="true">
-        <span className="product-type">{app.category} / 0{index + 1}</span>
-        {app.id === "hackcal" ? <div className="calendar-art"><div><span>HackCal</span><span>● ● ●</span></div><strong>Make your next<br />big idea happen.</strong><div className="calendar-week">{"MTWTFSS".split("").map((day,i)=><span key={i}>{day}<b className={i === 3 ? "selected" : ""}>{12+i}</b></span>)}</div><p><i /> Discover. Plan. Build.</p></div> : app.id === "picpress" ? <div className="paper-art"><div className="paper-back" /><div className="paper-front"><span>PicPress</span><div className="paper-photo"><span /></div><i /><i /><small>IMAGES → ONE PDF</small></div><span className="paper-plus">+</span></div> : <div className="music-art"><div className="vinyl"><span>V</span></div><strong>VideokePH</strong><p>Find your next song.</p><div className="sound-wave">{[16,25,42,29,52,38,23,45,33,18,28,14].map((h,i)=><i key={i} style={{height:h}} />)}</div></div>}
-      </div>
-      <div className="product-info"><span>{app.id === "picpress" ? "PicPress" : app.id === "videokeph" ? "VideokePH" : "HackCal"}</span><ArrowUpRight size={22} /></div>
-      <p>{app.id === "hackcal" ? "A clearer path from discovering a hackathon to showing up ready to build." : app.id === "picpress" ? "A simple, private way to turn a collection of images into one polished PDF." : "The Filipino karaoke songbook, reimagined for the way we sing today."}</p>
-    </a>)}</div>
-  </section>;
 }
 
 function ContactSection() {
   return (
     <section className="contact-section section-shell" id="contact">
-      <p className="eyebrow">05 / The next conversation</p>
+      <p className="eyebrow">04 / The next conversation</p>
       <div className="contact-grid">
         <div><h2>Good things start with a conversation.</h2><p>Open to product, program, quality-engineering, AI, and digital-transformation opportunities.</p></div>
         <div className="contact-actions">
@@ -796,7 +779,7 @@ export function App() {
       <Header {...{ page, theme, setTheme, dark, setDark, navigate, menuOpen, setMenuOpen }} />
       <a className="skip-link" href="#main-content">Skip to content</a>
       <main id="main-content" tabIndex={-1}>
-        {page === "career" ? <CareerPage navigate={navigate} /> : null}
+        {page === "career" ? <CareerPage /> : null}
         {page === "applications" ? <ApplicationsPage /> : null}
         {page === "telegram" ? <TelegramPage /> : null}
         {page === "music" ? <MusicPage {...{ favorites, toggleFavorite, playing, playerIsPlaying, togglePlayback, loadingItemId, musicCatalog, catalogState, refreshMusic }} /> : null}

@@ -96,7 +96,8 @@ export const impactStories = [
 ];
 
 export const credentials = [
-  "Lean Six Sigma White Belt Certification",
+  "Design for Six Sigma Green Belt",
+  "Lean Six Sigma White Belt",
   "Lean Six Sigma Yellow Belt",
   "Salesforce Certified Associate",
   "CPACC — Certified Professional in Accessibility Core Competencies",
