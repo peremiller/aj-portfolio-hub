@@ -396,7 +396,7 @@ function CareerPage() {
         <div className="recognition-grid">
           <article><h3>Licenses &amp; certifications</h3><ul>{credentials.map((item) => <li key={item}><CheckCircle size={18} weight="fill" /><span>{item}</span></li>)}</ul></article>
           <article><h3>Honors &amp; awards</h3><ul>{honors.map((item) => <li key={item}><CheckCircle size={18} weight="fill" /><span>{item}</span></li>)}</ul></article>
-          <article className="education-card"><h3>Education &amp; memberships</h3><p><strong>New Era University</strong><br />B.S. Business Administration, Major in Marketing<br /><span>2007 — 2011</span></p><p><strong>Member</strong><br />Project Management Institute<br />Philippine Society for Quality</p></article>
+          <article className="education-card"><h3>Education &amp; memberships</h3><p><strong>New Era University</strong><br />B.S. Business Administration, Major in Marketing<br /><span>2007 — 2011</span></p><p><strong>Member</strong><br />Project Management Institute<br />Philippine Society for Quality<br />Toastmasters International</p></article>
         </div>
       </section>
 
