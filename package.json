@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/generate-public-catalog.mjs && vite",
-    "build": "node scripts/generate-public-catalog.mjs && vite build && node scripts/prepare-sites.mjs",
-    "preview": "vite preview"
+    "build": "node scripts/generate-public-catalog.mjs && vite build && node scripts/prepare-sites.mjs && node scripts/offline/build.mjs --dir dist/client --name \"Portfolio Hub\" --spa --limits \"Cloud music generation, remote playlists and streaming still require internet.\"",
+    "preview": "vite preview",
+    "test:offline": "node --test scripts/offline/offline.test.mjs scripts/offline/client.test.mjs"
   },
   "dependencies": {
     "@fontsource/dm-serif-display": "^5.3.0",
