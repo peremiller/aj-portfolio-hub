@@ -145,6 +145,8 @@ function SectionHeading({ eyebrow, title, intro, id }) {
 function Header({ page, theme, setTheme, dark, setDark, navigate, menuOpen, setMenuOpen }) {
   const [themeOpen, setThemeOpen] = useState(false);
   const themeRef = useRef(null);
+  const menuButtonRef = useRef(null);
+  const drawerRef = useRef(null);
   const logo = theme === "green" ? logoGreen : theme === "red" ? logoRed : logoDefault;
 
   useEffect(() => {
@@ -155,12 +157,36 @@ function Header({ page, theme, setTheme, dark, setDark, navigate, menuOpen, setM
     return () => window.removeEventListener("pointerdown", handleOutside);
   }, []);
 
+  function closeMenu({ restoreFocus = true } = {}) {
+    setMenuOpen(false);
+    if (restoreFocus) menuButtonRef.current?.focus();
+  }
+
   useEffect(() => {
     if (!menuOpen) return undefined;
 
     const previousOverflow = document.body.style.overflow;
+    const drawer = drawerRef.current;
+    const focusable = () => Array.from(drawer?.querySelectorAll("button:not([disabled]), a[href]") || []);
+    focusable()[0]?.focus();
+
     const handleKeyDown = (event) => {
-      if (event.key === "Escape") setMenuOpen(false);
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeMenu();
+      } else if (event.key === "Tab") {
+        const controls = focusable();
+        if (!controls.length) return;
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
     };
 
     document.body.style.overflow = "hidden";
@@ -176,7 +202,7 @@ function Header({ page, theme, setTheme, dark, setDark, navigate, menuOpen, setM
     <>
       <header className="site-header">
         <div className="header-inner">
-          <button className="mobile-menu-button icon-button" type="button" aria-label="Open menu" aria-expanded={menuOpen} aria-controls="mobile-navigation" onClick={() => setMenuOpen(true)}>
+          <button ref={menuButtonRef} className="mobile-menu-button icon-button" type="button" aria-label="Open menu" aria-expanded={menuOpen} aria-controls="mobile-navigation" onClick={() => setMenuOpen(true)}>
             <List size={22} weight="regular" />
           </button>
 
@@ -244,17 +270,17 @@ function Header({ page, theme, setTheme, dark, setDark, navigate, menuOpen, setM
         </div>
       </header>
 
-      <div className={`mobile-drawer-backdrop ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(false)} aria-hidden={!menuOpen} />
-      <aside id="mobile-navigation" className={`mobile-drawer ${menuOpen ? "open" : ""}`} aria-label="Menu" aria-hidden={!menuOpen} inert={!menuOpen}>
+      <div className={`mobile-drawer-backdrop ${menuOpen ? "open" : ""}`} onClick={() => closeMenu()} aria-hidden={!menuOpen} />
+      <aside ref={drawerRef} id="mobile-navigation" className={`mobile-drawer ${menuOpen ? "open" : ""}`} role="dialog" aria-modal={menuOpen ? true : undefined} aria-label="Menu" aria-hidden={!menuOpen} inert={!menuOpen}>
         <div className="drawer-header">
           <span>Navigate</span>
-          <button className="icon-button" type="button" aria-label="Close menu" onClick={() => setMenuOpen(false)}>
+          <button className="icon-button" type="button" aria-label="Close menu" onClick={() => closeMenu()}>
             <X size={21} />
           </button>
         </div>
         <nav aria-label="Mobile navigation">
           {navItems.map((item) => (
-            <button key={item.id} className={page === item.id ? "active" : ""} aria-current={page === item.id ? "page" : undefined} type="button" onClick={() => navigate(item.id)}>
+            <button key={item.id} className={page === item.id ? "active" : ""} aria-current={page === item.id ? "page" : undefined} type="button" onClick={() => { navigate(item.id); document.getElementById("main-content")?.focus(); }}>
               <span>{item.label}</span>
               <ArrowRight size={17} />
             </button>
@@ -776,8 +802,8 @@ export function App() {
 
   return (
     <div className="app-shell">
-      <Header {...{ page, theme, setTheme, dark, setDark, navigate, menuOpen, setMenuOpen }} />
       <a className="skip-link" href="#main-content">Skip to content</a>
+      <Header {...{ page, theme, setTheme, dark, setDark, navigate, menuOpen, setMenuOpen }} />
       <main id="main-content" tabIndex={-1}>
         {page === "career" ? <CareerPage /> : null}
         {page === "applications" ? <ApplicationsPage /> : null}
