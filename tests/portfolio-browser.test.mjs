@@ -17,7 +17,7 @@ try {
           route.fulfill({ status: 503, contentType: "application/json", body: '{"error":"Offline test"}' }));
         await page.addInitScript((isDark) => {
           localStorage.setItem("aj-dark-mode", JSON.stringify(isDark));
-          localStorage.setItem("aj-favorites", JSON.stringify(["preserve-existing-favorite"]));
+          if (localStorage.getItem("aj-favorites") === null) localStorage.setItem("aj-favorites", JSON.stringify(["preserve-existing-favorite"]));
         }, dark);
 
         try {
