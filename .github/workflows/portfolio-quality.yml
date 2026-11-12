@@ -1,0 +1,51 @@
+name: Portfolio UX, offline and routing quality
+on:
+  push:
+    branches: [master]
+    paths:
+      - "src/**"
+      - "scripts/**"
+      - "tests/portfolio-browser.test.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.mjs"
+      - ".github/workflows/portfolio-quality.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Validate existing offline behavior
+        run: npm run test:offline
+      - name: Build existing site and offline assets
+        run: npm run build
+      - name: Install ephemeral Chromium test runner
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.58.0
+          npx playwright install --with-deps chromium
+      - name: Test actual local Chromium UI and deep links
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run preview -- --host 127.0.0.1 --port 4173 --strictPort > /tmp/portfolio-preview.log 2>&1 &
+          server_pid=$!
+          trap 'kill "${server_pid}" 2>/dev/null || true' EXIT
+          ready=0
+          for n in $(seq 1 50); do
+            if curl --silent --fail --output /dev/null http://127.0.0.1:4173/applications; then ready=1; break; fi
+            sleep 1
+          done
+          if [ "${ready}" != "1" ]; then cat /tmp/portfolio-preview.log; exit 1; fi
+          node --test tests/portfolio-browser.test.mjs
