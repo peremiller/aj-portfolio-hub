@@ -84,6 +84,41 @@ try {
       await page.close();
     }
   });
+
+  await test("unreadable saved favorites are preserved instead of overwritten", async () => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    try {
+      await page.addInitScript(() => localStorage.setItem("aj-favorites", "{unreadable"));
+      await page.goto(`${base}/favorites`, { waitUntil: "networkidle" });
+      assert.match(await page.locator(".storage-warning").innerText(), /Original browser data is preserved/);
+      assert.equal(await page.evaluate(() => localStorage.getItem("aj-favorites")), "{unreadable");
+      await page.reload({ waitUntil: "networkidle" });
+      assert.equal(await page.evaluate(() => localStorage.getItem("aj-favorites")), "{unreadable");
+    } finally {
+      await context.close();
+    }
+  });
+
+  await test("failed browser storage saves show an accessible error", async () => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    try {
+      await page.addInitScript(() => {
+        const original = Storage.prototype.setItem;
+        Storage.prototype.setItem = function (key, value) {
+          if (key === "aj-favorites") throw new DOMException("Storage full", "QuotaExceededError");
+          return original.call(this, key, value);
+        };
+      });
+      await page.goto(`${base}/favorites`, { waitUntil: "networkidle" });
+      const notice = page.locator(".storage-warning");
+      assert.equal(await notice.getAttribute("role"), "alert");
+      assert.match(await notice.innerText(), /Changes could not be saved/);
+    } finally {
+      await context.close();
+    }
+  });
 } finally {
   await browser.close();
 }
