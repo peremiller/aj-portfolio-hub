@@ -89,8 +89,9 @@ try {
     const context = await browser.newContext();
     const page = await context.newPage();
     try {
-      await page.addInitScript(() => localStorage.setItem("aj-favorites", "{unreadable"));
       await page.goto(`${base}/favorites`, { waitUntil: "networkidle" });
+      await page.evaluate(() => localStorage.setItem("aj-favorites", "{unreadable"));
+      await page.reload({ waitUntil: "networkidle" });
       assert.match(await page.locator(".storage-warning").innerText(), /Original browser data is preserved/);
       assert.equal(await page.evaluate(() => localStorage.getItem("aj-favorites")), "{unreadable");
       await page.reload({ waitUntil: "networkidle" });
