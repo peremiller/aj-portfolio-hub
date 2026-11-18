@@ -110,24 +110,40 @@ function formatCatalogTime(value) {
 }
 
 function useStoredState(key, initialValue) {
-  const [value, setValue] = useState(() => {
+  // A malformed record must never be replaced with defaults on page load.
+  const [initial] = useState(() => {
     try {
-      const saved = window.localStorage.getItem(key);
-      return saved === null ? initialValue : JSON.parse(saved);
+      const raw = window.localStorage.getItem(key);
+      if (raw === null) return { value: initialValue, blocked: false };
+      const parsed = JSON.parse(raw);
+      const valid = key === "aj-favorites"
+        ? Array.isArray(parsed) && parsed.every((item) => typeof item === "string")
+        : key === "aj-dark-mode"
+          ? typeof parsed === "boolean"
+          : key === "aj-theme"
+            ? ["default", "green", "red"].includes(parsed)
+            : true;
+      return valid ? { value: parsed, blocked: false } : { value: initialValue, blocked: true };
     } catch {
-      return initialValue;
+      return { value: initialValue, blocked: true };
     }
   });
+  const [value, setValue] = useState(initial.value);
+  const [issue, setIssue] = useState(initial.blocked
+    ? "Saved preferences could not be read. Original browser data is preserved; changes will not save."
+    : "");
 
   useEffect(() => {
+    if (initial.blocked) return;
     try {
       window.localStorage.setItem(key, JSON.stringify(value));
+      setIssue("");
     } catch {
-      // Local storage can be unavailable in privacy-restricted contexts.
+      setIssue("Changes could not be saved to browser storage. Check available space or permissions.");
     }
-  }, [key, value]);
+  }, [key, value, initial.blocked]);
 
-  return [value, setValue];
+  return [value, setValue, issue];
 }
 
 function SectionHeading({ eyebrow, title, intro, id }) {
@@ -632,9 +648,9 @@ function MiniPlayer({ item, playerIsPlaying, togglePlayback, favorite, toggleFav
 
 export function App() {
   const [page, setPage] = useState(getRoute);
-  const [theme, setTheme] = useStoredState("aj-theme", "default");
-  const [dark, setDark] = useStoredState("aj-dark-mode", false);
-  const [favorites, setFavorites] = useStoredState("aj-favorites", []);
+  const [theme, setTheme, themeIssue] = useStoredState("aj-theme", "default");
+  const [dark, setDark, darkIssue] = useStoredState("aj-dark-mode", false);
+  const [favorites, setFavorites, favoritesIssue] = useStoredState("aj-favorites", []);
   const [playing, setPlaying] = useState(null);
   const [playerIsPlaying, setPlayerIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -795,6 +811,8 @@ export function App() {
     setAudioError("");
   }
 
+  const storageIssues = [...new Set([themeIssue, darkIssue, favoritesIssue].filter(Boolean))];
+
   const currentTrack = useMemo(
     () => playbackItem || musicCatalog.find((item) => item.id === playing) || null,
     [musicCatalog, playbackItem, playing],
@@ -805,6 +823,7 @@ export function App() {
       <a className="skip-link" href="#main-content">Skip to content</a>
       <Header {...{ page, theme, setTheme, dark, setDark, navigate, menuOpen, setMenuOpen }} />
       <main id="main-content" tabIndex={-1}>
+        {storageIssues.length ? <p role="alert" className="storage-warning" style={{ padding: "14px 24px", margin: 0, background: "var(--accent-soft)", color: "var(--ink)", borderBottom: "1px solid var(--line)" }}>{storageIssues.join(" ")}</p> : null}
         {page === "career" ? <CareerPage /> : null}
         {page === "applications" ? <ApplicationsPage /> : null}
         {page === "telegram" ? <TelegramPage /> : null}
