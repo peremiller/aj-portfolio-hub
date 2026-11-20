@@ -10,6 +10,8 @@ on:
       - "package-lock.json"
       - "vite.config.mjs"
       - ".github/workflows/portfolio-quality.yml"
+  pull_request:
+    branches: [master]
   workflow_dispatch:
 
 permissions:

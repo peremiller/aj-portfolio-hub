@@ -72,6 +72,55 @@ try {
     }
   }
 
+  for (const width of [390, 1280]) {
+    await test(`theme menu ${width}px: keyboard arrows, Escape, selection and saved preference`, async () => {
+      const context = await browser.newContext({ viewport: { width, height: 850 } });
+      const page = await context.newPage();
+      try {
+        await page.goto(`${base}/applications`, { waitUntil: "networkidle" });
+        const opener = page.getByRole("button", { name: "Choose color theme" });
+        await opener.click();
+        const menu = page.getByRole("menu", { name: "Color theme" });
+        assert.equal(await menu.isVisible(), true);
+        assert.equal(await opener.getAttribute("aria-expanded"), "true");
+        assert.equal(await page.evaluate(() => document.activeElement?.getAttribute("aria-checked")), "true",
+          "selected radio must receive focus on opening");
+
+        await page.keyboard.press("End");
+        assert.match(await page.evaluate(() => document.activeElement?.innerText), /Red/);
+        await page.keyboard.press("Home");
+        assert.match(await page.evaluate(() => document.activeElement?.innerText), /Default/);
+        await page.keyboard.press("Escape");
+        assert.equal(await opener.getAttribute("aria-expanded"), "false");
+        assert.equal(await opener.evaluate((el) => document.activeElement === el), true,
+          "Escape returns focus to theme opener");
+        assert.equal(await page.evaluate(() => localStorage.getItem("aj-theme")), '"default"');
+
+        await opener.click();
+        await page.keyboard.press("ArrowDown");
+        assert.match(await page.evaluate(() => document.activeElement?.innerText), /Green/);
+        await page.keyboard.press("Enter");
+        assert.equal(await page.locator("html").getAttribute("data-theme"), "green");
+        assert.equal(await opener.getAttribute("aria-expanded"), "false");
+        assert.equal(await opener.evaluate((el) => document.activeElement === el), true,
+          "choosing theme restores opener focus");
+        assert.equal(await page.evaluate(() => localStorage.getItem("aj-theme")), '"green"');
+        await page.reload({ waitUntil: "networkidle" });
+        assert.equal(await page.locator("html").getAttribute("data-theme"), "green",
+          "selected theme must survive reload");
+
+        await opener.click();
+        await page.keyboard.press("ArrowUp");
+        assert.match(await page.evaluate(() => document.activeElement?.innerText), /Default/);
+        await page.keyboard.press("Tab");
+        assert.equal(await opener.getAttribute("aria-expanded"), "false",
+          "Tab closes menu without trapping keyboard navigation");
+      } finally {
+        await context.close();
+      }
+    });
+  }
+
   await test("music API failure truthfully displays saved highlights", async () => {
     const page = await browser.newPage();
     try {
@@ -82,6 +131,42 @@ try {
       assert.equal(await page.locator(".catalog-sync").getAttribute("role"), "status");
     } finally {
       await page.close();
+    }
+  });
+
+  await test("unreadable saved favorites are preserved instead of overwritten", async () => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    try {
+      await page.goto(`${base}/favorites`, { waitUntil: "networkidle" });
+      await page.evaluate(() => localStorage.setItem("aj-favorites", "{unreadable"));
+      await page.reload({ waitUntil: "networkidle" });
+      assert.match(await page.locator(".storage-warning").innerText(), /Original browser data is preserved/);
+      assert.equal(await page.evaluate(() => localStorage.getItem("aj-favorites")), "{unreadable");
+      await page.reload({ waitUntil: "networkidle" });
+      assert.equal(await page.evaluate(() => localStorage.getItem("aj-favorites")), "{unreadable");
+    } finally {
+      await context.close();
+    }
+  });
+
+  await test("failed browser storage saves show an accessible error", async () => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    try {
+      await page.addInitScript(() => {
+        const original = Storage.prototype.setItem;
+        Storage.prototype.setItem = function (key, value) {
+          if (key === "aj-favorites") throw new DOMException("Storage full", "QuotaExceededError");
+          return original.call(this, key, value);
+        };
+      });
+      await page.goto(`${base}/favorites`, { waitUntil: "networkidle" });
+      const notice = page.locator(".storage-warning");
+      assert.equal(await notice.getAttribute("role"), "alert");
+      assert.match(await notice.innerText(), /Changes could not be saved/);
+    } finally {
+      await context.close();
     }
   });
 } finally {
