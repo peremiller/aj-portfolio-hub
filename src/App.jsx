@@ -161,6 +161,8 @@ function SectionHeading({ eyebrow, title, intro, id }) {
 function Header({ page, theme, setTheme, dark, setDark, navigate, menuOpen, setMenuOpen }) {
   const [themeOpen, setThemeOpen] = useState(false);
   const themeRef = useRef(null);
+  const themeButtonRef = useRef(null);
+  const themeMenuRef = useRef(null);
   const menuButtonRef = useRef(null);
   const drawerRef = useRef(null);
   const logo = theme === "green" ? logoGreen : theme === "red" ? logoRed : logoDefault;
@@ -172,6 +174,35 @@ function Header({ page, theme, setTheme, dark, setDark, navigate, menuOpen, setM
     window.addEventListener("pointerdown", handleOutside);
     return () => window.removeEventListener("pointerdown", handleOutside);
   }, []);
+
+  useEffect(() => {
+    if (!themeOpen) return;
+    const selected = themeMenuRef.current?.querySelector('[role="menuitemradio"][aria-checked="true"]');
+    (selected || themeMenuRef.current?.querySelector('[role="menuitemradio"]'))?.focus();
+  }, [themeOpen]);
+
+  function handleThemeMenuKeyDown(event) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setThemeOpen(false);
+      themeButtonRef.current?.focus();
+      return;
+    }
+    if (event.key === "Tab") {
+      setThemeOpen(false);
+      return;
+    }
+    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+    const options = Array.from(themeMenuRef.current?.querySelectorAll('[role="menuitemradio"]') || []);
+    if (!options.length) return;
+    event.preventDefault();
+    const current = options.indexOf(document.activeElement);
+    const next = event.key === "Home" ? 0
+      : event.key === "End" ? options.length - 1
+        : event.key === "ArrowDown" ? (current + 1) % options.length
+          : (current + options.length - 1) % options.length;
+    options[next].focus();
+  }
 
   function closeMenu({ restoreFocus = true } = {}) {
     setMenuOpen(false);
@@ -240,8 +271,10 @@ function Header({ page, theme, setTheme, dark, setDark, navigate, menuOpen, setM
             <div className="theme-control" ref={themeRef}>
               <button
                 className="icon-button"
+                ref={themeButtonRef}
                 type="button"
                 aria-label="Choose color theme"
+                aria-controls="portfolio-theme-menu"
                 aria-expanded={themeOpen}
                 onClick={() => setThemeOpen((open) => !open)}
               >
@@ -249,7 +282,7 @@ function Header({ page, theme, setTheme, dark, setDark, navigate, menuOpen, setM
                 <span className={`theme-indicator ${theme}`} aria-hidden="true" />
               </button>
               {themeOpen ? (
-                <div className="theme-menu" role="menu" aria-label="Color theme">
+                <div id="portfolio-theme-menu" ref={themeMenuRef} className="theme-menu" role="menu" aria-label="Color theme" onKeyDown={handleThemeMenuKeyDown}>
                   {[
                     ["default", "Default"],
                     ["green", "Green"],
@@ -259,11 +292,13 @@ function Header({ page, theme, setTheme, dark, setDark, navigate, menuOpen, setM
                       key={value}
                       role="menuitemradio"
                       aria-checked={theme === value}
+                      tabIndex={theme === value ? 0 : -1}
                       className={theme === value ? "selected" : ""}
                       type="button"
                       onClick={() => {
                         setTheme(value);
                         setThemeOpen(false);
+                        themeButtonRef.current?.focus();
                       }}
                     >
                       <span className={`theme-swatch ${value}`} aria-hidden="true" />
