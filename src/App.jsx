@@ -136,7 +136,11 @@ function useStoredState(key, initialValue) {
   useEffect(() => {
     if (initial.blocked) return;
     try {
-      window.localStorage.setItem(key, JSON.stringify(value));
+      const serialized = JSON.stringify(value);
+      window.localStorage.setItem(key, serialized);
+      if (window.localStorage.getItem(key) !== serialized) {
+        throw new Error("Browser storage did not retain the saved value");
+      }
       setIssue("");
     } catch {
       setIssue("Changes could not be saved to browser storage. Check available space or permissions.");
