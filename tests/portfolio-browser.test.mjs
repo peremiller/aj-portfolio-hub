@@ -150,6 +150,27 @@ try {
     }
   });
 
+  await test("silently rejected browser storage writes show an accessible error", async () => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    try {
+      await page.addInitScript(() => {
+        const original = Storage.prototype.setItem;
+        Storage.prototype.setItem = function (key, value) {
+          if (key === "aj-favorites") return;
+          return original.call(this, key, value);
+        };
+      });
+      await page.goto(`${base}/favorites`, { waitUntil: "networkidle" });
+      const notice = page.locator(".storage-warning");
+      assert.equal(await notice.getAttribute("role"), "alert");
+      assert.match(await notice.innerText(), /Changes could not be saved/);
+      assert.equal(await page.evaluate(() => localStorage.getItem("aj-favorites")), null);
+    } finally {
+      await context.close();
+    }
+  });
+
   await test("failed browser storage saves show an accessible error", async () => {
     const context = await browser.newContext();
     const page = await context.newPage();
